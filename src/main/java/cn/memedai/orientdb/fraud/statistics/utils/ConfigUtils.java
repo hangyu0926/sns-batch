@@ -1,68 +1,83 @@
 package cn.memedai.orientdb.fraud.statistics.utils;
 
-import org.apache.commons.lang.StringUtils;
+import cn.memedai.orientdb.fraud.statistics.ConstantHelper;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Properties;
 
-/**
- * Created by kisho on 2017/4/6.
- */
 public final class ConfigUtils {
 
-    private static final Properties PROP = new Properties();
+    /**
+     * 日志记录器
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(ConfigUtils.class);
+
+    /**
+     * 配置
+     */
+    private static PropertiesConfiguration PROP = new PropertiesConfiguration();
 
     static {
+        PROP.setEncoding("utf-8");
+        PROP.setFileName(ConstantHelper.BUSINESS_CONF_PROPS);
         try {
-            String configPath = System.getenv("config_path");
-            if (StringUtils.isBlank(configPath)) {
-                configPath = System.getProperty("config_path");
+            PROP.load();
+        } catch (Exception e) {
+            LOGGER.error("------ 加载业务配置文件出现异常 ------{}", e);
+            try {
+                PROP.load();
+            } catch (Exception e1) {
+                LOGGER.error("------ 第二次尝试加载业务配置文件出现异常 ------{}", e1);
             }
-            PROP.load(new FileInputStream(configPath));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
+    /**
+     *
+     * 功能描述: <br>
+     * 根据键来获取资源文件中的值
+     *
+     * @author Vic Ding
+     * @version [版本号, 2016年1月8日]
+     * @param key 键
+     * @return 值
+     */
     public static String getProperty(String key) {
-        return PROP.getProperty(key);
-    }
-
-    public static int getInt(String key) {
-        return Integer.parseInt(getProperty(key));
-    }
-
-    public static int getPhoneConsumerDoneCount() {
-        return getInt("phoneConsumerDoneCount");
-    }
-
-    public static int[] getIntArr(String key) {
-        String queueConfig = getProperty(key);
-        String[] strArr = queueConfig.split("\\|");
-        int[] intArr = new int[strArr.length];
-        for (int i = 0; i < strArr.length; i++) {
-            intArr[i] = Integer.parseInt(strArr[i]);
+        // 获取
+        String value = null;
+        if (PROP.containsKey(key)) {
+            value = PROP.getString(key);
+        } else {
+            LOGGER.error("------ 没有找到对应的配置信息，key:" + key + " ------");
         }
-        return intArr;
+
+        return value;
     }
 
-    public static String[] getStrArr(String key) {
-        return getProperty(key).split("\\|");
-    }
-
-
-    public static String getDefaultLimitCreatedDatetime() {
-        String limitCreatedDatetime = ConfigUtils.getProperty("defaultLimitCreatedDatetime");
-        if (StringUtils.isBlank(limitCreatedDatetime)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = new Date(Calendar.getInstance().getTimeInMillis() - 3600 * 24 * 1000);
-            limitCreatedDatetime = sdf.format(date) + " 00:00:00";
+    /**
+     *
+     * 功能描述: <br>
+     * 获取动态提示信息
+     *
+     * @author Vic Ding
+     * @version [版本号, 2016年1月8日]
+     * @param key 键
+     * @param args 动态参数
+     * @return 动态提示
+     */
+    public static String getArgs(String key, Object[] args) {
+        // 获取
+        String value = null;
+        if (PROP.containsKey(key)) {
+            value = PROP.getString(key);
+            // 填入参数
+            String.format(value, args);
+        } else {
+            LOGGER.error("------ 没有找到对应的配置信息，key:" + key + " ------");
         }
-        return limitCreatedDatetime;
+
+        return value;
     }
 
 }
