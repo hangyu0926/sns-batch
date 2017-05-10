@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="USER_HOME" value="/home/orientdb/logs"/>
+    <property name="LEVEL" value="DEBUG"/>
+    <property name="logFileNamePattern" value="${LOG_FILE_NAME}_%d{yyyy-MM-dd}"/>
+    <property name="logFileNamePattern2" value="${LOG_FILE_NAME}_%d{yyyy-MM-dd}_%i"/>
+    <property name="fileLayoutPattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread][%logger{25}]%-5level %msg%n"/>
+    <property name="consoleLayoutPattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread][%logger{25}]%-5level %msg%n"/>
+    <appender name="ROLLING"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${USER_HOME}/sys.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${USER_HOME}/sys_%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <timeBaseFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBaseFileNamingAndTriggeringPolicy>
+            <maxHistory>100</maxHistory>
+        </rollingPolicy>
+        <layout>
+            <pattern>${fileLayoutPattern}</pattern>
+        </layout>
+    </appender>
+
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout name="StandardFormat" class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${consoleLayoutPattern}</pattern>
+        </layout>
+    </appender>
+
+    <logger name="cn.memedai.orientdb.fraud" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING"/>
+    </logger>
+
+    <root level="${LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING"/>
+    </root>
+</configuration>
