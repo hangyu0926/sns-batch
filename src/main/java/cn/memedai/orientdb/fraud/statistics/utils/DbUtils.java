@@ -1,5 +1,6 @@
 package cn.memedai.orientdb.fraud.statistics.utils;
 
+import cn.memedai.orientdb.fraud.statistics.entity.IndexNameEnum;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,10 @@ public final class DbUtils {
 
     static {
         try {
-            Class.forName(ConfigUtils.getProperty("sourceDbDriver"));
-        } catch (ClassNotFoundException e) {
+            //Class.forName(ConfigUtils.getProperty("sourceDbDriver"));
+            Class.forName("com.mysql.jdbc.Driver");
 
+        } catch (ClassNotFoundException e) {
         }
 
     }
