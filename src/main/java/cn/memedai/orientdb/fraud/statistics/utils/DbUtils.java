@@ -19,6 +19,7 @@ public final class DbUtils {
         try {
             Class.forName(ConfigUtils.getProperty("sourceDbDriver"));
         } catch (ClassNotFoundException e) {
+
         }
 
     }
