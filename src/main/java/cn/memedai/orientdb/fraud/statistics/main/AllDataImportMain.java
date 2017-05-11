@@ -163,11 +163,12 @@ public class AllDataImportMain {
         try {
             int startIndex = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainStartIndex"));
             int allNum = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"));
+            int limitNum =  Integer.parseInt(ConfigUtils.getProperty("allDataImportMainOpenThreadExportNum"));
             for (int i = startIndex; i < allNum; i++) {
                 ArrayList<Integer> memberIds = new ArrayList<Integer>();
                 try {
-                    pstmt = conn.prepareStatement("select memberId as memberId from member where out('HasPhone').size() > 0  skip ? limit " + ConfigUtils.getProperty("allDataImportMainOpenThreadExportNum"));
-                    pstmt.setInt(1, i * allNum + 1);
+                    pstmt = conn.prepareStatement("select memberId as memberId from member where out('HasPhone').size() > 0  skip ? limit " + limitNum);
+                    pstmt.setInt(1, i * limitNum);
                     rs = pstmt.executeQuery();
 
                     while (rs.next()) {
