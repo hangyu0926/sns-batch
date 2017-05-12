@@ -186,7 +186,6 @@ public class SqlUtils {
 
                 map = setPhoneTagIndexDatas(rs, indexDatas, list, map);
 
-                LOGGER.info("查出一度联系人111");
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
                         "where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -317,7 +316,6 @@ public class SqlUtils {
 
                 map = setPhoneTagIndexDatas(rs, indexDatas, list, map);
 
-                LOGGER.info("查出一度联系人222");
                 //查找出一度联系人的电话号码
                 sql = " select orderInfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Order, as:orderInfo, " +
                         "where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -444,7 +442,6 @@ public class SqlUtils {
                 rs = getResultSet(conn, sql, applyNo);
                 setPhoneTagIndexDatas(rs, indexDatas, list, map);
 
-                LOGGER.info("查出一度联系人333");
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo,orderinfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
                         "where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo, class: Order}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -1047,19 +1044,15 @@ public class SqlUtils {
                 pstmt.executeUpdate();
             } else {
                 pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index");
-                pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
                 pstmt = mysqlConn.prepareStatement("delete FROM ip_index");
-                pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
                 pstmt = mysqlConn.prepareStatement("delete FROM device_index");
-                pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
                 pstmt = mysqlConn.prepareStatement("delete FROM member_index");
-                pstmt.setString(1, date);
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {
