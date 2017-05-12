@@ -2,17 +2,167 @@ package cn.memedai.orientdb.fraud.statistics.utils;
 
 import cn.memedai.orientdb.fraud.statistics.entity.IndexData;
 import cn.memedai.orientdb.fraud.statistics.entity.IndexNameEnum;
+import cn.memedai.orientdb.fraud.statistics.main.AddDataImportMain;
+import cn.memedai.orientdb.fraud.statistics.task.BasicDataBatchTask;
+import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by hangyu on 2017/5/10.
  */
 public class SqlUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlUtils.class);
 
+    public static void getApplyphonetag(List<String> applyNoList) {
+
+        Connection conn = (OrientJdbcConnection) OrientDbUtils.getConnection(ConfigUtils.getProperty("orientDbSourceUrl"),
+                ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
+        ;
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        List<String> applyNos = new ArrayList<String>();
+        try {
+            LOGGER.info("applyNoList size is " + applyNoList.size());
+            for (String applyNo : applyNoList) {
+                pstmt = conn.prepareStatement("select orderinfo.orderNo as orderNo from (MATCH{class:Apply,where: (applyNo = ?)}-ApplyHasOrder->{as:orderinfo,class:Order} return orderinfo)");
+                pstmt.setString(1, applyNo);
+                rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    //如果此申请单号有订单号则暂不跑，等订单传递来再进行跑批
+                } else {
+                    applyNos.add(applyNo);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != pstmt) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != rs) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (null != applyNos && applyNos.size() > 0) {
+            SqlUtils.getApplyphonetag(applyNos, conn, mysqlConn);
+        }
+
+        if (null != conn) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (null != mysqlConn) {
+            try {
+                mysqlConn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void getOrderphonetag(List<String> orderNoList) {
+        Connection conn = (OrientJdbcConnection) OrientDbUtils.getConnection(ConfigUtils.getProperty("orientDbSourceUrl"),
+                ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
+        ;
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        List applyNosHasOrders = new ArrayList<String>();
+        List orderNos = new ArrayList<String>();
+
+        try {
+            LOGGER.info("orderNoList size is " + orderNoList.size());
+            for (String orderNo : orderNoList) {
+                pstmt = conn.prepareStatement("select applyinfo.applyNo as applyNo from (MATCH{class:Order,where: (orderNo = ?)}<-ApplyHasOrder-{as:applyinfo,class:Apply} return applyinfo)");
+                pstmt.setString(1, orderNo);
+                rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    if (null != rs.getString("applyNo")) {
+                        applyNosHasOrders.add(rs.getString("applyNo"));
+                    }
+                } else {
+                    orderNos.add(orderNo);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != pstmt) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != rs) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+        if (null != orderNos && orderNos.size() > 0) {
+            SqlUtils.getOrderphonetag(orderNos, conn, mysqlConn);
+        }
+
+        if (null != applyNosHasOrders && applyNosHasOrders.size() > 0) {
+            SqlUtils.getApplyNosHasOrdersphonetag(applyNosHasOrders, conn, mysqlConn);
+        }
+
+
+        if (null != conn) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("AddDataImportMain getApplyphonetag   conn.close() end");
+        }
+        if (null != mysqlConn) {
+            try {
+                mysqlConn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("AddDataImportMain getApplyphonetag   mysqlConn.close() end");
+        }
+    }
 
     public static void getApplyphonetag(List<String> applyNos, Connection conn, Connection mysqlConn) {
         Map<String, List<IndexData>> resultMap = new HashMap<String, List<IndexData>>();
@@ -23,6 +173,7 @@ public class SqlUtils {
         String sql = "";
         for (int i = 0; i < applyNos.size(); i++) {
             String applyNo = applyNos.get(i);
+            LOGGER.info("applyNo is" + applyNo);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -35,6 +186,7 @@ public class SqlUtils {
 
                 map = setPhoneTagIndexDatas(rs, indexDatas, list, map);
 
+                LOGGER.info("查出一度联系人111");
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
                         "where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -152,6 +304,7 @@ public class SqlUtils {
         String sql = "";
         for (int i = 0; i < orderNos.size(); i++) {
             String orderNo = orderNos.get(i);
+            LOGGER.info("orderNo is" + orderNo);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -164,6 +317,7 @@ public class SqlUtils {
 
                 map = setPhoneTagIndexDatas(rs, indexDatas, list, map);
 
+                LOGGER.info("查出一度联系人222");
                 //查找出一度联系人的电话号码
                 sql = " select orderInfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Order, as:orderInfo, " +
                         "where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -277,6 +431,7 @@ public class SqlUtils {
         int applyNosHasOrdersSize = applyNosHasOrders.size();
         for (int i = 0; i < applyNosHasOrdersSize; i++) {
             String applyNo = applyNosHasOrders.get(i);
+            LOGGER.info("applyNosHasOrders is" + applyNo);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -288,6 +443,8 @@ public class SqlUtils {
                         " applyInfo,orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark) group by memberHasPhoneCalltoPhoneMark.mark order by count desc";
                 rs = getResultSet(conn, sql, applyNo);
                 setPhoneTagIndexDatas(rs, indexDatas, list, map);
+
+                LOGGER.info("查出一度联系人333");
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo,orderinfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
                         "where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo, class: Order}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
@@ -523,6 +680,8 @@ public class SqlUtils {
                         indexData.setOrderNo(rs.getString("orderNo"));
                     }
                     indexData.setDirect(rs.getInt("direct"));
+                    //LOGGER.info("mark的值"+rs.getString("mark").toString());
+                    //LOGGER.info("转换后mark的值："+IndexNameEnum.fromValue(rs.getString("mark").toString()));
                     indexData.setIndexName(IndexNameEnum.fromValue(rs.getString("mark").toString()));
 
                     memberIndexDatas.add(indexData);
@@ -724,5 +883,189 @@ public class SqlUtils {
             }
         }
 
+    }
+
+    public static void queryBasicData(String date) {
+        boolean isAllDataQueryFlag = true;
+        if (!StringUtils.isBlank(date)) {
+            isAllDataQueryFlag = false;
+        }
+
+        if (!delBasicData(date)) {
+            LOGGER.error("delBasicData is fail");
+            return;
+        }
+
+        Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
+
+        ExecutorService es = new ThreadPoolExecutor(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"))
+                , Integer.parseInt(ConfigUtils.getProperty("allDataImportMainMaximumPoolSize")),
+                Long.parseLong(ConfigUtils.getProperty("allDataImportMainKeepAliveTime")), TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainQueueLength"))));
+
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int applyCount = 0;
+        int orderCount = 0;
+        try {
+            //查询总数
+            if (!isAllDataQueryFlag) {
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM apply_info where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+            } else {
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM apply_info");
+            }
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                applyCount = rs.getInt("total");
+            }
+
+            //查询总数
+            if (!isAllDataQueryFlag) {
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM money_box_order where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+            } else {
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM money_box_order");
+            }
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                orderCount = rs.getInt("total");
+            }
+
+            int startIndex = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainStartIndex"));
+            int allNum = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"));
+            int applimitNum = (applyCount % allNum == 0) ? applyCount / allNum : (applyCount / allNum + 1);
+            int orderlimitNum = (orderCount % allNum == 0) ? orderCount / allNum : (orderCount / allNum + 1);
+            for (int i = startIndex; i < allNum; i++) {
+                List<String> applyNos = new ArrayList<String>();
+                List<String> orderNos = new ArrayList<String>();
+                if (!isAllDataQueryFlag) {
+                    pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no FROM apply_info where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? order by id limit ?,?");
+                    pstmt.setString(1, date);
+                    pstmt.setInt(2, i * applimitNum);
+                    pstmt.setInt(3, applimitNum);
+                } else {
+                    pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no FROM apply_info order by id limit ?,?");
+                    pstmt.setInt(1, i * applimitNum);
+                    pstmt.setInt(2, applimitNum);
+                }
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    applyNos.add(rs.getString("apply_no"));
+                }
+                if (!isAllDataQueryFlag) {
+                    pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no FROM money_box_order where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? order by id limit ?,?");
+                    pstmt.setString(1, date);
+                    pstmt.setInt(2, i * orderlimitNum);
+                    pstmt.setInt(3, orderlimitNum);
+                } else {
+                    pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no FROM money_box_order order by id limit ?,?");
+                    pstmt.setInt(1, i * orderlimitNum);
+                    pstmt.setInt(2, orderlimitNum);
+                }
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    orderNos.add(rs.getString("order_no"));
+                }
+
+                BasicDataBatchTask basicDataBatchTask = new BasicDataBatchTask();
+                basicDataBatchTask.setApplyNos(applyNos);
+                basicDataBatchTask.setOrderNos(orderNos);
+                es.submit(basicDataBatchTask);
+                applyNos.clear();
+                orderNos.clear();
+            }
+            LOGGER.info("已经开启所有的子线程");
+            es.shutdown();
+            LOGGER.info("shutdown()：启动一次顺序关闭，执行以前提交的任务，但不接受新任务。");
+            while (true) {
+                if (es.isTerminated()) {
+                    LOGGER.info("所有的子线程都结束了！");
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != pstmt) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != rs) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static boolean delBasicData(String date) {
+        boolean isAllDataQueryFlag = false;
+
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+        if (StringUtils.isBlank(date)) {
+            isAllDataQueryFlag = true;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");//小写的mm表示的是分钟
+            try {
+                Date dateFormat = sdf.parse(date);
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(dateFormat);
+                calendar.add(calendar.DATE, 1);//把日期往后增加一天.整数往后推,负数往前移动
+                dateFormat = calendar.getTime();
+                date = sdf.format(dateFormat);
+            } catch (Exception e) {
+                LOGGER.error("date convert fail e is {}" + e);
+                return false;
+            }
+        }
+
+        PreparedStatement pstmt = null;
+        try {
+            if (!isAllDataQueryFlag) {
+                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ?");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+            } else {
+                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index");
+                pstmt.setString(1, date);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
