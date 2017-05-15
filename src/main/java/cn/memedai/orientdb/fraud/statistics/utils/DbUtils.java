@@ -18,7 +18,6 @@ public final class DbUtils {
 
     static {
         try {
-            //Class.forName(ConfigUtils.getProperty("sourceDbDriver"));
             Class.forName("com.mysql.jdbc.Driver");
 
         } catch (ClassNotFoundException e) {
