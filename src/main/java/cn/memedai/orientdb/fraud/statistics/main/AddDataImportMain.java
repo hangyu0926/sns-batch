@@ -31,9 +31,14 @@ public class AddDataImportMain {
         if (null != args && args.length > 0){
             String dateIn = args[0];
             date = dateIn.replaceAll("\r|\n", "");
+
+            if (StringUtils.isBlank(date)){
+                date = DateUtils.getStartDatetime(date,1);
+            }
         }else{
             date = DateUtils.getStartDatetime(date,1);
         }
+
 
         SqlUtils.queryBasicData(date);
     }

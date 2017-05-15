@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +39,6 @@ public class SqlUtils {
 
         List<String> applyNos = new ArrayList<String>();
         try {
-            LOGGER.info("applyNoList size is " + applyNoList.size());
             for (String applyNo : applyNoList) {
                 pstmt = conn.prepareStatement("select orderinfo.orderNo as orderNo from (MATCH{class:Apply,where: (applyNo = ?)}-ApplyHasOrder->{as:orderinfo,class:Order} return orderinfo)");
                 pstmt.setString(1, applyNo);
@@ -104,7 +102,6 @@ public class SqlUtils {
         List orderNos = new ArrayList<String>();
 
         try {
-            LOGGER.info("orderNoList size is " + orderNoList.size());
             for (String orderNo : orderNoList) {
                 pstmt = conn.prepareStatement("select applyinfo.applyNo as applyNo from (MATCH{class:Order,where: (orderNo = ?)}<-ApplyHasOrder-{as:applyinfo,class:Apply} return applyinfo)");
                 pstmt.setString(1, orderNo);
@@ -171,9 +168,11 @@ public class SqlUtils {
         List<IndexData> ipIndexDatas = new ArrayList<IndexData>();
         List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
         String sql = "";
-        for (int i = 0; i < applyNos.size(); i++) {
+        int applyNosSize = applyNos.size();
+        LOGGER.info("getApplyphonetag applyNosSize is " + applyNosSize);
+        for (int i = 0; i < applyNosSize; i++) {
             String applyNo = applyNos.get(i);
-            LOGGER.info("applyNo is" + applyNo);
+            LOGGER.info("applyNo is" + applyNo + "i is" + i);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -192,6 +191,8 @@ public class SqlUtils {
                         "RETURN  applyInfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 rs = getResultSet(conn, sql, applyNo);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
+
+                LOGGER.info("applyNo direct end " + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -203,15 +204,26 @@ public class SqlUtils {
                     e.printStackTrace();
                 }
             }
-            list = null;
-            map = null;
+
+            if (list != null) {
+                list.clear();
+                list = null;
+            }
+
+            if (map != null) {
+                map.clear();
+                map = null;
+            }
+        }
+        LOGGER.info("getApplyphonetag insert start");
+        insertPhonetagIndex(indexDatas, mysqlConn);
+        if (indexDatas != null) {
+            indexDatas.clear();
+            indexDatas = null;
         }
 
-        insertPhonetagIndex(indexDatas, mysqlConn);
-        indexDatas.clear();
-        indexDatas = null;
-
-        for (int i = 0; i < applyNos.size(); i++) {
+        int applyNosNum = applyNos.size();
+        for (int i = 0; i < applyNosNum; i++) {
             String applyNo = applyNos.get(i);
             ResultSet rs = null;
             try {
@@ -288,10 +300,20 @@ public class SqlUtils {
         insertDeviceAndIpIndex(deviceIndexDatas, ipIndexDatas, mysqlConn);
         insertMemberIndex(memberIndexDatas, mysqlConn);
 
-        deviceIndexDatas.clear();
-        deviceIndexDatas = null;
-        memberIndexDatas.clear();
-        memberIndexDatas = null;
+        if (deviceIndexDatas != null) {
+            deviceIndexDatas.clear();
+            deviceIndexDatas = null;
+        }
+
+        if (memberIndexDatas != null) {
+            memberIndexDatas.clear();
+            memberIndexDatas = null;
+        }
+
+        if (ipIndexDatas != null) {
+            ipIndexDatas.clear();
+            ipIndexDatas = null;
+        }
     }
 
     public static void getOrderphonetag(List<String> orderNos, Connection conn, Connection mysqlConn) {
@@ -301,9 +323,11 @@ public class SqlUtils {
         List<IndexData> ipIndexDatas = new ArrayList<IndexData>();
         List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
         String sql = "";
-        for (int i = 0; i < orderNos.size(); i++) {
+        int orderNosNum = orderNos.size();
+        LOGGER.info("getOrderphonetag  orderNosNum is" + orderNosNum);
+        for (int i = 0; i < orderNosNum; i++) {
             String orderNo = orderNos.get(i);
-            LOGGER.info("orderNo is" + orderNo);
+            LOGGER.info("orderNo is" + orderNo + "i is" + i);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -322,6 +346,8 @@ public class SqlUtils {
                         "RETURN  orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 rs = getResultSet(conn, sql, orderNo);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
+
+                LOGGER.info("orderNo direct end " + orderNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -334,15 +360,25 @@ public class SqlUtils {
                 }
             }
 
-            list = null;
-            map = null;
+            if (list != null) {
+                list.clear();
+                list = null;
+            }
+
+            if (map != null) {
+                map.clear();
+                map = null;
+            }
+        }
+        LOGGER.info("getOrderphonetag insertPhonetagIndex start");
+        insertPhonetagIndex(indexDatas, mysqlConn);
+        if (indexDatas != null) {
+            indexDatas.clear();
+            indexDatas = null;
         }
 
-        insertPhonetagIndex(indexDatas, mysqlConn);
-        indexDatas.clear();
-        indexDatas = null;
-
-        for (int i = 0; i < orderNos.size(); i++) {
+        int orderNoNum = orderNos.size();
+        for (int i = 0; i < orderNoNum; i++) {
             String orderNo = orderNos.get(i);
             ResultSet rs = null;
             try {
@@ -414,10 +450,20 @@ public class SqlUtils {
         }
         insertDeviceAndIpIndex(deviceIndexDatas, ipIndexDatas, mysqlConn);
         insertMemberIndex(memberIndexDatas, mysqlConn);
-        deviceIndexDatas.clear();
-        deviceIndexDatas = null;
-        memberIndexDatas.clear();
-        memberIndexDatas = null;
+        if (deviceIndexDatas != null) {
+            deviceIndexDatas.clear();
+            deviceIndexDatas = null;
+        }
+
+        if (memberIndexDatas != null) {
+            memberIndexDatas.clear();
+            memberIndexDatas = null;
+        }
+
+        if (ipIndexDatas != null) {
+            ipIndexDatas.clear();
+            ipIndexDatas = null;
+        }
     }
 
     public static void getApplyNosHasOrdersphonetag(List<String> applyNosHasOrders, Connection conn, Connection mysqlConn) {
@@ -427,9 +473,10 @@ public class SqlUtils {
         List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
         String sql = "";
         int applyNosHasOrdersSize = applyNosHasOrders.size();
+        LOGGER.info("applyNosHasOrdersSize is " + applyNosHasOrdersSize);
         for (int i = 0; i < applyNosHasOrdersSize; i++) {
             String applyNo = applyNosHasOrders.get(i);
-            LOGGER.info("applyNosHasOrders is" + applyNo);
+            LOGGER.info("applyNosHasOrders is" + applyNo + "i is" + i);
             ResultSet rs = null;
             //一度联系人电话标签
             List<String> list = new ArrayList<String>();
@@ -448,6 +495,8 @@ public class SqlUtils {
                         "RETURN  applyInfo,orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 rs = getResultSet(conn, sql, applyNo);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
+
+                LOGGER.info("applyNosHasOrders direct end " + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -459,15 +508,25 @@ public class SqlUtils {
                     e.printStackTrace();
                 }
             }
-
-            list = null;
-            map = null;
+            if (list != null) {
+                list.clear();
+                list = null;
+            }
+            if (map != null) {
+                map.clear();
+                map = null;
+            }
         }
 
-        insertPhonetagIndex(indexDatas, mysqlConn);
-        indexDatas = null;
+        LOGGER.info("applyNosHasOrders is finished");
 
-        for (int i = 0; i < applyNosHasOrders.size(); i++) {
+        insertPhonetagIndex(indexDatas, mysqlConn);
+        if (indexDatas != null) {
+            indexDatas.clear();
+            indexDatas = null;
+        }
+        int applyNosHasOrdersNum = applyNosHasOrders.size();
+        for (int i = 0; i < applyNosHasOrdersNum; i++) {
             String applyNo = applyNosHasOrders.get(i);
             ResultSet rs = null;
             try {
@@ -543,10 +602,20 @@ public class SqlUtils {
         }
         insertDeviceAndIpIndex(deviceIndexDatas, ipIndexDatas, mysqlConn);
         insertMemberIndex(memberIndexDatas, mysqlConn);
-        deviceIndexDatas.clear();
-        deviceIndexDatas = null;
-        memberIndexDatas.clear();
-        memberIndexDatas = null;
+        if (deviceIndexDatas != null) {
+            deviceIndexDatas.clear();
+            deviceIndexDatas = null;
+        }
+
+        if (memberIndexDatas != null) {
+            memberIndexDatas.clear();
+            memberIndexDatas = null;
+        }
+
+        if (ipIndexDatas != null) {
+            ipIndexDatas.clear();
+            ipIndexDatas = null;
+        }
     }
 
     private static ResultSet getResultSet(Connection conn, String sql, String applyNo) throws Exception {

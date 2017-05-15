@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="USER_HOME" value="/home/orientdb/logs"/>
+    <property name="USER_HOME" value="/home/orientdb/logs/basicData"/>
     <property name="LEVEL" value="DEBUG"/>
     <property name="logFileNamePattern" value="${LOG_FILE_NAME}_%d{yyyy-MM-dd}"/>
     <property name="logFileNamePattern2" value="${LOG_FILE_NAME}_%d{yyyy-MM-dd}_%i"/>
