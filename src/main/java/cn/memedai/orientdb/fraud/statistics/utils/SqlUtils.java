@@ -136,9 +136,7 @@ public class SqlUtils {
             }
         }
 
-        if (null != orderNos && orderNos.size() > 0)
-
-        {
+        if (null != orderNos && orderNos.size() > 0) {
             SqlUtils.getOrderphonetag(orderNos, conn, mysqlConn);
             if (orderNos != null) {
                 orderNos.clear();
@@ -146,9 +144,7 @@ public class SqlUtils {
             }
         }
 
-        if (null != applyNosHasOrders && applyNosHasOrders.size() > 0)
-
-        {
+        if (null != applyNosHasOrders && applyNosHasOrders.size() > 0) {
             SqlUtils.getApplyNosHasOrdersphonetag(applyNosHasOrders, conn, mysqlConn);
             if (applyNosHasOrders != null) {
                 applyNosHasOrders.clear();
@@ -156,34 +152,21 @@ public class SqlUtils {
             }
         }
 
-        try
-
-        {
+        try {
             if (null != conn) {
                 conn.close();
             }
-        } catch (
-                Exception e
-                )
-
-        {
+        } catch (Exception e) {
             LOGGER.error("getOrderphonetag applyNoList conn.close have e {}", e);
         }
 
-        try
-
-        {
+        try {
             if (null != mysqlConn) {
                 mysqlConn.close();
             }
-        } catch (
-                Exception e
-                )
-
-        {
+        } catch (Exception e) {
             LOGGER.error("getOrderphonetag applyNoList mysqlConn.close have e {}", e);
         }
-
     }
 
     public static void getApplyphonetag(List<String> applyNos, Connection conn, Connection mysqlConn) {
