@@ -1055,9 +1055,18 @@ public class SqlUtils {
                 pstmt = mysqlConn.prepareStatement("delete FROM member_index");
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.info("delBasicData mysqlConn.close have e {}", e);
             return false;
+        } finally {
+            try {
+                if (mysqlConn != null) {
+                    mysqlConn.close();
+                }
+            } catch (Exception e) {
+                LOGGER.info("delBasicData mysqlConn.close have e {}", e);
+            }
+
         }
         return true;
     }
