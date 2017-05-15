@@ -10,9 +10,9 @@
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread][%logger{25}]%-5level %msg%n"/>
     <appender name="ROLLING"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${USER_HOME}/sys.log</file>
+        <file>${USER_HOME}/basicBatch.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${USER_HOME}/sys_%d{yyyy-MM-dd}.log
+            <fileNamePattern>${USER_HOME}/basicBatch_%d{yyyy-MM-dd}.log
             </fileNamePattern>
             <timeBaseFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
