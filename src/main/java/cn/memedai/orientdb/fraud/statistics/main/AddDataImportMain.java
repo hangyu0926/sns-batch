@@ -26,20 +26,14 @@ public class AddDataImportMain {
 
     public static void main(String[] args) {
         //String dateIn="2017-05-12";
-
         String date = null;
-        try {
+
+        if (null != args && args.length > 0){
             String dateIn = args[0];
             date = dateIn.replaceAll("\r|\n", "");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            LOGGER.info("AddDataImportMain param date is blank, "+e);
+        }else{
             date = DateUtils.getStartDatetime(date,1);
         }
-
-       /* if(StringUtils.isBlank(date)){
-            LOGGER.error("input param date can not blank");
-            return;
-        }*/
 
         SqlUtils.queryBasicData(date);
     }
