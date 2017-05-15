@@ -713,6 +713,7 @@ public class SqlUtils {
             sql = " select memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Phone, as:memberHasPhone, " +
                     "where:(phone=?)}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
                     "RETURN  memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
+            pstmt = conn.prepareStatement(sql);
             rs1 = getResultSet(conn, sql, memberHasPhoneCalltoPhone, pstmt);
             while (rs1.next()) {
                 indirectMap.put(rs1.getString("memberHasPhoneCalltoPhone"), rs1.getString("mark"));
@@ -832,8 +833,6 @@ public class SqlUtils {
                         indexData.setOrderNo(rs.getString("orderNo"));
                     }
                     indexData.setDirect(rs.getInt("direct"));
-                    //LOGGER.info("mark的值"+rs.getString("mark").toString());
-                    //LOGGER.info("转换后mark的值："+IndexNameEnum.fromValue(rs.getString("mark").toString()));
                     indexData.setIndexName(IndexNameEnum.fromValue(rs.getString("mark").toString()));
 
                     memberIndexDatas.add(indexData);
