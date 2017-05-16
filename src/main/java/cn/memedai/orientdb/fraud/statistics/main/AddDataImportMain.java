@@ -25,8 +25,9 @@ public class AddDataImportMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddDataImportMain.class);
 
     public static void main(String[] args) {
-        //String dateIn="2017-05-12";
+        //String date="2017-05-14";
         String date = null;
+        LOGGER.info("AddDataImportMain ..............");
 
         if (null != args && args.length > 0){
             String dateIn = args[0];
