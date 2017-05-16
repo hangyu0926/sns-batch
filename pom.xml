@@ -207,18 +207,18 @@
         <profile>
             <id>pro</id>
             <properties>
-                <orientDbSourceUrl>jdbc:orient:remote:10.252.221.8/sns</orientDbSourceUrl>
-                <orientDbUserName>kisho</orientDbUserName>
-                <orientDbUserPassword>kisho123</orientDbUserPassword>
+                <orientDbSourceUrl></orientDbSourceUrl>
+                <orientDbUserName></orientDbUserName>
+                <orientDbUserPassword></orientDbUserPassword>
                 <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
                 <orientDb.pool.min>10</orientDb.pool.min>
                 <orientDb.pool.max>30</orientDb.pool.max>
-                <mysqlDbBusinessSourceUrl>jdbc:mysql://rm-bp1yxecdb3gj656cd.mysql.rds.aliyuncs.com:3306/wallet</mysqlDbBusinessSourceUrl>
-                <mysqlDbBusinessUserName>kishodai</mysqlDbBusinessUserName>
-                <mysqlDbBusinessUserPassword>ComM3416225611</mysqlDbBusinessUserPassword>
-                <mysqlDbSourceUrl>jdbc:mysql://rm-bp1yxecdb3gj656cd.mysql.rds.aliyuncs.com:3306/sns</mysqlDbSourceUrl>
-                <mysqlDbUserName>kishodai</mysqlDbUserName>
-                <mysqlDbUserPassword>ComM3416225611</mysqlDbUserPassword>
+                <mysqlDbBusinessSourceUrl></mysqlDbBusinessSourceUrl>
+                <mysqlDbBusinessUserName></mysqlDbBusinessUserName>
+                <mysqlDbBusinessUserPassword></mysqlDbBusinessUserPassword>
+                <mysqlDbSourceUrl></mysqlDbSourceUrl>
+                <mysqlDbUserName></mysqlDbUserName>
+                <mysqlDbUserPassword></mysqlDbUserPassword>
                 <allDataImportMainCorePoolSize>16</allDataImportMainCorePoolSize>
                 <allDataImportMainMaximumPoolSize>40</allDataImportMainMaximumPoolSize>
                 <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
