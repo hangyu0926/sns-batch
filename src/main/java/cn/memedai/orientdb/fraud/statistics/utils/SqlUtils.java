@@ -36,7 +36,7 @@ public class SqlUtils {
         List<String> applyNos = new ArrayList<String>();
         try {
             for (String applyNo : applyNoList) {
-                pstmt = conn.prepareStatement("select orderinfo.orderNo as orderNo from (MATCH{class:Apply,where: (applyNo = ?)}-ApplyHasOrder->{as:orderinfo,class:Order} return orderinfo)");
+                pstmt = conn.prepareStatement("select orderinfo.orderNo as orderNo from (MATCH{class:Apply,where: (applyNo = ?)}-ApplyHasOrder->{as:orderinfo} return orderinfo)");
                 pstmt.setString(1, applyNo);
                 rs = pstmt.executeQuery();
                 if (rs.next()) {
@@ -92,7 +92,7 @@ public class SqlUtils {
         List orderNos = new ArrayList<String>();
         try {
             for (String orderNo : orderNoList) {
-                pstmt = conn.prepareStatement("select applyinfo.applyNo as applyNo from (MATCH{class:Order,where: (orderNo = ?)}<-ApplyHasOrder-{as:applyinfo,class:Apply} return applyinfo)");
+                pstmt = conn.prepareStatement("select applyinfo.applyNo as applyNo from (MATCH{class:Order,where: (orderNo = ?)}<-ApplyHasOrder-{as:applyinfo} return applyinfo)");
                 pstmt.setString(1, orderNo);
                 rs = pstmt.executeQuery();
                 if (rs.next()) {
