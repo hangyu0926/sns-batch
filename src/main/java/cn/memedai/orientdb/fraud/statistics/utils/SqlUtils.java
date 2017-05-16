@@ -159,7 +159,6 @@ public class SqlUtils {
         LOGGER.info("getApplyphonetag applyNosSize is " + applyNosSize);
         for (int i = 0; i < applyNosSize; i++) {
             String applyNo = applyNos.get(i);
-            LOGGER.info("applyNo is" + applyNo + "i is" + i);
             ResultSet rs = null;
             PreparedStatement pstmt = null;
             //一度联系人电话标签
@@ -181,7 +180,6 @@ public class SqlUtils {
                 rs = getResultSet(applyNo, pstmt);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
 
-                LOGGER.info("applyNo direct end " + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -339,7 +337,6 @@ public class SqlUtils {
         LOGGER.info("getOrderphonetag  orderNosNum is" + orderNosNum);
         for (int i = 0; i < orderNosNum; i++) {
             String orderNo = orderNos.get(i);
-            LOGGER.info("orderNo is" + orderNo + "i is" + i);
             ResultSet rs = null;
             PreparedStatement pstmt = null;
             //一度联系人电话标签
@@ -361,7 +358,6 @@ public class SqlUtils {
                 rs = getResultSet(orderNo, pstmt);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
 
-                LOGGER.info("orderNo direct end " + orderNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -511,7 +507,6 @@ public class SqlUtils {
         LOGGER.info("applyNosHasOrdersSize is " + applyNosHasOrdersSize);
         for (int i = 0; i < applyNosHasOrdersSize; i++) {
             String applyNo = applyNosHasOrders.get(i);
-            LOGGER.info("applyNosHasOrders is" + applyNo + "i is" + i);
             ResultSet rs = null;
             PreparedStatement pstmt = null;
             //一度联系人电话标签
@@ -534,7 +529,6 @@ public class SqlUtils {
                 rs = getResultSet(applyNo, pstmt);
                 indexDatas = queryIndirect(conn, rs, indexDatas, list, (IndexData) map.get("firstIndexData"));
 
-                LOGGER.info("applyNosHasOrders direct end " + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
