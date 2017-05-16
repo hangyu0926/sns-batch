@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class SqlUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlUtils.class);
 
+
     public static void getApplyphonetag(List<String> applyNoList) {
         Connection conn = (OrientJdbcConnection) OrientDbUtils.getConnection(ConfigUtils.getProperty("orientDbSourceUrl"),
                 ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
@@ -176,7 +177,7 @@ public class SqlUtils {
         List<IndexData> ipIndexDatas = new ArrayList<IndexData>();
         List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
         String sql = "";
-        int applyNosSize = applyNos.size();
+       int applyNosSize = applyNos.size();
         LOGGER.info("getApplyphonetag applyNosSize is " + applyNosSize);
         for (int i = 0; i < applyNosSize; i++) {
             String applyNo = applyNos.get(i);
@@ -188,7 +189,7 @@ public class SqlUtils {
             Map<String, Object> map = new HashMap<String, Object>();
             try {
                 sql = "select count(memberHasPhoneCalltoPhone) as direct,applyInfo.applyNo as applyNo,member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
-                        "       where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
+                        "       where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
                         "       applyInfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark) group by memberHasPhoneCalltoPhoneMark.mark order by count desc";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
@@ -196,7 +197,7 @@ public class SqlUtils {
 
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
-                        "where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
+                        "where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
                         "RETURN  applyInfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
@@ -243,13 +244,14 @@ public class SqlUtils {
         int applyNosNum = applyNos.size();
         for (int i = 0; i < applyNosNum; i++) {
             String applyNo = applyNos.get(i);
+            LOGGER.info("getApplyphonetag 同设备 begin applyNo is" + applyNo + "i is" + i);
             ResultSet rs = null;
             PreparedStatement pstmt = null;
             try {
                 //同设备客户个数
                 sql = "select count(deviceMember) as direct,applyInfo.applyNo as applyNo,member.memberId as memberId,phone.phone as phone,device.deviceId as deviceId from " +
-                        "      (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}<-PhoneHasApply-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasDevice->{class: Device, as: device}" +
-                        "       <-MemberHasDevice-{as:deviceMember, class: Member} return applyInfo,phone,device,member,deviceMember)";
+                        "      (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}<-PhoneHasApply-{as:phone}<-HasPhone-{as: member}-MemberHasDevice->{as: device}" +
+                        "       <-MemberHasDevice-{as:deviceMember} return applyInfo,phone,device,member,deviceMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
 
@@ -257,22 +259,22 @@ public class SqlUtils {
 
                 //同IP客户个数
                 sql = "select count(ipMember) as direct,applyInfo.applyNo as applyNo,member.memberId as memberId,phone.phone as phone,ip.ip as ip from " +
-                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}<-PhoneHasApply-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasIp->{class: Ip, as: ip}" +
-                        "    <-MemberHasIp-{as:ipMember, class: Member} return applyInfo,phone,ip,member,ipMember)";
+                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}<-PhoneHasApply-{as:phone}<-HasPhone-{as: member}-MemberHasIp->{as: ip}" +
+                        "    <-MemberHasIp-{as:ipMember} return applyInfo,phone,ip,member,ipMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 ipIndexDatas = setMemberIndexDatas(rs, ipIndexDatas, "equal_ip_member_num");
 
                 //连接设备的个数
                 sql = "select count(device) as direct,applyInfo.applyNo as applyNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "     <-PhoneHasApply-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasDevice->{as:device,class:device}   return applyInfo,phone,member,device)";
+                        "     <-PhoneHasApply-{as:phone}<-HasPhone-{as:member}-MemberHasDevice->{as:device}   return applyInfo,phone,member,device)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_device_num");
 
                 //连接不同ip的个数
                 sql = "select count(ip) as direct,applyInfo.applyNo as applyNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)} " +
-                        "   <-PhoneHasApply-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasIp->{as:ip,class:ip}   return applyInfo,phone,member,ip)";
+                        "   <-PhoneHasApply-{as:phone}<-HasPhone-{as:member}-MemberHasIp->{as:ip}   return applyInfo,phone,member,ip)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
 
@@ -280,21 +282,21 @@ public class SqlUtils {
 
                 //连接不同商户个数
                 sql = "select count(storeinfo) as direct,applyInfo.applyNo as applyNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)} " +
-                        "      <-PhoneHasApply-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{class:apply}-ApplyHasStore->{as:storeinfo,class:store}   return applyInfo,phone,member,storeinfo)";
+                        "      <-PhoneHasApply-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{}-ApplyHasStore->{as:storeinfo}   return applyInfo,phone,member,storeinfo)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_merchant_num");
 
                 //连接不同申请件数
                 sql = "select count(applys) as direct,applyInfo.applyNo as applyNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "        <-PhoneHasApply-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{as:applys,class:apply}   return applyInfo,phone,member,applys)";
+                        "        <-PhoneHasApply-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{as:applys}   return applyInfo,phone,member,applys)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_appl_num");
 
                 //连接不同订单数
                 sql = "select count(orders) as direct,applyInfo.applyNo as applyNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "                    <-PhoneHasApply-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasOrder->{as:orders,class:order}   return applyInfo,phone,member,orders)";
+                        "                    <-PhoneHasApply-{as:phone}<-HasPhone-{as:member}-MemberHasOrder->{as:orders}   return applyInfo,phone,member,orders)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_order_num");
@@ -302,11 +304,13 @@ public class SqlUtils {
                 //联系过件客户个数
 
                 sql = "select applyInfo.applyNo as applyNo,member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as phone1,members.memberId as memberIds from (MATCH {class:Apply, as:applyInfo," +
-                        "     where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{class: Member, as: members} RETURN " +
+                        "     where:(applyNo=?)}<-PhoneHasApply-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{as: members} RETURN " +
                         "    applyInfo,member,memberHasPhone,memberHasPhoneCalltoPhone,members)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setOrderMemberIndexDatas(rs, memberIndexDatas, conn);
+
+                LOGGER.info("联系过件 end applyNo is" + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -328,6 +332,7 @@ public class SqlUtils {
             }
         }
 
+        LOGGER.info("getApplyphonetag insertDeviceAndIpIndex start");
         insertDeviceAndIpIndex(deviceIndexDatas, ipIndexDatas, mysqlConn);
         insertMemberIndex(memberIndexDatas, mysqlConn);
 
@@ -366,7 +371,7 @@ public class SqlUtils {
             Map<String, Object> map = new HashMap<String, Object>();
             try {
                 sql = "select count(memberHasPhoneCalltoPhone) as direct,orderInfo.orderNo as orderNo,member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Order, as:orderInfo," +
-                        "           where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
+                        "           where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
                         "            orderInfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark) group by memberHasPhoneCalltoPhoneMark.mark order by count desc";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
@@ -374,7 +379,7 @@ public class SqlUtils {
 
                 //查找出一度联系人的电话号码
                 sql = " select orderInfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Order, as:orderInfo, " +
-                        "where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
+                        "where:(orderNo=?)}<-PhoneHasOrder-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
                         "RETURN  orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
@@ -426,58 +431,58 @@ public class SqlUtils {
             try {
                 //同设备客户个数
                 sql = "select count(deviceMember) as direct,orderInfo.orderNo as orderNo,member.memberId as memberId,phone.phone as phone,device.deviceId as deviceId from " +
-                        "  (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}<-PhoneHasOrder-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasDevice->{class: Device, as: device}" +
-                        "   <-MemberHasDevice-{as:deviceMember, class: Member} return orderInfo,phone,device,member,deviceMember)";
+                        "  (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}<-PhoneHasOrder-{as:phone}<-HasPhone-{as: member}-MemberHasDevice->{as: device}" +
+                        "   <-MemberHasDevice-{as:deviceMember} return orderInfo,phone,device,member,deviceMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 deviceIndexDatas = setMemberIndexDatas(rs, deviceIndexDatas, "equal_device_member_num");
 
                 //同IP客户个数
                 sql = "select count(ipMember) as direct,orderInfo.orderNo as orderNo,member.memberId as memberId,phone.phone as phone,ip.ip as ip from " +
-                        "    (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}<-PhoneHasOrder-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasIp->{class: Ip, as: ip}" +
-                        "    <-MemberHasIp-{as:ipMember, class: Member} return orderInfo,phone,ip,member,ipMember)";
+                        "    (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}<-PhoneHasOrder-{as:phone}<-HasPhone-{as: member}-MemberHasIp->{as: ip}" +
+                        "    <-MemberHasIp-{as:ipMember} return orderInfo,phone,ip,member,ipMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 ipIndexDatas = setMemberIndexDatas(rs, ipIndexDatas, "equal_ip_member_num");
 
                 //连接设备的个数
                 sql = "select count(device) as direct,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}" +
-                        "   <-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasDevice->{as:device,class:device}   return orderInfo,phone,member,device)";
+                        "   <-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasDevice->{as:device}   return orderInfo,phone,member,device)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_device_num");
 
                 //连接不同ip的个数
                 sql = "select count(ip) as direct,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}" +
-                        "   <-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasIp->{as:ip,class:ip}   return orderInfo,phone,member,ip)";
+                        "   <-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasIp->{as:ip}   return orderInfo,phone,member,ip)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_ip_num");
 
                 //连接不同商户个数
                 sql = "select count(storeinfo) as direct,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}" +
-                        "       <-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{class:apply}-ApplyHasStore->{as:storeinfo,class:store}   return orderInfo,phone,member,storeinfo)";
+                        "       <-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{}-ApplyHasStore->{as:storeinfo}   return orderInfo,phone,member,storeinfo)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_merchant_num");
 
                 //连接不同申请件数
                 sql = "select count(applys) as direct,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}" +
-                        "   <-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{as:applys,class:apply}   return orderInfo,phone,member,applys)";
+                        "   <-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{as:applys}   return orderInfo,phone,member,applys)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_appl_num");
 
                 //连接不同订单数
                 sql = "select count(orders) as direct,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:Order, as:orderInfo,where: (orderNo = ?)}" +
-                        "  <-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasOrder->{as:orders,class:order}   return orderInfo,phone,member,orders)";
+                        "  <-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasOrder->{as:orders}   return orderInfo,phone,member,orders)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_order_num");
 
                 //联系过件客户个数
                 sql = "select orderInfo.orderNo as orderNo,member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as phone1,members.memberId as memberIds from (MATCH {class:Order, as:orderInfo,where: (orderNo = ?)} " +
-                        "   <-PhoneHasOrder-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{class: Member, as: members} RETURN " +
+                        "   <-PhoneHasOrder-{as:phone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{as: members} RETURN " +
                         "   orderInfo,member,memberHasPhone,memberHasPhoneCalltoPhone,members)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(orderNo, pstmt);
@@ -539,7 +544,7 @@ public class SqlUtils {
             try {
                 //一度
                 sql = "select count(memberHasPhoneCalltoPhone) as direct,applyInfo.applyNo as applyNo,orderinfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
-                        " where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo, class: Order}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
+                        " where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo}<-PhoneHasOrder-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} RETURN " +
                         " applyInfo,orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark) group by memberHasPhoneCalltoPhoneMark.mark order by count desc";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
@@ -547,7 +552,7 @@ public class SqlUtils {
 
                 //查找出一度联系人的电话号码
                 sql = " select applyInfo.applyNo as applyNo,orderinfo.orderNo as orderNo, member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as memberHasPhoneCalltoPhone ,memberHasPhoneCalltoPhoneMark.mark as mark from (MATCH {class:Apply, as:applyInfo, " +
-                        "where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo, class: Order}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
+                        "where:(applyNo=?)}-ApplyHasOrder->{as:orderinfo}<-PhoneHasOrder-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}-HasPhoneMark->{as:memberHasPhoneCalltoPhoneMark} " +
                         "RETURN  applyInfo,orderinfo,member,memberHasPhone,memberHasPhoneCalltoPhone, memberHasPhoneCalltoPhoneMark)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
@@ -593,67 +598,70 @@ public class SqlUtils {
         int applyNosHasOrdersNum = applyNosHasOrders.size();
         for (int i = 0; i < applyNosHasOrdersNum; i++) {
             String applyNo = applyNosHasOrders.get(i);
+            LOGGER.info("getApplyNosHasOrdersphonetag 同设备 begin applyNo is" + applyNo + "i is" + i);
             ResultSet rs = null;
             PreparedStatement pstmt = null;
             try {
                 //同设备客户个数
                 sql = "select count(deviceMember) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,member.memberId as memberId,phone.phone as phone,device.deviceId as deviceId from" +
-                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasDevice->{class: Device, as: device}" +
-                        "   <-MemberHasDevice-{as:deviceMember, class: Member} return applyInfo,orderInfo,phone,device,member,deviceMember)";
+                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as: member}-MemberHasDevice->{as: device}" +
+                        "   <-MemberHasDevice-{as:deviceMember} return applyInfo,orderInfo,phone,device,member,deviceMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 deviceIndexDatas = setMemberIndexDatas(rs, deviceIndexDatas, "equal_device_member_num");
 
                 //同IP客户个数
                 sql = "select count(ipMember) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,member.memberId as memberId,phone.phone as phone,ip.ip as ip from" +
-                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone, class: Phone}<-HasPhone-{class: Member, as: member}-MemberHasIp->{class: Ip, as: ip}" +
-                        "   <-MemberHasIp-{as:ipMember, class: Member} return applyInfo,orderInfo,phone,ip,member,ipMember)";
+                        "   (MATCH{class:Apply, as:applyInfo,where: (applyNo = ?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as: member}-MemberHasIp->{as: ip}" +
+                        "   <-MemberHasIp-{as:ipMember} return applyInfo,orderInfo,phone,ip,member,ipMember)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 ipIndexDatas = setMemberIndexDatas(rs, ipIndexDatas, "equal_ip_member_num");
 
                 //连接设备的个数
                 sql = "select count(device) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasDevice->{as:device,class:device}   return applyInfo,orderInfo,phone,member,device)";
+                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasDevice->{as:device}   return applyInfo,orderInfo,phone,member,device)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_device_num");
 
                 //连接不同ip的个数
                 sql = "select count(ip) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasIp->{as:ip,class:ip}   return applyInfo,orderInfo,phone,member,ip)";
+                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasIp->{as:ip}   return applyInfo,orderInfo,phone,member,ip)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_ip_num");
 
                 //连接不同商户个数
                 sql = "select count(storeinfo) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{class:apply}-ApplyHasStore->{as:storeinfo,class:store}   return applyInfo,orderInfo,phone,member,storeinfo)";
+                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{}-ApplyHasStore->{as:storeinfo}   return applyInfo,orderInfo,phone,member,storeinfo)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_merchant_num");
 
                 //连接不同申请件数
                 sql = "select count(applys) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasApply->{as:applys,class:apply}   return applyInfo,orderInfo,phone,member,applys)";
+                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasApply->{as:applys}   return applyInfo,orderInfo,phone,member,applys)";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_appl_num");
 
                 //连接不同订单数
                 sql = "select count(orders) as direct,applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,phone.phone as phone,member.memberId as memberId from (MATCH{class:apply, as:applyInfo,where: (applyNo = ?)}" +
-                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone,class:phone}<-HasPhone-{as:member,class:member}-MemberHasOrder->{as:orders,class:order}   return applyInfo,orderInfo,phone,member,orders) ";
+                        "-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:phone}<-HasPhone-{as:member}-MemberHasOrder->{as:orders}   return applyInfo,orderInfo,phone,member,orders) ";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setMemberIndexDatas(rs, memberIndexDatas, "has_order_num");
 
                 //联系过件和拒件客户个数
                 sql = "select applyInfo.applyNo as applyNo,orderInfo.orderNo as orderNo,member.memberId as memberId,memberHasPhone.phone as phone,memberHasPhoneCalltoPhone.phone as phone1,members.memberId as memberIds from (MATCH {class:Apply, as:applyInfo,\n" +
-                        "where:(applyNo=?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:applyPhone, class: Phone}<-HasPhone-{class: Member, as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{class: Member, as: members} RETURN \n" +
+                        "where:(applyNo=?)}-ApplyHasOrder->{as:orderInfo}<-PhoneHasOrder-{as:applyPhone}<-HasPhone-{as: member}-HasPhone->{as:memberHasPhone}-CallTo-{as:memberHasPhoneCalltoPhone}<-HasPhone-{as: members} RETURN \n" +
                         "applyInfo,orderInfo,member,memberHasPhone,memberHasPhoneCalltoPhone,members) ";
                 pstmt = conn.prepareStatement(sql);
                 rs = getResultSet(applyNo, pstmt);
                 memberIndexDatas = setOrderMemberIndexDatas(rs, memberIndexDatas, conn);
+
+                LOGGER.info("联系过件 end applyNo is" + applyNo + "i is" + i);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -674,6 +682,8 @@ public class SqlUtils {
                 }
             }
         }
+
+        LOGGER.info("getApplyNosHasOrdersphonetag insertDeviceAndIpIndex start");
         insertDeviceAndIpIndex(deviceIndexDatas, ipIndexDatas, mysqlConn);
         insertMemberIndex(memberIndexDatas, mysqlConn);
         if (deviceIndexDatas != null) {
