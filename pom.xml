@@ -57,6 +57,107 @@
             <artifactId>logback-core</artifactId>
             <version>1.2.3</version>
         </dependency>
-
     </dependencies>
+
+    <profiles>
+        <!-- 本地 -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>environment.type</name>
+                    <value>local</value>
+                </property>
+            </activation>
+            <properties>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbUserName>admin</orientDbUserName>
+                <orientDbUserPassword>admin</orientDbUserPassword>
+                <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
+                <orientDb.pool.min>10</orientDb.pool.min>
+                <orientDb.pool.max>30</orientDb.pool.max>
+                <mysqlDbBusinessSourceUrl>jdbc:mysql://115.29.177.124:3306/network</mysqlDbBusinessSourceUrl>
+                <mysqlDbBusinessUserName>kisho.dai</mysqlDbBusinessUserName>
+                <mysqlDbBusinessUserPassword>djK0OyeHP</mysqlDbBusinessUserPassword>
+                <mysqlDbSourceUrl>jdbc:mysql://99.48.70.150:3306/orientdB_test</mysqlDbSourceUrl>
+                <mysqlDbUserName>root</mysqlDbUserName>
+                <mysqlDbUserPassword>nanMI2016</mysqlDbUserPassword>
+                <allDataImportMainCorePoolSize>8</allDataImportMainCorePoolSize>
+                <allDataImportMainMaximumPoolSize>20</allDataImportMainMaximumPoolSize>
+                <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
+                <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
+                <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>sit</id>
+            <properties>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbUserName>admin</orientDbUserName>
+                <orientDbUserPassword>admin</orientDbUserPassword>
+                <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
+                <orientDb.pool.min>10</orientDb.pool.min>
+                <orientDb.pool.max>30</orientDb.pool.max>
+                <mysqlDbBusinessSourceUrl>jdbc:mysql://115.29.177.124:3306/network</mysqlDbBusinessSourceUrl>
+                <mysqlDbBusinessUserName>kisho.dai</mysqlDbBusinessUserName>
+                <mysqlDbBusinessUserPassword>djK0OyeHP</mysqlDbBusinessUserPassword>
+                <mysqlDbSourceUrl>jdbc:mysql://99.48.70.150:3306/orientdB_test</mysqlDbSourceUrl>
+                <mysqlDbUserName>root</mysqlDbUserName>
+                <mysqlDbUserPassword>nanMI2016</mysqlDbUserPassword>
+                <allDataImportMainCorePoolSize>8</allDataImportMainCorePoolSize>
+                <allDataImportMainMaximumPoolSize>20</allDataImportMainMaximumPoolSize>
+                <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
+                <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
+                <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>uat</id>
+            <properties>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbUserName>admin</orientDbUserName>
+                <orientDbUserPassword>admin</orientDbUserPassword>
+                <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
+                <orientDb.pool.min>10</orientDb.pool.min>
+                <orientDb.pool.max>30</orientDb.pool.max>
+                <mysqlDbBusinessSourceUrl>jdbc:mysql://115.29.177.124:3306/network</mysqlDbBusinessSourceUrl>
+                <mysqlDbBusinessUserName>kisho.dai</mysqlDbBusinessUserName>
+                <mysqlDbBusinessUserPassword>djK0OyeHP</mysqlDbBusinessUserPassword>
+                <mysqlDbSourceUrl>jdbc:mysql://115.29.177.124:3306/MERCHANTAUDIT</mysqlDbSourceUrl>
+                <mysqlDbUserName>kisho.dai</mysqlDbUserName>
+                <mysqlDbUserPassword>djK0OyeHP</mysqlDbUserPassword>
+                <allDataImportMainCorePoolSize>8</allDataImportMainCorePoolSize>
+                <allDataImportMainMaximumPoolSize>20</allDataImportMainMaximumPoolSize>
+                <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
+                <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
+                <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>pro</id>
+            <properties>
+                <orientDbSourceUrl></orientDbSourceUrl>
+                <orientDbUserName></orientDbUserName>
+                <orientDbUserPassword></orientDbUserPassword>
+                <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
+                <orientDb.pool.min>10</orientDb.pool.min>
+                <orientDb.pool.max>30</orientDb.pool.max>
+                <mysqlDbBusinessSourceUrl></mysqlDbBusinessSourceUrl>
+                <mysqlDbBusinessUserName></mysqlDbBusinessUserName>
+                <mysqlDbBusinessUserPassword></mysqlDbBusinessUserPassword>
+                <mysqlDbSourceUrl></mysqlDbSourceUrl>
+                <mysqlDbUserName></mysqlDbUserName>
+                <mysqlDbUserPassword></mysqlDbUserPassword>
+                <allDataImportMainCorePoolSize>16</allDataImportMainCorePoolSize>
+                <allDataImportMainMaximumPoolSize>40</allDataImportMainMaximumPoolSize>
+                <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
+                <allDataImportMainQueueLength>40</allDataImportMainQueueLength>
+                <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+            </properties>
+        </profile>
+    </profiles>
 </project>
