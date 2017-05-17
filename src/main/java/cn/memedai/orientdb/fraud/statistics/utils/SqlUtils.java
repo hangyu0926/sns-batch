@@ -85,7 +85,7 @@ public class SqlUtils {
     public static void getOrderphonetag(List<String> orderNoList) {
         Connection conn = (OrientJdbcConnection) OrientDbUtils.getConnection(ConfigUtils.getProperty("orientDbSourceUrl"),
                 ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
-        ;
+
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List applyNosHasOrders = new ArrayList<String>();
