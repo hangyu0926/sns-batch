@@ -55,7 +55,7 @@ public class SqlUtils {
             OTrackedList memberRelatedPhoneNoList = memberRelatedPhoneDocument.field("MemberRelatedPhone");
             OTrackedList memberRelatedOrderList = memberRelatedPhoneDocument.field("RelatedOrderNo");
             String memberRelatedOrder = null;
-            if (memberRelatedOrderList.size() > 0) {
+            if (memberRelatedOrderList.size() >  0) {
                 memberRelatedOrder = memberRelatedOrderList.get(0).toString();
             }
             if (memberRelatedPhoneNoList != null && !memberRelatedPhoneNoList.isEmpty()) {
