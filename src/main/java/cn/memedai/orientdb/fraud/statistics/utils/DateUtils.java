@@ -2,6 +2,7 @@ package cn.memedai.orientdb.fraud.statistics.utils;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,6 +19,18 @@ public class DateUtils {
             return sdf.format(date);
         }
         return startDatetime;
+    }
+
+
+    public static Date StringToDate(String createDate){
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date= null;
+        try {
+            date = sdf.parse(createDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 
     public static void main(String[] args) {

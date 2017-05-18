@@ -25,9 +25,9 @@ public class IndexData implements Serializable{
     //二度数目
     private long indirect;
     //创建日期
-    private Date createTime;
+    private String createTime;
     //更新日期
-    private Date updateTime;
+    private String updateTime;
     //设备id
     private String deviceId;
     //ip
@@ -97,19 +97,19 @@ public class IndexData implements Serializable{
         this.indirect = indirect;
     }
 
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
-    public Date getUpdateTime() {
+    public String getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Date updateTime) {
+    public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
     }
 

@@ -138,7 +138,7 @@
                 </property>
             </activation>
             <properties>
-                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.105/sns</orientDbSourceUrl>
                 <orientDbUserName>admin</orientDbUserName>
                 <orientDbUserPassword>admin</orientDbUserPassword>
                 <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
@@ -155,13 +155,14 @@
                 <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+                <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
             </properties>
         </profile>
 
         <profile>
             <id>sit</id>
             <properties>
-                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.105/sns</orientDbSourceUrl>
                 <orientDbUserName>admin</orientDbUserName>
                 <orientDbUserPassword>admin</orientDbUserPassword>
                 <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
@@ -178,13 +179,14 @@
                 <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+                <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
             </properties>
         </profile>
 
         <profile>
             <id>uat</id>
             <properties>
-                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.104/sns</orientDbSourceUrl>
+                <orientDbSourceUrl>jdbc:orient:remote:99.48.88.105/sns</orientDbSourceUrl>
                 <orientDbUserName>admin</orientDbUserName>
                 <orientDbUserPassword>admin</orientDbUserPassword>
                 <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
@@ -201,6 +203,7 @@
                 <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+                <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
             </properties>
         </profile>
 
@@ -224,6 +227,7 @@
                 <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
                 <allDataImportMainQueueLength>40</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
+                <orientDbUrl>remote:10.252.221.8/sns</orientDbUrl>
             </properties>
         </profile>
     </profiles>
