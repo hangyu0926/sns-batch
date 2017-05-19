@@ -13,6 +13,8 @@ public class ApplyRelateOrder implements Serializable{
 
     private String order;
 
+    private String createTime;
+
     public ApplyRelateOrder() {
         super();
     }
@@ -22,6 +24,7 @@ public class ApplyRelateOrder implements Serializable{
         return "ApplyRelateOrder{" +
                 "apply='" + apply + '\'' +
                 ", order='" + order + '\'' +
+                ", createTime='" + createTime + '\'' +
                 '}';
     }
 
@@ -39,5 +42,13 @@ public class ApplyRelateOrder implements Serializable{
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 }

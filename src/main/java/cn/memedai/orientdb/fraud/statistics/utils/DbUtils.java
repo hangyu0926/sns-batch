@@ -32,7 +32,7 @@ public final class DbUtils {
     public static Connection getConnection(String url, String userName, String password) {
         try {
             Connection connection = DriverManager.getConnection(url, userName, password);
-            LOGGER.info("ooo connection : " + connection);
+//            LOGGER.info("ooo connection : " + connection);
             return connection;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -43,7 +43,7 @@ public final class DbUtils {
         if (connection != null) {
             try {
                 connection.close();
-                LOGGER.info("xxx connection : " + connection);
+//                LOGGER.info("xxx connection : " + connection);
             } catch (SQLException e) {
 
             }

@@ -22,9 +22,12 @@ public class BasicDataBatchTask implements Runnable {
     private List<MemberAndPhoneBean> memberAndPhoneBeanList = new ArrayList<MemberAndPhoneBean>();
 
     public void run() {
-//
-        LOGGER.info("memberAndPhoneBeanList {}" + memberAndPhoneBeanList.toString());
+        LOGGER.info("BasicDataBatchTask memberAndPhoneBeanList is {}", memberAndPhoneBeanList.size());
         SqlUtils.getBasicData(memberAndPhoneBeanList, isAllData);
+        if (memberAndPhoneBeanList != null) {
+            memberAndPhoneBeanList.clear();
+            memberAndPhoneBeanList = null;
+        }
     }
 
     public BasicDataBatchTask() {

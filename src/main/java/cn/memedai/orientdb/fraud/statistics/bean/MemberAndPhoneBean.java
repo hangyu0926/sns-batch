@@ -16,9 +16,9 @@ public class MemberAndPhoneBean implements Serializable {
 
     private String dateTime;
 
-    private List<String> onlyAppNos = new ArrayList<String>();
+    private List<ApplyRelateOrder> onlyAppNos = new ArrayList<ApplyRelateOrder>();
 
-    private List<String> onlyOrderNos = new ArrayList<String>();
+    private List<ApplyRelateOrder> onlyOrderNos = new ArrayList<ApplyRelateOrder>();
 
     private List<ApplyRelateOrder> applyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
 
@@ -54,25 +54,25 @@ public class MemberAndPhoneBean implements Serializable {
         this.phones = phones;
     }
 
-    public List<String> getOnlyAppNos() {
+    public List<ApplyRelateOrder> getOnlyAppNos() {
         return onlyAppNos;
     }
 
-    public void setOnlyAppNos(List<String> onlyAppNos) {
+    public void setOnlyAppNos(List<ApplyRelateOrder> onlyAppNos) {
         if (onlyAppNos != null) {
-            for (String str : onlyAppNos) {
+            for (ApplyRelateOrder str : onlyAppNos) {
                 this.onlyAppNos.add(str);
             }
         }
     }
 
-    public List<String> getOnlyOrderNos() {
+    public List<ApplyRelateOrder> getOnlyOrderNos() {
         return onlyOrderNos;
     }
 
-    public void setOnlyOrderNos(List<String> onlyOrderNos) {
+    public void setOnlyOrderNos(List<ApplyRelateOrder> onlyOrderNos) {
         if (onlyOrderNos != null) {
-            for (String str : onlyOrderNos) {
+            for (ApplyRelateOrder str : onlyOrderNos) {
                 this.onlyOrderNos.add(str);
             }
         }

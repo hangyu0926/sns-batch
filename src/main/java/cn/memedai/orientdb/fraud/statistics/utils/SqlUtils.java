@@ -48,54 +48,44 @@ public class SqlUtils {
      */
     private static Boolean checkPhone(String phone) {
         if (StringUtils.isBlank(phone)) {
-            LOGGER.info("checkPhone invalid phone is {}", phone);
             return false;
         }
 
         if (phone.length() < ConstantHelper.BUSINESS_PHONE_LENGTH) {
-            LOGGER.info("checkPhone invalid phone is {}", phone);
             return false;
         }
 
         if (phone.length() >= 2) {
             if (ConstantHelper.BUSINESS_PHONE_1.equals(phone.substring(0, 1))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
             if (ConstantHelper.BUSINESS_PHONE_2.equals(phone.substring(0, 1))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
         }
 
         if (phone.length() >= 3) {
             if (ConstantHelper.BUSINESS_PHONE_3.equals(phone.substring(0, 2))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
             if (ConstantHelper.BUSINESS_PHONE_4.equals(phone.substring(0, 2))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
         }
 
         if (phone.length() >= 5) {
             if (ConstantHelper.BUSINESS_PHONE_5.equals(phone.substring(0, 4))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
             if (ConstantHelper.BUSINESS_PHONE_6.equals(phone.substring(0, 4))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
             if (ConstantHelper.BUSINESS_PHONE_7.equals(phone.substring(0, 4))) {
-                LOGGER.info("checkPhone invalid phone is {}", phone);
                 return false;
             }
         }
 
         if (ConstantHelper.BUSINESS_PHONE_7.equals(phone)) {
-            LOGGER.info("checkPhone invalid phone is {}", phone);
             return false;
         }
 
@@ -109,12 +99,13 @@ public class SqlUtils {
         List<SameDeviceBean> sameDeviceBeanList = new ArrayList<SameDeviceBean>();
         List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
         MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
-        queryDirectRelationDataByPhoneNo("18516216801", getODataBaseDocumentTx(), map, map2,  sameDeviceBeanList,  sameIpBeanList,
-                 memberDeviceAndApplyAndOrderBean);
+        queryDirectRelationDataByPhoneNo("18516216801", getODataBaseDocumentTx(), map, map2, sameDeviceBeanList, sameIpBeanList,
+                memberDeviceAndApplyAndOrderBean);
     }
 
     /**
      * 查询具体业务指标
+     *
      * @param memberRelatedPhoneNo
      * @param tx
      * @param map
@@ -131,12 +122,10 @@ public class SqlUtils {
         ODocument phoneInfo = ((ODocument) phoneInfos.get(0));
         ODocument phoneRecord0 = phoneInfo.field("phoneRid0");
         ORecordLazyList members0 = phoneInfo.field("members0");
-//        long memberId = ((ODocument) members0.get(0)).field("memberId");
         ORecordLazyList ocrs = phoneInfo.field("callTos");
         Map<String, String> tempMap = new HashMap<String, String>();
         List<String> directPhones = new ArrayList<String>();
-
-
+        //LOGGER.info("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
         //连接不同设备的个数
         int diffDeviceCount = 0;
         if (members0 != null && !members0.isEmpty()) {
@@ -146,7 +135,6 @@ public class SqlUtils {
                 Iterator<OIdentifiable> it = in_HasDevice.iterator();
                 while (it.hasNext()) {
                     diffDeviceCount++;
-
                     SameDeviceBean sameDeviceBean = new SameDeviceBean();
                     OIdentifiable t = it.next();
                     ODocument inDevice = (ODocument) t;
@@ -177,9 +165,7 @@ public class SqlUtils {
             if (null != in_HasIp && !in_HasIp.isEmpty()) {
                 Iterator<OIdentifiable> it = in_HasIp.iterator();
                 while (it.hasNext()) {
-                    it.next();
                     diffIpCount++;
-
                     SameIpBean sameIpBean = new SameIpBean();
                     OIdentifiable t = it.next();
                     ODocument inIp = (ODocument) t;
@@ -259,7 +245,6 @@ public class SqlUtils {
 
         if (ocrs != null && !ocrs.isEmpty()) {
             int ocrSize = ocrs.size();
-            LOGGER.info("queryDirectRelationDataByPhoneNo ocrSize is {}, memberRelatedPhoneNo is {}", ocrSize, memberRelatedPhoneNo);
             for (int j = 0; j < ocrSize; j++) {
                 ODocument ocr = (ODocument) ocrs.get(j);
                 ODocument tempPhoneRecordIn1 = ocr.field("in");//callTo边
@@ -433,40 +418,34 @@ public class SqlUtils {
             ocrs.clear();
             ocrs = null;
         }
-
+        //LOGGER.info("queryDirectRelationDataByPhoneNo end memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
         return 0;
     }
 
 
-
     /**
      * 构建结构化数据入mysql指标数据库
+     *
      * @param memberAndPhoneBean
      * @param tx
      */
     private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx) {
-//        String sql = "select in('PhoneHasApply').phone as MemberRelatedPhone, out('ApplyHasOrder').orderNo as RelatedOrderNo from Apply where applyNo = ?";
-//        DirectRelationDataBean directRelationDataBean = queryDirectRelationDataByNo(applyNo, tx, sql);
-//        LOGGER.info("directRelationDataBean is " + directRelationDataBean.toString());
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         HashMap<String, Integer> map2 = new HashMap<String, Integer>();
 
         List<SameDeviceBean> sameDeviceBeanList = new ArrayList<SameDeviceBean>();
         List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
         MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
-
         String phone = memberAndPhoneBean.getPhones();
-
-        queryDirectRelationDataByPhoneNo(phone, tx, map, map2,sameDeviceBeanList,sameIpBeanList,memberDeviceAndApplyAndOrderBean);
+        queryDirectRelationDataByPhoneNo(phone, tx, map, map2, sameDeviceBeanList, sameIpBeanList, memberDeviceAndApplyAndOrderBean);
 
         //插入一度和二度联系人指标开始
         List<IndexData> indexDatas = new ArrayList<IndexData>();
-        Map<String, Integer> directResultMap = map;
-        Set<Map.Entry<String, Integer>> directSet = directResultMap.entrySet();
+        Set<Map.Entry<String, Integer>> directSet = map.entrySet();
         List<String> directMarks = new ArrayList<String>();
 
-        List<String> onlyAppNos = memberAndPhoneBean.getOnlyAppNos();
-        List<String> onlyOrderNos = memberAndPhoneBean.getOnlyOrderNos();
+        List<ApplyRelateOrder> onlyAppNos = memberAndPhoneBean.getOnlyAppNos();
+        List<ApplyRelateOrder> onlyOrderNos = memberAndPhoneBean.getOnlyOrderNos();
         List<ApplyRelateOrder> applyRelateOrderNos = memberAndPhoneBean.getApplyRelateOrderNos();
 
         for (Map.Entry<String, Integer> en : directSet) {
@@ -474,34 +453,32 @@ public class SqlUtils {
             if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
                 int onlyAppNosSize = onlyAppNos.size();
                 for (int i = 0; i < onlyAppNosSize; i++) {
-                    AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                            IndexNameEnum.fromValue(en.getKey()),en.getValue(),0,"",null,null);
+                    AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            IndexNameEnum.fromValue(en.getKey()), en.getValue(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
                 }
             }
 
             if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
                 int onlyOrderNosSize = onlyOrderNos.size();
                 for (int i = 0; i < onlyOrderNosSize; i++) {
-                    AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                            IndexNameEnum.fromValue(en.getKey()),en.getValue(),0,"",null,null);
+                    AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            IndexNameEnum.fromValue(en.getKey()), en.getValue(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
                 }
             }
 
             if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
                 int applyRelateOrderNosSize = applyRelateOrderNos.size();
                 for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                    AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                            applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                            IndexNameEnum.fromValue(en.getKey()),en.getValue(),0,"",null,null);
+                    AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            IndexNameEnum.fromValue(en.getKey()), en.getValue(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
                 }
             }
             directMarks.add(en.getKey());
         }
 
-
-        Map<String, Integer> indirectResultMap = map2;
         //判断该标签是否包含一度数据
-        Set<Map.Entry<String, Integer>> indirectResultSet = indirectResultMap.entrySet();
+        Set<Map.Entry<String, Integer>> indirectResultSet = map2.entrySet();
         for (Map.Entry<String, Integer> en : indirectResultSet) {
             if (directMarks.contains(en.getKey())) {
                 for (IndexData indexData : indexDatas) {
@@ -513,65 +490,65 @@ public class SqlUtils {
                 if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
                     int onlyAppNosSize = onlyAppNos.size();
                     for (int i = 0; i < onlyAppNosSize; i++) {
-                        AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                                onlyAppNos.get(i),null,
-                                IndexNameEnum.fromValue(en.getKey()),0,en.getValue(),"",null,null);
+                        AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                                onlyAppNos.get(i).getApply(), null,
+                                IndexNameEnum.fromValue(en.getKey()), 0, en.getValue(), onlyAppNos.get(i).getCreateTime(), null, null);
                     }
                 }
 
                 if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
                     int onlyOrderNosSize = onlyOrderNos.size();
                     for (int i = 0; i < onlyOrderNosSize; i++) {
-                        AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                                null,onlyOrderNos.get(i),
-                                IndexNameEnum.fromValue(en.getKey()),0,en.getValue(),"",null,null);
+                        AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                                null, onlyOrderNos.get(i).getOrder(),
+                                IndexNameEnum.fromValue(en.getKey()), 0, en.getValue(), onlyOrderNos.get(i).getCreateTime(), null, null);
                     }
                 }
 
                 if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
                     int applyRelateOrderNosSize = applyRelateOrderNos.size();
                     for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                        AddIndexDatas(indexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                                applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                                IndexNameEnum.fromValue(en.getKey()),0,en.getValue(),"",null,null);
+                        AddIndexDatas(indexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                                applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                                IndexNameEnum.fromValue(en.getKey()), 0, en.getValue(), applyRelateOrderNos.get(i).getCreateTime(), null, null);
                     }
                 }
 
             }
         }
 
-        LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
+        //LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
         insertPhonetagIndex(indexDatas);
         //插入一度和二度联系人指标结束
 
         //插入同设备客户个数指标开始
         int sameDeviceListSize = sameDeviceBeanList.size();
         List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
-        for (int j = 0; j < sameDeviceListSize; j++){
+        for (int j = 0; j < sameDeviceListSize; j++) {
             String deviceId = sameDeviceBeanList.get(j).getDeviceId();
             int direct = sameDeviceBeanList.get(j).getDirect();
             if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
                 int onlyAppNosSize = onlyAppNos.size();
                 for (int i = 0; i < onlyAppNosSize; i++) {
-                    AddIndexDatas(deviceIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                            "equal_device_member_num",direct,0,"",deviceId,null);
+                    AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "equal_device_member_num", direct, 0, onlyAppNos.get(i).getCreateTime(), deviceId, null);
                 }
             }
 
             if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
                 int onlyOrderNosSize = onlyOrderNos.size();
                 for (int i = 0; i < onlyOrderNosSize; i++) {
-                    AddIndexDatas(deviceIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                            "equal_device_member_num",direct,0,"",deviceId,null);
+                    AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "equal_device_member_num", direct, 0, onlyOrderNos.get(i).getCreateTime(), deviceId, null);
                 }
             }
 
             if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
                 int applyRelateOrderNosSize = applyRelateOrderNos.size();
                 for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                    AddIndexDatas(deviceIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                            applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                            "equal_device_member_num",direct,0,"",deviceId,null);
+                    AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "equal_device_member_num", direct, 0, applyRelateOrderNos.get(i).getCreateTime(), deviceId, null);
                 }
             }
         }
@@ -580,36 +557,36 @@ public class SqlUtils {
         //插入同ip的客户个数指标开始
         int sameIpListSize = sameIpBeanList.size();
         List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
-        for (int j = 0; j < sameIpListSize; j++){
+        for (int j = 0; j < sameIpListSize; j++) {
             String ip = sameIpBeanList.get(j).getIp();
             int direct = sameIpBeanList.get(j).getDirect();
             if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
                 int onlyAppNosSize = onlyAppNos.size();
                 for (int i = 0; i < onlyAppNosSize; i++) {
-                    AddIndexDatas(ipIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                            "equal_ip_member_num",direct,0,"",null,ip);
+                    AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "equal_ip_member_num", direct, 0, onlyAppNos.get(i).getCreateTime(), null, ip);
                 }
             }
 
             if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
                 int onlyOrderNosSize = onlyOrderNos.size();
                 for (int i = 0; i < onlyOrderNosSize; i++) {
-                    AddIndexDatas(ipIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                            "equal_ip_member_num",direct,0,"",null,ip);
+                    AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "equal_ip_member_num", direct, 0, onlyOrderNos.get(i).getCreateTime(), null, ip);
                 }
             }
 
             if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
                 int applyRelateOrderNosSize = applyRelateOrderNos.size();
                 for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                    AddIndexDatas(ipIndexDataList,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                            applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                            "equal_ip_member_num",direct,0,"",null,ip);
+                    AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "equal_ip_member_num", direct, 0, applyRelateOrderNos.get(i).getCreateTime(), null, ip);
                 }
             }
         }
-        LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
-        insertDeviceAndIpIndex(deviceIndexDataList,ipIndexDataList);
+        //LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
+        insertDeviceAndIpIndex(deviceIndexDataList, ipIndexDataList);
         //插入同ip的客户个数指标结束
 
 
@@ -619,86 +596,86 @@ public class SqlUtils {
             int onlyAppNosSize = onlyAppNos.size();
             for (int i = 0; i < onlyAppNosSize; i++) {
 
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),onlyAppNos.get(i),null,
-                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(),0,"",null,null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
             }
         }
 
         if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
             int onlyOrderNosSize = onlyOrderNos.size();
             for (int i = 0; i < onlyOrderNosSize; i++) {
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "has_device_num",memberDeviceAndApplyAndOrderBean.getHasDeviceNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "has_ip_num",memberDeviceAndApplyAndOrderBean.getHasIpNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "has_merchant_num",memberDeviceAndApplyAndOrderBean.getHasMerchantNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "has_appl_num",memberDeviceAndApplyAndOrderBean.getHasApplNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "has_order_num",memberDeviceAndApplyAndOrderBean.getHasOrderNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "contact_accept_member_num",memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "contact_refuse_member_num",memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "contact_overdue_member_num",memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),null,onlyOrderNos.get(i),
-                        "contact_black_member_num",memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(),0,"",null,null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
             }
         }
 
         if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
             int applyRelateOrderNosSize = applyRelateOrderNos.size();
             for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "has_device_num",memberDeviceAndApplyAndOrderBean.getHasDeviceNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "has_ip_num",memberDeviceAndApplyAndOrderBean.getHasIpNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "has_merchant_num",memberDeviceAndApplyAndOrderBean.getHasMerchantNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "has_appl_num",memberDeviceAndApplyAndOrderBean.getHasApplNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "has_order_num",memberDeviceAndApplyAndOrderBean.getHasOrderNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "contact_accept_member_num",memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "contact_refuse_member_num",memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "contact_overdue_member_num",memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(),0,"",null,null);
-                AddIndexDatas(memberIndexDatas,Long.valueOf(memberAndPhoneBean.getMemberId()),memberAndPhoneBean.getPhones(),
-                        applyRelateOrderNos.get(i).getApply(),applyRelateOrderNos.get(i).getOrder(),
-                        "contact_black_member_num",memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(),0,"",null,null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
             }
         }
 
 
-        LOGGER.info("dealBasicDataByPhone insertMemberIndex");
+        //LOGGER.info("dealBasicDataByPhone insertMemberIndex");
         insertMemberIndex(memberIndexDatas);
 
         //插入会员指标结束
@@ -728,15 +705,6 @@ public class SqlUtils {
             directMarks = null;
         }
 
-        if (indirectResultMap != null) {
-            indirectResultMap.clear();
-            indirectResultMap = null;
-        }
-
-        if (directResultMap != null) {
-            directResultMap.clear();
-            directResultMap = null;
-        }
         if (directSet != null) {
             directSet.clear();
             directSet = null;
@@ -746,10 +714,43 @@ public class SqlUtils {
             indirectResultSet = null;
         }
 
+        if (map != null) {
+            map.clear();
+            map = null;
+        }
+
+        if (map2 != null) {
+            map2.clear();
+            map2 = null;
+        }
+
+        if (memberIndexDatas != null) {
+            memberIndexDatas.clear();
+            memberIndexDatas = null;
+        }
+
+        if (ipIndexDataList != null) {
+            ipIndexDataList.clear();
+            ipIndexDataList = null;
+        }
+
+        if (deviceIndexDataList != null) {
+            deviceIndexDataList.clear();
+            deviceIndexDataList = null;
+        }
+        if (sameDeviceBeanList != null) {
+            sameDeviceBeanList.clear();
+            sameDeviceBeanList = null;
+        }
+
+        if (sameIpBeanList != null) {
+            sameIpBeanList.clear();
+            sameIpBeanList = null;
+        }
     }
 
-    private static void AddIndexDatas(List<IndexData> indexDatas,long memberId,String mobile,String applyNo,String orderNo,String indexName,
-            long direct,long indirect,String createTime,String deviceId,String ip){
+    private static void AddIndexDatas(List<IndexData> indexDatas, long memberId, String mobile, String applyNo, String orderNo, String indexName,
+                                      long direct, long indirect, String createTime, String deviceId, String ip) {
         IndexData indexData = new IndexData();
         indexData.setMemberId(memberId);
         indexData.setMobile(mobile);
@@ -760,6 +761,7 @@ public class SqlUtils {
         indexData.setApplyNo(applyNo);
         indexData.setOrderNo(orderNo);
         indexData.setIndexName(indexName);
+        indexData.setCreateTime(createTime);
         indexDatas.add(indexData);
     }
 
@@ -780,7 +782,6 @@ public class SqlUtils {
     }
 
     public static void getBasicData(List<MemberAndPhoneBean> MemberAndPhoneBeanList, boolean isAllData) {
-        LOGGER.info("getBasicData size" + MemberAndPhoneBeanList.size());
         if (isAllData) {
             if (null != MemberAndPhoneBeanList && MemberAndPhoneBeanList.size() > 0) {
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
@@ -797,10 +798,9 @@ public class SqlUtils {
 
     private static void dealAllBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx) {
         int size = memberAndPhoneBeanList.size();
-        LOGGER.info("dealAllBasicDataByApplyList size {}", size);
         for (int i = 0; i < size; i++) {
-            if (i % 1000 == 0) {
-                LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
+            if (i % 100 == 0) {
+            LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
             }
             dealBasicDataByPhone(memberAndPhoneBeanList.get(i), tx);
         }
@@ -813,8 +813,8 @@ public class SqlUtils {
         if (null != indexDatas) {
             PreparedStatement pstmt = null;
             try {
-                pstmt = mysqlConn.prepareStatement("insert into phonetag_index (member_id, apply_no, order_no,mobile,index_name,direct,indirect,create_time,update_time) " +
-                        "values(?,?,?,?,?,?,?,?,now())");
+                pstmt = mysqlConn.prepareStatement("insert into phonetag_index (member_id, apply_no, order_no,mobile,index_name,direct,indirect,create_time) " +
+                        "values(?,?,?,?,?,?,?,?)");
 
                 for (int i = 0; i < indexDatas.size(); i++) {
                     pstmt.setLong(1, indexDatas.get(i).getMemberId());
@@ -858,8 +858,8 @@ public class SqlUtils {
         if (null != deviceIndexDatas && null != ipIndexDatas) {
             PreparedStatement pstmt = null;
             try {
-                pstmt = mysqlConn.prepareStatement("insert into device_index (member_id, apply_no, order_no,mobile,deviceId,index_name,direct,create_time,update_time) " +
-                        "values(?,?,?,?,?,?,?,?,now())");
+                pstmt = mysqlConn.prepareStatement("insert into device_index (member_id, apply_no, order_no,mobile,deviceId,index_name,direct,create_time) " +
+                        "values(?,?,?,?,?,?,?,?)");
 
                 for (int i = 0; i < deviceIndexDatas.size(); i++) {
                     pstmt.setLong(1, deviceIndexDatas.get(i).getMemberId());
@@ -874,8 +874,8 @@ public class SqlUtils {
                 }
                 pstmt.executeBatch();
 
-                pstmt = mysqlConn.prepareStatement("insert into ip_index (member_id, apply_no, order_no,mobile,ip,index_name,direct,create_time,update_time) " +
-                        "values(?,?,?,?,?,?,?,?,now())");
+                pstmt = mysqlConn.prepareStatement("insert into ip_index (member_id, apply_no, order_no,mobile,ip,index_name,direct,create_time) " +
+                        "values(?,?,?,?,?,?,?,?)");
 
                 for (int i = 0; i < ipIndexDatas.size(); i++) {
                     pstmt.setLong(1, ipIndexDatas.get(i).getMemberId());
@@ -885,7 +885,7 @@ public class SqlUtils {
                     pstmt.setString(5, ipIndexDatas.get(i).getIp());
                     pstmt.setString(6, ipIndexDatas.get(i).getIndexName());
                     pstmt.setLong(7, ipIndexDatas.get(i).getDirect());
-                    pstmt.setString(8, deviceIndexDatas.get(i).getCreateTime());
+                    pstmt.setString(8, ipIndexDatas.get(i).getCreateTime());
                     pstmt.addBatch();
                 }
                 pstmt.executeBatch();
@@ -918,8 +918,8 @@ public class SqlUtils {
         if (null != memberIndexDatas) {
             PreparedStatement pstmt = null;
             try {
-                pstmt = mysqlConn.prepareStatement("insert into member_index (member_id, apply_no, order_no,mobile,index_name,direct,create_time,update_time) " +
-                        "values(?,?,?,?,?,?,?,now())");
+                pstmt = mysqlConn.prepareStatement("insert into member_index (member_id, apply_no, order_no,mobile,index_name,direct,create_time) " +
+                        "values(?,?,?,?,?,?,?)");
 
                 for (int i = 0; i < memberIndexDatas.size(); i++) {
                     pstmt.setLong(1, memberIndexDatas.get(i).getMemberId());
@@ -976,9 +976,9 @@ public class SqlUtils {
         ResultSet rs = null;
         int memberAndPhoneCount = 0;
         Set<String> memberInfoMapSet = new HashSet<String>();
-        Map<String, List<String>> memberInfoOnlyApplyMap = new HashMap<String, List<String>>();
+        Map<String, List<ApplyRelateOrder>> memberInfoOnlyApplyMap = new HashMap<String, List<ApplyRelateOrder>>();
         Map<String, List<ApplyRelateOrder>> memberInfoApplyRelateOrderMap = new HashMap<String, List<ApplyRelateOrder>>();
-        Map<String, List<String>> memberInfoOnlyOrderMap = new HashMap<String, List<String>>();
+        Map<String, List<ApplyRelateOrder>> memberInfoOnlyOrderMap = new HashMap<String, List<ApplyRelateOrder>>();
         try {
             //查询总数
             if (!isAllDataQueryFlag) {
@@ -987,34 +987,42 @@ public class SqlUtils {
             } else {
                 List<String> tempOrderList = new ArrayList<String>();
                 //这个sql查询的是只有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone FROM apply_info where order_no is null limit 100");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime FROM apply_info where order_no is null limit 1000");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
                     String applyNo = rs.getString("apply_no");
                     String memberId = rs.getString("member_id");
                     String phone = rs.getString("phone");
+                    String createdDatetime = rs.getString("created_datetime");
                     String memberInfoMapKey = (new StringBuilder(memberId).append(",").append(phone)).toString();
+
+                    ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+                    applyRelateOrder.setApply(applyNo);
+                    applyRelateOrder.setCreateTime(createdDatetime);
                     if (memberInfoOnlyApplyMap.containsKey(memberInfoMapKey)) {
-                        memberInfoOnlyApplyMap.get(memberInfoMapKey).add(applyNo);
+                        memberInfoOnlyApplyMap.get(memberInfoMapKey).add(applyRelateOrder);
                     } else {
-                        List<String> list = new ArrayList<String>();
-                        list.add(applyNo);
+                        List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                        list.add(applyRelateOrder);
                         memberInfoOnlyApplyMap.put(memberInfoMapKey, list);
                     }
                 }
 
                 //这个sql查询的是有申请关联订单的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no FROM apply_info where order_no is not null limit 100");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime FROM apply_info where order_no is not null limit 1000");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
                     String applyNo = rs.getString("apply_no");
                     String orderNo = rs.getString("order_no");
+                    String createdDatetime = rs.getString("created_datetime");
                     tempOrderList.add(orderNo);
+
                     ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
                     applyRelateOrder.setApply(applyNo);
                     applyRelateOrder.setOrder(orderNo);
+                    applyRelateOrder.setCreateTime(createdDatetime);
                     String memberId = rs.getString("member_id");
                     String phone = rs.getString("phone");
                     String memberInfoMapKey = (new StringBuilder(memberId).append(",").append(phone)).toString();
@@ -1027,26 +1035,30 @@ public class SqlUtils {
                     }
                 }
                 //这个sql查询的是有订单去除有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone FROM money_box_order limit 100");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime FROM money_box_order limit 1000");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
                     String orderNo = rs.getString("order_no");
-                    LOGGER.info("orderNo is {}", orderNo);
+                    String createdDatetime = rs.getString("created_datetime");
+
                     if (!tempOrderList.contains(orderNo)) {
                         String memberId = rs.getString("member_id");
                         String phone = rs.getString("phone");
                         String memberInfoMapKey = (new StringBuilder(memberId).append(",").append(phone)).toString();
+
+                        ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+                        applyRelateOrder.setOrder(orderNo);
+                        applyRelateOrder.setCreateTime(createdDatetime);
                         if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
-                            memberInfoOnlyOrderMap.get(memberInfoMapKey).add(orderNo);
+                            memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
                         } else {
-                            List<String> list = new ArrayList<String>();
-                            list.add(orderNo);
+                            List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                            list.add(applyRelateOrder);
                             memberInfoOnlyOrderMap.put(memberInfoMapKey, list);
                         }
                     }
                 }
-                LOGGER.info("tempOrderList is {}", tempOrderList.toString());
                 if (tempOrderList != null) {
                     tempOrderList.clear();
                     tempOrderList = null;
@@ -1078,7 +1090,6 @@ public class SqlUtils {
                 memberAndPhoneBeanArrayList.add(memberAndPhoneBean);
                 if (count == applimitNum || (!it.hasNext())) {
                     count = 0;
-                    LOGGER.info("memberAndPhoneBeanArrayList is {}, count is {}", memberAndPhoneBeanArrayList.toString(), count);
                     BasicDataBatchTask basicDataBatchTask = new BasicDataBatchTask();
                     basicDataBatchTask.setAllData(isAllDataQueryFlag);
                     basicDataBatchTask.setMemberAndPhoneBeanList(memberAndPhoneBeanArrayList);
@@ -1095,34 +1106,25 @@ public class SqlUtils {
                     break;
                 }
             }
+            if (memberAndPhoneBeanArrayList != null) {
+                memberAndPhoneBeanArrayList.clear();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             if (memberInfoOnlyApplyMap != null) {
-                for (Map.Entry<String, List<String>> entry : memberInfoOnlyApplyMap.entrySet()) {
-                    entry.getValue().clear();
-                }
                 memberInfoOnlyApplyMap.clear();
             }
             if (memberInfoOnlyOrderMap != null) {
-                for (Map.Entry<String, List<String>> entry : memberInfoOnlyOrderMap.entrySet()) {
-                    entry.getValue().clear();
-                }
                 memberInfoOnlyApplyMap.clear();
             }
             if (memberInfoApplyRelateOrderMap != null) {
-                for (Map.Entry<String, List<ApplyRelateOrder>> entry : memberInfoApplyRelateOrderMap.entrySet()) {
-                    entry.getValue().clear();
-                }
                 memberInfoOnlyApplyMap.clear();
-            }
-            if (memberAndPhoneBeanArrayList != null) {
-                memberAndPhoneBeanArrayList.clear();
             }
 
             if (memberInfoMapSet != null) {
                 memberInfoMapSet.clear();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
             try {
                 if (null != rs) {
                     rs.close();

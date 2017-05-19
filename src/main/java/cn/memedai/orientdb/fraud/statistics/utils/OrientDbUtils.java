@@ -44,7 +44,7 @@ public final class OrientDbUtils {
         if (connection != null) {
             try {
                 connection.close();
-                LOGGER.info("orientDb connection : " + connection);
+//                LOGGER.info("orientDb connection : " + connection);
             } catch (SQLException e) {
                 LOGGER.error("orientDb close has e is {}", e);
             }
