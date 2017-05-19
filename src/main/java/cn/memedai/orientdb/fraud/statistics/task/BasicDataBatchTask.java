@@ -1,6 +1,7 @@
 package cn.memedai.orientdb.fraud.statistics.task;
 
 import cn.memedai.orientdb.fraud.statistics.bean.ApplyAndOrderDate;
+import cn.memedai.orientdb.fraud.statistics.bean.MemberAndPhoneBean;
 import cn.memedai.orientdb.fraud.statistics.main.AddDataImportMain;
 import cn.memedai.orientdb.fraud.statistics.utils.SqlUtils;
 import org.slf4j.Logger;
@@ -16,13 +17,14 @@ import java.util.Map;
 public class BasicDataBatchTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicDataBatchTask.class);
 
-    List<ApplyAndOrderDate> applyNos = new ArrayList<ApplyAndOrderDate>();
-    List<ApplyAndOrderDate> orderNos = new ArrayList<ApplyAndOrderDate>();
     boolean isAllData = false;
 
+    private List<MemberAndPhoneBean> memberAndPhoneBeanList = new ArrayList<MemberAndPhoneBean>();
+
     public void run() {
-        SqlUtils.getApplyphonetag(applyNos, isAllData);
-        SqlUtils.getOrderphonetag(orderNos, isAllData);
+//
+        LOGGER.info("memberAndPhoneBeanList {}" + memberAndPhoneBeanList.toString());
+        SqlUtils.getBasicData(memberAndPhoneBeanList, isAllData);
     }
 
     public BasicDataBatchTask() {
@@ -37,23 +39,15 @@ public class BasicDataBatchTask implements Runnable {
         isAllData = allData;
     }
 
-    public List<ApplyAndOrderDate> getApplyNos() {
-        return applyNos;
+    public List<MemberAndPhoneBean> getMemberAndPhoneBeanList() {
+        return memberAndPhoneBeanList;
     }
 
-    public void setApplyNos(List<ApplyAndOrderDate> applyNos) {
-        for (ApplyAndOrderDate applyAndOrderDate : applyNos) {
-            this.applyNos.add(applyAndOrderDate);
-        }
-    }
-
-    public List<ApplyAndOrderDate> getOrderNos() {
-        return orderNos;
-    }
-
-    public void setOrderNos(List<ApplyAndOrderDate> orderNos) {
-        for (ApplyAndOrderDate applyAndOrderDate : orderNos) {
-            this.orderNos.add(applyAndOrderDate);
+    public void setMemberAndPhoneBeanList(List<MemberAndPhoneBean> memberAndPhoneBeanList) {
+        if (memberAndPhoneBeanList != null) {
+            for (MemberAndPhoneBean memberAndPhoneBean : memberAndPhoneBeanList) {
+                this.memberAndPhoneBeanList.add(memberAndPhoneBean);
+            }
         }
     }
 }

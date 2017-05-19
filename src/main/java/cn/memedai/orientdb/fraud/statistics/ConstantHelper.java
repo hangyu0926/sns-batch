@@ -24,4 +24,8 @@ public class ConstantHelper {
     public final static String BUSINESS_PHONE_8 = "13800138000";
 
     public final static int BUSINESS_PHONE_LENGTH = 10;
+
+    public final static String REFUSE_APPLY_FLAG = "1013";
+
+    public final static String PASS_APPLY_FLAG = "1051";
 }

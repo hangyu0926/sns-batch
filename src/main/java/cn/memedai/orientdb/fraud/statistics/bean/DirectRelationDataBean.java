@@ -18,9 +18,6 @@ public class DirectRelationDataBean implements Serializable {
     private long memberId;
 
     private String phoneNo;
-
-    private String orderNo;
-
     @Override
     public String toString() {
         return "DirectRelationDataBean{" +
@@ -28,7 +25,6 @@ public class DirectRelationDataBean implements Serializable {
                 ", map2=" + map2 +
                 ", memberId=" + memberId +
                 ", phoneNo='" + phoneNo + '\'' +
-                ", orderNo='" + orderNo + '\'' +
                 '}';
     }
 
@@ -42,14 +38,6 @@ public class DirectRelationDataBean implements Serializable {
 
     public void setMap2(HashMap<String, Integer> map2) {
         this.map2 = map2;
-    }
-
-    public String getOrderNo() {
-        return orderNo;
-    }
-
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
     }
 
     public static long getSerialVersionUID() {
