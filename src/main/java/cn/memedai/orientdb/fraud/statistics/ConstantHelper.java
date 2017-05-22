@@ -28,4 +28,6 @@ public class ConstantHelper {
     public final static String REFUSE_APPLY_FLAG = "1013";
 
     public final static String PASS_APPLY_FLAG = "1051";
+
+    public final static int MEMBER_RELATED_PHONENO_SIZE = 1000;
 }
