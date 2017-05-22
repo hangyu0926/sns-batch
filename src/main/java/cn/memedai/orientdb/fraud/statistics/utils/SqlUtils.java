@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,6 +35,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class SqlUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlUtils.class);
+
+  /*  public static Map<String, List<ApplyRelateOrder>> memberInfoOnlyApplyMap = new HashMap<String, List<ApplyRelateOrder>>();
+    public static Map<String, List<ApplyRelateOrder>> memberInfoApplyRelateOrderMap = new HashMap<String, List<ApplyRelateOrder>>();
+    public static Map<String, List<ApplyRelateOrder>> memberInfoOnlyOrderMap = new HashMap<String, List<ApplyRelateOrder>>();*/
+
+    public static Map<String, Integer> deviceHasMemeberMap = new HashMap<String, Integer>();
+    public static Map<Long, List<String>> memberHasDeviceMap = new HashMap<Long, List<String>>();
+    public static Map<String, Integer> ipHasMemeberMap = new HashMap<String, Integer>();
+    public static Map<Long, List<String>> memberHasIpMap = new HashMap<Long, List<String>>();
 
     private static ODatabaseDocumentTx getODataBaseDocumentTx() {
         ODatabaseDocumentTx tx = new ODatabaseDocumentTx(ConfigUtils.getProperty("orientDbUrl")).open(ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
@@ -93,16 +103,6 @@ public class SqlUtils {
     }
 
 
-    public static void main(String[] args) {
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-        HashMap<String, Integer> map2 = new HashMap<String, Integer>();
-        List<SameDeviceBean> sameDeviceBeanList = new ArrayList<SameDeviceBean>();
-        List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
-        MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
-        queryDirectRelationDataByPhoneNo("18516216801", getODataBaseDocumentTx(), map, map2, sameDeviceBeanList, sameIpBeanList,
-                memberDeviceAndApplyAndOrderBean);
-    }
-
     /**
      * 查询具体业务指标
      *
@@ -110,13 +110,10 @@ public class SqlUtils {
      * @param tx
      * @param map
      * @param map2
-     * @param sameDeviceBeanList
-     * @param sameIpBeanList
      * @param memberDeviceAndApplyAndOrderBean
      * @return
      */
     private static long queryDirectRelationDataByPhoneNo(String memberRelatedPhoneNo, ODatabaseDocumentTx tx, Map<String, Integer> map, Map<String, Integer> map2,
-                                                         List<SameDeviceBean> sameDeviceBeanList, List<SameIpBean> sameIpBeanList,
                                                          MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean) {
         OResultSet phoneInfos = tx.command(new OCommandSQL("select @rid as phoneRid0, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone = ?")).execute(new Object[]{memberRelatedPhoneNo});
         ODocument phoneInfo = ((ODocument) phoneInfos.get(0));
@@ -127,12 +124,14 @@ public class SqlUtils {
         List<String> directPhones = new ArrayList<String>();
         //LOGGER.info("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
         //连接不同设备的个数
-        int diffDeviceCount = 0;
+
         if (members0 != null && !members0.isEmpty()) {
+            int diffDeviceCount = 0;
             ODocument member = (ODocument) members0.get(0);
             ORidBag in_HasDevice = member.field("out_MemberHasDevice");
             if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
-                Iterator<OIdentifiable> it = in_HasDevice.iterator();
+                diffDeviceCount = in_HasDevice.size();
+              /*  Iterator<OIdentifiable> it = in_HasDevice.iterator();
                 while (it.hasNext()) {
                     diffDeviceCount++;
                     SameDeviceBean sameDeviceBean = new SameDeviceBean();
@@ -145,94 +144,120 @@ public class SqlUtils {
                     //同设备客户个数
                     int sameDeviceCount = 0;
                     if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
-                        Iterator<OIdentifiable> it1 = out_HasDevice.iterator();
+                        sameDeviceCount = out_HasDevice.size();
+                       *//* Iterator<OIdentifiable> it1 = out_HasDevice.iterator();
                         while (it1.hasNext()) {
                             it1.next();
                             sameDeviceCount++;
-                        }
+                        }*//*
                     }
-                    sameDeviceBean.setDirect(sameDeviceCount - 1);
+                    sameDeviceBean.setDirect(sameDeviceCount);
                     sameDeviceBeanList.add(sameDeviceBean);
-                }
+                }*/
             }
-        }
 
-        //连接不同ip的个数
-        int diffIpCount = 0;
-        if (members0 != null && !members0.isEmpty()) {
-            ODocument member = (ODocument) members0.get(0);
+            //连接不同ip的个数
+            int diffIpCount = 0;
             ORidBag in_HasIp = member.field("out_MemberHasIp");
             if (null != in_HasIp && !in_HasIp.isEmpty()) {
-                Iterator<OIdentifiable> it = in_HasIp.iterator();
-                while (it.hasNext()) {
-                    diffIpCount++;
-                    SameIpBean sameIpBean = new SameIpBean();
-                    OIdentifiable t = it.next();
-                    ODocument inIp = (ODocument) t;
-                    ODocument ip1 = inIp.field("in");
-                    ORidBag out_HasIp = ip1.field("in_MemberHasIp");
-                    String ip = ip1.field("ip");
-                    sameIpBean.setIp(ip);
-                    //同ip的客户个数
-                    int sameIpCount = 0;
-                    if (null != out_HasIp && !out_HasIp.isEmpty()) {
-                        Iterator<OIdentifiable> it1 = out_HasIp.iterator();
-                        while (it1.hasNext()) {
-                            it1.next();
-                            sameIpCount++;
+                diffIpCount = in_HasIp.size();
+                   /*Iterator<OIdentifiable> it = in_HasIp.iterator();
+                    while (it.hasNext()) {
+                        diffIpCount++;
+                        SameIpBean sameIpBean = new SameIpBean();
+                        OIdentifiable t = it.next();
+                        ODocument inIp = (ODocument) t;
+                        ODocument ip1 = inIp.field("in");
+                        ORidBag out_HasIp = ip1.field("in_MemberHasIp");
+                        String ip = ip1.field("ip");
+                        sameIpBean.setIp(ip);
+                        //同ip的客户个数
+                        int sameIpCount = 0;
+                        if (null != out_HasIp && !out_HasIp.isEmpty()) {
+                            sameIpCount = out_HasIp.size();
+                           *//* Iterator<OIdentifiable> it1 = out_HasIp.iterator();
+                            while (it1.hasNext()) {
+                                it1.next();
+                                sameIpCount++;
+                            }*//*
                         }
-                    }
-                    sameIpBean.setDirect(sameIpCount - 1);
-                    sameIpBeanList.add(sameIpBean);
+                        sameIpBean.setDirect(sameIpCount);
+                        sameIpBeanList.add(sameIpBean);
 
-                }
+                    }*/
             }
-        }
 
-        //连接不同申请件数
-        int diffApplyCount = 0;
-        // apply连接不同商户个数
-        int diffMerchantCount = 0;
-        if (members0 != null && !members0.isEmpty()) {
-            ODocument member = (ODocument) members0.get(0);
+            //连接不同申请件数
+            int diffApplyCount = 0;
             ORidBag in_HasApply = member.field("out_MemberHasApply");
             if (null != in_HasApply && !in_HasApply.isEmpty()) {
-                Iterator<OIdentifiable> it = in_HasApply.iterator();
-                while (it.hasNext()) {
-                    diffApplyCount++;
-                    OIdentifiable t = it.next();
-                    ODocument inApply = (ODocument) t;
-                    ODocument apply = inApply.field("in");
-                    ORidBag in_HasStore = apply.field("out_ApplyHasStore");
-                    if (null != in_HasStore && !in_HasStore.isEmpty()) {
-                        Iterator<OIdentifiable> it1 = in_HasStore.iterator();
-                        while (it1.hasNext()) {
-                            it1.next();
-                            diffMerchantCount++;
-                        }
-                    }
-                }
+                diffApplyCount = in_HasApply.size();
             }
-        }
-        //连接不同订单数
-        int diffOrderCount = 0;
-        if (members0 != null && !members0.isEmpty()) {
-            ODocument member = (ODocument) members0.get(0);
+
+            //连接不同订单数
+            int diffOrderCount = 0;
             ORidBag in_HasOrder = member.field("out_MemberHasOrder");
+
             if (null != in_HasOrder && !in_HasOrder.isEmpty()) {
-                Iterator<OIdentifiable> it = in_HasOrder.iterator();
-                while (it.hasNext()) {
-                    it.next();
-                    diffOrderCount++;
+                diffOrderCount = in_HasOrder.size();
+            }
+
+
+            // 连接不同商户个数
+            int diffMerchantCount = 0;
+            Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
+                    ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+
+            try {
+                pstmt = mysqlBusinesConn.prepareStatement("select count(1) as num from (select store_id from apply_info where member_id = ? and store_id is not null" +
+                        " union select store_id from money_box_order where member_id = ? and store_id is not null) s");
+                long memberId = member.field("memberId");
+                pstmt.setLong(1, memberId);
+                pstmt.setLong(2, memberId);
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    diffMerchantCount = rs.getInt("num");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                        rs = null;
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {} rs.close e {}", memberRelatedPhoneNo, e);
+                }
+
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                        pstmt = null;
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {} pstmt.close e {}", memberRelatedPhoneNo, e);
+                }
+
+                try {
+                    if (mysqlBusinesConn != null) {
+                        mysqlBusinesConn.close();
+                        mysqlBusinesConn = null;
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {} mysqlBusinesConn.close e {}", memberRelatedPhoneNo, e);
                 }
             }
+
+            memberDeviceAndApplyAndOrderBean.setHasDeviceNum(diffDeviceCount);
+            memberDeviceAndApplyAndOrderBean.setHasIpNum(diffIpCount);
+            memberDeviceAndApplyAndOrderBean.setHasApplNum(diffApplyCount);
+            memberDeviceAndApplyAndOrderBean.setHasMerchantNum(diffMerchantCount);
+            memberDeviceAndApplyAndOrderBean.setHasOrderNum(diffOrderCount);
         }
 
-        memberDeviceAndApplyAndOrderBean.setHasDeviceNum(diffDeviceCount);
-        memberDeviceAndApplyAndOrderBean.setHasIpNum(diffIpCount);
-        memberDeviceAndApplyAndOrderBean.setHasApplNum(diffApplyCount);
-        memberDeviceAndApplyAndOrderBean.setHasMerchantNum(diffMerchantCount);
-        memberDeviceAndApplyAndOrderBean.setHasOrderNum(diffOrderCount);
 
         //一度联系人过件个数
         int contactAccept = 0;
@@ -373,7 +398,6 @@ public class SqlUtils {
                 }
             }
 
-
             //过滤掉二度联系人中的一度联系人
             for (String str : directPhones) {
                 if (tempMap.containsKey(str)) {
@@ -437,7 +461,31 @@ public class SqlUtils {
         List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
         MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
         String phone = memberAndPhoneBean.getPhones();
-        queryDirectRelationDataByPhoneNo(phone, tx, map, map2, sameDeviceBeanList, sameIpBeanList, memberDeviceAndApplyAndOrderBean);
+        Long memberId = Long.valueOf(memberAndPhoneBean.getMemberId());
+
+        List<String> deviceIdList = memberHasDeviceMap.get(memberId);
+        if (deviceIdList != null && !deviceIdList.isEmpty()) {
+            int deviceIdListSize = deviceIdList.size();
+            for (int i = 0; i < deviceIdListSize; i++) {
+                SameDeviceBean sameDeviceBean = new SameDeviceBean();
+                sameDeviceBean.setDeviceId(deviceIdList.get(i));
+                sameDeviceBean.setDirect(deviceHasMemeberMap.get(deviceIdList.get(i)));
+                sameDeviceBeanList.add(sameDeviceBean);
+            }
+        }
+
+        List<String> ipList = memberHasIpMap.get(memberId);
+        if (ipList != null && !ipList.isEmpty()) {
+            int ipListSize = ipList.size();
+            for (int i = 0; i < ipListSize; i++) {
+                SameIpBean sameIpBean = new SameIpBean();
+                sameIpBean.setIp(ipList.get(i));
+                sameIpBean.setDirect(ipHasMemeberMap.get(ipList.get(i)));
+                sameIpBeanList.add(sameIpBean);
+            }
+        }
+
+        queryDirectRelationDataByPhoneNo(phone, tx, map, map2, memberDeviceAndApplyAndOrderBean);
 
         //插入一度和二度联系人指标开始
         List<IndexData> indexDatas = new ArrayList<IndexData>();
@@ -800,7 +848,7 @@ public class SqlUtils {
         int size = memberAndPhoneBeanList.size();
         for (int i = 0; i < size; i++) {
             if (i % 100 == 0) {
-            LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
+                LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
             }
             dealBasicDataByPhone(memberAndPhoneBeanList.get(i), tx);
         }
@@ -964,6 +1012,62 @@ public class SqlUtils {
             return;
         }
 
+        ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+        OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device")).execute(new Object[]{});
+        int memberHasDeviceSize = memberHasDevice.size();
+        for (int i = 0; i < memberHasDeviceSize; i++) {
+            ODocument inMemberHasDevice = ((ODocument) memberHasDevice.get(i));
+            String deviceId = inMemberHasDevice.field("deviceId");
+            ORidBag ocrs = inMemberHasDevice.field("memberHasDevice");
+
+            if (null != ocrs && !ocrs.isEmpty()) {
+                int ocrsSize = ocrs.size();
+                deviceHasMemeberMap.put(deviceId, ocrsSize);
+                Iterator<OIdentifiable> it = ocrs.iterator();
+                while (it.hasNext()) {
+                    ODocument ocr = (ODocument) it.next();
+                    ODocument member = ocr.field("out");
+                    long memberId = member.field("memberId");
+                    if (memberHasDeviceMap.containsKey(memberId)) {
+                        memberHasDeviceMap.get(memberId).add(deviceId);
+                    } else {
+                        List<String> list = new ArrayList<String>();
+                        list.add(deviceId);
+                        memberHasDeviceMap.put(memberId, list);
+                    }
+                }
+            }
+        }
+
+        OResultSet memberHasIp = tx.command(new OCommandSQL("select ip as ip, in_MemberHasIp as memberHasIp from ip")).execute(new Object[]{});
+        int memberHasIpSize = memberHasIp.size();
+        for (int i = 0; i < memberHasIpSize; i++) {
+            ODocument inMemberHasIp = ((ODocument) memberHasIp.get(i));
+            String ip = inMemberHasIp.field("ip");
+            ORidBag ocrs = inMemberHasIp.field("memberHasIp");
+
+            if (null != ocrs && !ocrs.isEmpty()) {
+                int ocrsSize = ocrs.size();
+                ipHasMemeberMap.put(ip, ocrsSize);
+
+                Iterator<OIdentifiable> it = ocrs.iterator();
+                while (it.hasNext()) {
+                    ODocument ocr = (ODocument) it.next();
+                    ODocument member = ocr.field("out");
+                    long memberId = member.field("memberId");
+                    if (memberHasIpMap.containsKey(memberId)) {
+                        memberHasIpMap.get(memberId).add(ip);
+                    } else {
+                        List<String> list = new ArrayList<String>();
+                        list.add(ip);
+                        memberHasIpMap.put(memberId, list);
+                    }
+                }
+            }
+        }
+        if (tx != null) {
+            OrientDbUtils.close(tx);
+        }
         Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
 
@@ -987,7 +1091,7 @@ public class SqlUtils {
             } else {
                 List<String> tempOrderList = new ArrayList<String>();
                 //这个sql查询的是只有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime FROM apply_info where order_no is null limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime FROM apply_info where order_no is null");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1010,7 +1114,7 @@ public class SqlUtils {
                 }
 
                 //这个sql查询的是有申请关联订单的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime FROM apply_info where order_no is not null limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime FROM apply_info where order_no is not null");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1035,7 +1139,7 @@ public class SqlUtils {
                     }
                 }
                 //这个sql查询的是有订单去除有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime FROM money_box_order limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime FROM money_box_order");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1095,6 +1199,7 @@ public class SqlUtils {
                     basicDataBatchTask.setMemberAndPhoneBeanList(memberAndPhoneBeanArrayList);
                     memberAndPhoneBeanArrayList.clear();
                     es.submit(basicDataBatchTask);
+
                 }
             }
             LOGGER.info("已经开启所有的子线程");
