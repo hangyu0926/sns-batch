@@ -281,6 +281,7 @@ public class SqlUtils {
         //一度联系人黑名单个数
         int contactBlack = 0;
 
+        Map<String, String> hasdirectMap = new HashMap<String, String>();
         if (ocrs != null && !ocrs.isEmpty()) {
             int ocrSize = ocrs.size();
             for (int j = 0; j < ocrSize; j++) {
@@ -304,18 +305,18 @@ public class SqlUtils {
                     lock.lock();
                     Map<String, String> hasIndirectMap = null;
                     boolean flag = phoneHasIndirectMap.containsKey(phone);
-                    if (flag){
+                    if (flag) {
                         hasIndirectMap = phoneHasIndirectMap.get(phone);
-                        if (null != hasIndirectMap && !hasIndirectMap.isEmpty()){
-                            for (Map.Entry<String, String> en : hasIndirectMap.entrySet()){
-                                tempMap.put(en.getKey(),en.getValue());
+                        if (null != hasIndirectMap && !hasIndirectMap.isEmpty()) {
+                            for (Map.Entry<String, String> en : hasIndirectMap.entrySet()) {
+                                tempMap.put(en.getKey(), en.getValue());
                             }
                         }
                     }
 
                     lock.unlock();
 
-                    if (!flag){
+                    if (!flag) {
                         hasIndirectMap = new HashMap<String, String>();
 
                         ORidBag inCallTo = phoneRecord1.field("in_CallTo");
@@ -374,7 +375,6 @@ public class SqlUtils {
                     }
 
 
-
                 }
                 //查询二度结束
 
@@ -383,18 +383,12 @@ public class SqlUtils {
                 if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
                     Iterator<OIdentifiable> it = outHasPhoneMark.iterator();
                     while (it.hasNext()) {
-                        Map<String,String> hasdirectMap = new HashMap<String, String>();
                         OIdentifiable t = it.next();
                         ODocument phoneMark = (ODocument) t;
                         ODocument phoneMark1 = phoneMark.field("in");
                         String mark = phoneMark1.field("mark");
-                        String phone1 = phoneMark1.field("phone").toString();
 
-                        hasdirectMap.put(phone1,mark);
-
-                        lock.lock();
-                        phoneHasIndirectMap.put(phone1, hasdirectMap);
-                        lock.unlock();
+                        hasdirectMap.put(phone, mark);
 
                         if (map.containsKey(mark)) {
                             Integer count = map.get(mark) + 1;
@@ -463,7 +457,11 @@ public class SqlUtils {
                 }
             }
 
-            if (null != tempMap){
+            lock.lock();
+            phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap);
+            lock.unlock();
+
+            if (null != tempMap) {
                 //过滤掉二度联系人中的一度联系人
                 for (String str : directPhones) {
                     if (tempMap.containsKey(str)) {
@@ -520,7 +518,7 @@ public class SqlUtils {
      * @param memberAndPhoneBean
      * @param tx
      */
-    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx) throws RuntimeException{
+    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx) throws RuntimeException {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         HashMap<String, Integer> map2 = new HashMap<String, Integer>();
 
@@ -925,6 +923,7 @@ public class SqlUtils {
             try {
                 dealBasicDataByPhone(memberAndPhoneBeanList.get(i), tx);
             } catch (RuntimeException e) {
+                LOGGER.error("dealAllBasicDataByApplyList is error {}",e);
                 e.printStackTrace();
             }
         }
