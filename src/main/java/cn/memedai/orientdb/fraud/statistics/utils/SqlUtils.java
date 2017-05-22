@@ -1166,7 +1166,7 @@ public class SqlUtils {
             } else {
                 List<String> tempOrderList = new ArrayList<String>();
                 //这个sql查询的是只有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime FROM apply_info where order_no is null limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime FROM apply_info where order_no is null");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1189,7 +1189,7 @@ public class SqlUtils {
                 }
 
                 //这个sql查询的是有申请关联订单的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime FROM apply_info where order_no is not null limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime FROM apply_info where order_no is not null");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1214,7 +1214,7 @@ public class SqlUtils {
                     }
                 }
                 //这个sql查询的是有订单去除有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime FROM money_box_order limit 1000");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime FROM money_box_order");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
