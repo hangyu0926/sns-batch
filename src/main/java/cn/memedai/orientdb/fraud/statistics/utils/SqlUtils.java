@@ -9,12 +9,10 @@ import cn.memedai.orientdb.fraud.statistics.task.HanlderThreadFactory;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OResultSet;
-import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +21,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -1023,7 +1019,7 @@ public class SqlUtils {
             }
             data.add(list);
         }
-        CSVTest.appendDate(csvFile, data);
+        CSVUtils.appendDate(csvFile, data);
 
 
         //
@@ -1057,7 +1053,7 @@ public class SqlUtils {
             list.add(indexData.getMobile());
             deviceData.add(list);
         }
-        CSVTest.appendDate(deviceCsvFile, deviceData);
+        CSVUtils.appendDate(deviceCsvFile, deviceData);
 
         //
         File ipCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME);
@@ -1090,7 +1086,7 @@ public class SqlUtils {
             list.add(indexData.getMobile());
             ipData.add(list);
         }
-        CSVTest.appendDate(ipCsvFile, ipData);
+        CSVUtils.appendDate(ipCsvFile, ipData);
 
         //
         File memberCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME);
@@ -1122,7 +1118,7 @@ public class SqlUtils {
             list.add(indexData.getMobile());
             memberData.add(list);
         }
-        CSVTest.appendDate(memberCsvFile, memberData);
+        CSVUtils.appendDate(memberCsvFile, memberData);
     }
 
 
@@ -1364,16 +1360,16 @@ public class SqlUtils {
             } else {
 
                 String[] phonetagColNames = {"member_id", "apply_no", "order_no", "mobile", "index_name", "direct", "indirect", "create_time", "update_time"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
 
                 String[] deviceColNames = {"member_id", "apply_no", "order_no", "deviceId", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
 
                 String[] ipColNames = {"member_id", "apply_no", "order_no", "ip", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
 
                 String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
 
 
                 List<String> tempOrderList = new ArrayList<String>();

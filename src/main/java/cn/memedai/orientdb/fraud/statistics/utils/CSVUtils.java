@@ -5,14 +5,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by hangyu on 2017/5/23.
  */
-public class CSVTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CSVTest.class);
+public class CSVUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVUtils.class);
 
     public static File createFileAndColName(String filePath, String fileName, String[] colNames){
         deleteFile(filePath, fileName);
