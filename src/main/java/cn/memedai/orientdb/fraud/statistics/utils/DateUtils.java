@@ -1,6 +1,8 @@
 package cn.memedai.orientdb.fraud.statistics.utils;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +13,7 @@ import java.util.Date;
  * Created by hangyu on 2017/5/15.
  */
 public class DateUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
     public static String getStartDatetime(String startDatetime, int i) {
         if (StringUtils.isBlank(startDatetime)) {
@@ -28,7 +31,7 @@ public class DateUtils {
         try {
             date = sdf.parse(createDate);
         } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("StringToDate has e is {}", e);
         }
         return date;
     }

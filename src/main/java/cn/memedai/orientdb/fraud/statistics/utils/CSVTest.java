@@ -1,5 +1,8 @@
 package cn.memedai.orientdb.fraud.statistics.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +12,7 @@ import java.util.List;
  * Created by hangyu on 2017/5/23.
  */
 public class CSVTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVTest.class);
 
     public static File createFileAndColName(String filePath, String fileName, String[] colNames){
         deleteFile(filePath, fileName);
@@ -29,7 +33,7 @@ public class CSVTest {
             pw.close();
             return csvFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("createFileAndColName has e is {}", e);
         }
         return null;
     }
@@ -58,7 +62,6 @@ public class CSVTest {
 
     public static boolean appendDate(File csvFile, List<List<String>> data){
         try {
-
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, true), "UTF-8"), 1024);
             for(int i=0; i<data.size(); i++){
                 List tempData = data.get(i);
@@ -78,7 +81,7 @@ public class CSVTest {
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("appendDate has e is {}", e);
         }
         return false;
     }
