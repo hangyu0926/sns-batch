@@ -30,4 +30,14 @@ public class ConstantHelper {
     public final static String PASS_APPLY_FLAG = "1051";
 
     public final static int MEMBER_RELATED_PHONENO_SIZE = 1000;
+
+    public final static String FILE_PATH = "E:/temp";
+
+    public final static String PHONETAG_FILE_NAME = "phonetag.csv";
+
+    public final static String DEIVE_FILE_NAME = "device.csv";
+
+    public final static String IP_FILE_NAME = "ip.csv";
+
+    public final static String MEMBER_FILE_NAME = "member.csv";
 }

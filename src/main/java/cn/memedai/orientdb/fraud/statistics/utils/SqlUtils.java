@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -481,7 +482,7 @@ public class SqlUtils {
      * @param memberAndPhoneBean
      * @param tx
      */
-    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx, ODocument phoneInfo) throws RuntimeException {
+    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx, ODocument phoneInfo,boolean isAllData) throws RuntimeException {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         HashMap<String, Integer> map2 = new HashMap<String, Integer>();
 
@@ -598,9 +599,12 @@ public class SqlUtils {
             }
         }
 
-        //LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
-        insertPhonetagIndex(indexDatas);
-        //插入一度和二度联系人指标结束
+        if (!isAllData){
+            LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
+            insertPhonetagIndex(indexDatas);
+            //插入一度和二度联系人指标结束
+        }
+
 
         //插入同设备客户个数指标开始
         int sameDeviceListSize = sameDeviceBeanList.size();
@@ -666,9 +670,13 @@ public class SqlUtils {
                 }
             }
         }
-        //LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
-        insertDeviceAndIpIndex(deviceIndexDataList, ipIndexDataList);
-        //插入同ip的客户个数指标结束
+
+        if (!isAllData){
+            LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
+            insertDeviceAndIpIndex(deviceIndexDataList, ipIndexDataList);
+            //插入同ip的客户个数指标结束
+        }
+
 
 
         //插入会员指标开始
@@ -756,10 +764,17 @@ public class SqlUtils {
         }
 
 
-        //LOGGER.info("dealBasicDataByPhone insertMemberIndex");
-        insertMemberIndex(memberIndexDatas);
-
+        if (!isAllData){
+            LOGGER.info("dealBasicDataByPhone insertMemberIndex");
+            insertMemberIndex(memberIndexDatas);
+        }
         //插入会员指标结束
+
+        if (isAllData){
+            lock.lock();
+            exportToCsv(indexDatas,deviceIndexDataList,ipIndexDataList,memberIndexDatas);
+            lock.unlock();
+        }
 
         if (onlyAppNos != null) {
             onlyAppNos.clear();
@@ -866,7 +881,7 @@ public class SqlUtils {
         if (isAllData) {
             if (null != MemberAndPhoneBeanList && MemberAndPhoneBeanList.size() > 0) {
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
-                dealAllBasicDataByApplyList(MemberAndPhoneBeanList, tx);
+                dealAllBasicDataByApplyList(MemberAndPhoneBeanList, tx,isAllData);
                 if (tx != null) {
                     OrientDbUtils.close(tx);
                 }
@@ -888,7 +903,7 @@ public class SqlUtils {
     }
 
 
-    private static void dealAllBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx) {
+    private static void dealAllBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx,boolean isAllData) {
         int size = memberAndPhoneBeanList.size();
 
 
@@ -898,11 +913,9 @@ public class SqlUtils {
         for (int i = 0; i < memberRelatedPhoneNoSize; i++) {
             LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
 
-            //String[] memberRelatedPhoneNo = new String[ConstantHelper.MEMBER_RELATED_PHONENO_SIZE];
             List<String> s = new ArrayList<String>();
             Map<String, Integer> map = new HashMap<String, Integer>();
             for (int j = i * ConstantHelper.MEMBER_RELATED_PHONENO_SIZE; j < (i + 1) * ConstantHelper.MEMBER_RELATED_PHONENO_SIZE; j++) {
-                //memberRelatedPhoneNo[j % ConstantHelper.MEMBER_RELATED_PHONENO_SIZE] = memberAndPhoneBeanList.get(j).getPhones();
                 String phone = memberAndPhoneBeanList.get(j).getPhones();
                 map.put(phone, j);
                 s.add(phone);
@@ -915,16 +928,21 @@ public class SqlUtils {
                 return;
             }
             int phoneInfosSize = phoneInfos.size();
+            List<IndexData> indexDatas = new ArrayList<IndexData>();
+            List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
+            List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
+            List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
                 try {
-                    dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k));
+                    dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k), isAllData);
                 } catch (RuntimeException e) {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
                     e.printStackTrace();
                 }
             }
+
             if (map != null) {
                 map.clear();
                 map = null;
@@ -951,16 +969,21 @@ public class SqlUtils {
                 return;
             }
             int phoneInfosSize = phoneInfos.size();
+            List<IndexData> indexDatas = new ArrayList<IndexData>();
+            List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
+            List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
+            List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
                 try {
-                    dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k));
+                    dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k), isAllData);
                 } catch (RuntimeException e) {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
                     e.printStackTrace();
                 }
             }
+
             if (map != null) {
                 map.clear();
                 map = null;
@@ -971,6 +994,140 @@ public class SqlUtils {
             }
         }
     }
+
+    private static void exportToCsv(List<IndexData> indexDatas, List<IndexData> deviceIndexDataList, List<IndexData> ipIndexDataList, List<IndexData> memberIndexDatas){
+        File csvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME);
+        List<List<String>> data = new ArrayList<List<String>>();
+
+        int indexDatasSize = indexDatas.size();
+        for (int p = 0; p < indexDatasSize; p++){
+            List<String> list = new ArrayList<String>();
+            IndexData indexData = indexDatas.get(p);
+            list.add(String.valueOf(indexData.getMemberId()));
+            if (null != indexData.getApplyNo()){
+                list.add(indexData.getApplyNo()+"\t");
+            }else{
+                list.add("");
+            }
+            if (null != indexData.getOrderNo()){
+                list.add(indexData.getOrderNo()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getMobile());
+            list.add(indexData.getIndexName());
+            list.add(String.valueOf(indexData.getDirect()));
+            list.add(String.valueOf(indexData.getIndirect()));
+            list.add(indexData.getCreateTime()+"\t");
+            if (null != indexData.getUpdateTime()){
+                list.add(indexData.getUpdateTime()+"\t");
+            }else{
+                list.add("");
+            }
+            data.add(list);
+        }
+        CSVTest.appendDate(csvFile, data);
+
+
+        //
+        File deviceCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME);
+        List<List<String>> deviceData = new ArrayList<List<String>>();
+
+        int deviceIndexDataListSize = deviceIndexDataList.size();
+        for (int p = 0; p < deviceIndexDataListSize; p++){
+            List<String> list = new ArrayList<String>();
+            IndexData indexData = deviceIndexDataList.get(p);
+            list.add(String.valueOf(indexData.getMemberId()));
+            if (null != indexData.getApplyNo()){
+                list.add(indexData.getApplyNo()+"\t");
+            }else{
+                list.add("");
+            }
+            if (null != indexData.getOrderNo()){
+                list.add(indexData.getOrderNo()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getDeviceId());
+            list.add(indexData.getIndexName());
+            list.add(String.valueOf(indexData.getDirect()));
+            list.add(indexData.getCreateTime()+"\t");
+            if (null != indexData.getUpdateTime()){
+                list.add(indexData.getUpdateTime()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getMobile());
+            deviceData.add(list);
+        }
+        CSVTest.appendDate(deviceCsvFile, deviceData);
+
+        //
+        File ipCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME);
+        List<List<String>> ipData = new ArrayList<List<String>>();
+
+        int ipIndexDataListSize = ipIndexDataList.size();
+        for (int p = 0; p < ipIndexDataListSize; p++){
+            List<String> list = new ArrayList<String>();
+            IndexData indexData = ipIndexDataList.get(p);
+            list.add(String.valueOf(indexData.getMemberId()));
+            if (null != indexData.getApplyNo()){
+                list.add(indexData.getApplyNo()+"\t");
+            }else{
+                list.add("");
+            }
+            if (null != indexData.getOrderNo()){
+                list.add(indexData.getOrderNo()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getIp());
+            list.add(indexData.getIndexName());
+            list.add(String.valueOf(indexData.getDirect()));
+            list.add(indexData.getCreateTime()+"\t");
+            if (null != indexData.getUpdateTime()){
+                list.add(indexData.getUpdateTime()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getMobile());
+            ipData.add(list);
+        }
+        CSVTest.appendDate(ipCsvFile, ipData);
+
+        //
+        File memberCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME);
+        List<List<String>> memberData = new ArrayList<List<String>>();
+
+        int memberIndexDatasSize = memberIndexDatas.size();
+        for (int p = 0; p < memberIndexDatasSize; p++){
+            List<String> list = new ArrayList<String>();
+            IndexData indexData = memberIndexDatas.get(p);
+            list.add(String.valueOf(indexData.getMemberId()));
+            if (null != indexData.getApplyNo()){
+                list.add(indexData.getApplyNo()+"\t");
+            }else{
+                list.add("");
+            }
+            if (null != indexData.getOrderNo()){
+                list.add(indexData.getOrderNo()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getIndexName());
+            list.add(String.valueOf(indexData.getDirect()));
+            list.add(indexData.getCreateTime()+"\t");
+            if (null != indexData.getUpdateTime()){
+                list.add(indexData.getUpdateTime()+"\t");
+            }else{
+                list.add("");
+            }
+            list.add(indexData.getMobile());
+            memberData.add(list);
+        }
+        CSVTest.appendDate(memberCsvFile, memberData);
+    }
+
 
     private static void insertPhonetagIndex(List<IndexData> indexDatas) {
         Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
@@ -1131,7 +1288,7 @@ public class SqlUtils {
         }
 
         ODatabaseDocumentTx tx = getODataBaseDocumentTx();
-        OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0")).execute(new Object[]{});
+        OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0 limit 100")).execute(new Object[]{});
         int memberHasDeviceSize = memberHasDevice.size();
         for (int i = 0; i < memberHasDeviceSize; i++) {
             ODocument inMemberHasDevice = ((ODocument) memberHasDevice.get(i));
@@ -1157,7 +1314,7 @@ public class SqlUtils {
             }
         }
 
-        OResultSet memberHasIp = tx.command(new OCommandSQL("select ip as ip, in_MemberHasIp as memberHasIp from ip where in_MemberHasIp.size() > 0")).execute(new Object[]{});
+        OResultSet memberHasIp = tx.command(new OCommandSQL("select ip as ip, in_MemberHasIp as memberHasIp from ip where in_MemberHasIp.size() > 0 limit 100")).execute(new Object[]{});
         int memberHasIpSize = memberHasIp.size();
         for (int i = 0; i < memberHasIpSize; i++) {
             ODocument inMemberHasIp = ((ODocument) memberHasIp.get(i));
@@ -1201,15 +1358,30 @@ public class SqlUtils {
         Map<String, List<ApplyRelateOrder>> memberInfoOnlyApplyMap = new HashMap<String, List<ApplyRelateOrder>>();
         Map<String, List<ApplyRelateOrder>> memberInfoApplyRelateOrderMap = new HashMap<String, List<ApplyRelateOrder>>();
         Map<String, List<ApplyRelateOrder>> memberInfoOnlyOrderMap = new HashMap<String, List<ApplyRelateOrder>>();
+
         try {
             //查询总数
             if (!isAllDataQueryFlag) {
 //                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM apply_info where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ?");
 //                pstmt.setString(1, date);
             } else {
+
+                String[] phonetagColNames = {"member_id","apply_no","order_no","mobile","index_name","direct","indirect","create_time","update_time"};
+                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
+
+                String[] deviceColNames = {"member_id","apply_no","order_no","deviceId","index_name","direct","create_time","update_time","mobile"};
+                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
+
+                String[] ipColNames = {"member_id","apply_no","order_no","ip","index_name","direct","create_time","update_time","mobile"};
+                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
+
+                String[] memberColNames = {"member_id","apply_no","order_no","index_name","direct","create_time","update_time","mobile"};
+                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
+
+
                 List<String> tempOrderList = new ArrayList<String>();
                 //这个sql查询的是只有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null limit 100");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1235,7 +1407,7 @@ public class SqlUtils {
                 }
 
                 //这个sql查询的是有申请关联订单的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null limit 100");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
@@ -1263,7 +1435,7 @@ public class SqlUtils {
                     addStoreIdToMap(storeId);
                 }
                 //这个sql查询的是有订单去除有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order");
+                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order limit 100");
                 rs = pstmt.executeQuery();
 
                 while (rs.next()) {
