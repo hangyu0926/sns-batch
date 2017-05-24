@@ -2185,19 +2185,19 @@ public class SqlUtils {
         PreparedStatement pstmt = null;
         try {
             if (!isAllDataQueryFlag) {
-                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
             } else {
