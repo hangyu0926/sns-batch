@@ -9,12 +9,10 @@ import cn.memedai.orientdb.fraud.statistics.task.HanlderThreadFactory;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OResultSet;
-import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +21,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -61,7 +57,7 @@ public class SqlUtils {
         try {
             tx = new ODatabaseDocumentTx(ConfigUtils.getProperty("orientDbUrl")).open(ConfigUtils.getProperty("orientDbUserName"), ConfigUtils.getProperty("orientDbUserPassword"));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("getODataBaseDocumentTx has e is {}", e);
         }
         return tx;
     }
@@ -474,7 +470,7 @@ public class SqlUtils {
      * @param memberAndPhoneBean
      * @param tx
      */
-    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx, ODocument phoneInfo,boolean isAllData) throws RuntimeException {
+    private static void dealBasicDataByPhone(MemberAndPhoneBean memberAndPhoneBean, ODatabaseDocumentTx tx, ODocument phoneInfo, boolean isAllData) throws RuntimeException {
         HashMap<String, Integer> map = new HashMap<String, Integer>();
         HashMap<String, Integer> map2 = new HashMap<String, Integer>();
 
@@ -511,7 +507,7 @@ public class SqlUtils {
         try {
             queryDirectRelationDataByPhoneNo(phone, map, map2, memberDeviceAndApplyAndOrderBean, phoneInfo,sameDeviceBeanList,sameIpBeanList,isAllData);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("dealBasicDataByPhone has e {}", e);
             throw new RuntimeException(e);
         }
 
@@ -593,7 +589,7 @@ public class SqlUtils {
             }
         }
 
-        if (!isAllData){
+        if (!isAllData) {
             LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
             insertPhonetagIndex(indexDatas);
             //插入一度和二度联系人指标结束
@@ -665,12 +661,11 @@ public class SqlUtils {
             }
         }
 
-        if (!isAllData){
+        if (!isAllData) {
             LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
             insertDeviceAndIpIndex(deviceIndexDataList, ipIndexDataList);
             //插入同ip的客户个数指标结束
         }
-
 
 
         //插入会员指标开始
@@ -758,15 +753,15 @@ public class SqlUtils {
         }
 
 
-        if (!isAllData){
+        if (!isAllData) {
             LOGGER.info("dealBasicDataByPhone insertMemberIndex");
             insertMemberIndex(memberIndexDatas);
         }
         //插入会员指标结束
 
-        if (isAllData){
+        if (isAllData) {
             lock.lock();
-            exportToCsv(indexDatas,deviceIndexDataList,ipIndexDataList,memberIndexDatas);
+            exportToCsv(indexDatas, deviceIndexDataList, ipIndexDataList, memberIndexDatas);
             lock.unlock();
         }
 
@@ -1262,7 +1257,7 @@ public class SqlUtils {
     }
 
 
-    private static void dealAllBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx,boolean isAllData) {
+    private static void dealAllBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx, boolean isAllData) {
         int size = memberAndPhoneBeanList.size();
 
 
@@ -1294,7 +1289,6 @@ public class SqlUtils {
                     dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k), isAllData);
                 } catch (RuntimeException e) {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
-                    e.printStackTrace();
                 }
             }
 
@@ -1331,7 +1325,6 @@ public class SqlUtils {
                     dealBasicDataByPhone(memberAndPhoneBeanList.get(index), tx, (ODocument) phoneInfos.get(k), isAllData);
                 } catch (RuntimeException e) {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
-                    e.printStackTrace();
                 }
             }
 
@@ -1346,38 +1339,38 @@ public class SqlUtils {
         }
     }
 
-    private static void exportToCsv(List<IndexData> indexDatas, List<IndexData> deviceIndexDataList, List<IndexData> ipIndexDataList, List<IndexData> memberIndexDatas){
+    private static void exportToCsv(List<IndexData> indexDatas, List<IndexData> deviceIndexDataList, List<IndexData> ipIndexDataList, List<IndexData> memberIndexDatas) {
         File csvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME);
         List<List<String>> data = new ArrayList<List<String>>();
 
         int indexDatasSize = indexDatas.size();
-        for (int p = 0; p < indexDatasSize; p++){
+        for (int p = 0; p < indexDatasSize; p++) {
             List<String> list = new ArrayList<String>();
             IndexData indexData = indexDatas.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
-            if (null != indexData.getApplyNo()){
-                list.add(indexData.getApplyNo()+"\t");
-            }else{
+            if (null != indexData.getApplyNo()) {
+                list.add(indexData.getApplyNo() + "\t");
+            } else {
                 list.add("");
             }
-            if (null != indexData.getOrderNo()){
-                list.add(indexData.getOrderNo()+"\t");
-            }else{
+            if (null != indexData.getOrderNo()) {
+                list.add(indexData.getOrderNo() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getMobile());
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
             list.add(String.valueOf(indexData.getIndirect()));
-            list.add(indexData.getCreateTime()+"\t");
-            if (null != indexData.getUpdateTime()){
-                list.add(indexData.getUpdateTime()+"\t");
-            }else{
+            list.add(indexData.getCreateTime() + "\t");
+            if (null != indexData.getUpdateTime()) {
+                list.add(indexData.getUpdateTime() + "\t");
+            } else {
                 list.add("");
             }
             data.add(list);
         }
-        CSVTest.appendDate(csvFile, data);
+        CSVUtils.appendDate(csvFile, data);
 
 
         //
@@ -1385,98 +1378,98 @@ public class SqlUtils {
         List<List<String>> deviceData = new ArrayList<List<String>>();
 
         int deviceIndexDataListSize = deviceIndexDataList.size();
-        for (int p = 0; p < deviceIndexDataListSize; p++){
+        for (int p = 0; p < deviceIndexDataListSize; p++) {
             List<String> list = new ArrayList<String>();
             IndexData indexData = deviceIndexDataList.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
-            if (null != indexData.getApplyNo()){
-                list.add(indexData.getApplyNo()+"\t");
-            }else{
+            if (null != indexData.getApplyNo()) {
+                list.add(indexData.getApplyNo() + "\t");
+            } else {
                 list.add("");
             }
-            if (null != indexData.getOrderNo()){
-                list.add(indexData.getOrderNo()+"\t");
-            }else{
+            if (null != indexData.getOrderNo()) {
+                list.add(indexData.getOrderNo() + "\t");
+            } else {
                 list.add("");
             }
-            list.add(indexData.getDeviceId()+"\t");
+            list.add(indexData.getDeviceId());
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime()+"\t");
-            if (null != indexData.getUpdateTime()){
-                list.add(indexData.getUpdateTime()+"\t");
-            }else{
+            list.add(indexData.getCreateTime() + "\t");
+            if (null != indexData.getUpdateTime()) {
+                list.add(indexData.getUpdateTime() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getMobile());
             deviceData.add(list);
         }
-        CSVTest.appendDate(deviceCsvFile, deviceData);
+        CSVUtils.appendDate(deviceCsvFile, deviceData);
 
         //
         File ipCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME);
         List<List<String>> ipData = new ArrayList<List<String>>();
 
         int ipIndexDataListSize = ipIndexDataList.size();
-        for (int p = 0; p < ipIndexDataListSize; p++){
+        for (int p = 0; p < ipIndexDataListSize; p++) {
             List<String> list = new ArrayList<String>();
             IndexData indexData = ipIndexDataList.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
-            if (null != indexData.getApplyNo()){
-                list.add(indexData.getApplyNo()+"\t");
-            }else{
+            if (null != indexData.getApplyNo()) {
+                list.add(indexData.getApplyNo() + "\t");
+            } else {
                 list.add("");
             }
-            if (null != indexData.getOrderNo()){
-                list.add(indexData.getOrderNo()+"\t");
-            }else{
+            if (null != indexData.getOrderNo()) {
+                list.add(indexData.getOrderNo() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getIp());
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime()+"\t");
-            if (null != indexData.getUpdateTime()){
-                list.add(indexData.getUpdateTime()+"\t");
-            }else{
+            list.add(indexData.getCreateTime() + "\t");
+            if (null != indexData.getUpdateTime()) {
+                list.add(indexData.getUpdateTime() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getMobile());
             ipData.add(list);
         }
-        CSVTest.appendDate(ipCsvFile, ipData);
+        CSVUtils.appendDate(ipCsvFile, ipData);
 
         //
         File memberCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME);
         List<List<String>> memberData = new ArrayList<List<String>>();
 
         int memberIndexDatasSize = memberIndexDatas.size();
-        for (int p = 0; p < memberIndexDatasSize; p++){
+        for (int p = 0; p < memberIndexDatasSize; p++) {
             List<String> list = new ArrayList<String>();
             IndexData indexData = memberIndexDatas.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
-            if (null != indexData.getApplyNo()){
-                list.add(indexData.getApplyNo()+"\t");
-            }else{
+            if (null != indexData.getApplyNo()) {
+                list.add(indexData.getApplyNo() + "\t");
+            } else {
                 list.add("");
             }
-            if (null != indexData.getOrderNo()){
-                list.add(indexData.getOrderNo()+"\t");
-            }else{
+            if (null != indexData.getOrderNo()) {
+                list.add(indexData.getOrderNo() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime()+"\t");
-            if (null != indexData.getUpdateTime()){
-                list.add(indexData.getUpdateTime()+"\t");
-            }else{
+            list.add(indexData.getCreateTime() + "\t");
+            if (null != indexData.getUpdateTime()) {
+                list.add(indexData.getUpdateTime() + "\t");
+            } else {
                 list.add("");
             }
             list.add(indexData.getMobile());
             memberData.add(list);
         }
-        CSVTest.appendDate(memberCsvFile, memberData);
+        CSVUtils.appendDate(memberCsvFile, memberData);
     }
 
 
@@ -1503,7 +1496,7 @@ public class SqlUtils {
                 }
                 pstmt.executeBatch();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("insertPhonetagIndex has e is {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1564,7 +1557,7 @@ public class SqlUtils {
                 }
                 pstmt.executeBatch();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("insertDeviceAndIpIndex has e is {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1760,7 +1753,7 @@ public class SqlUtils {
                 }
                 pstmt.executeBatch();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("insertMemberIndex has e is {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1922,17 +1915,17 @@ public class SqlUtils {
                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql,isAllDataQueryFlag,date);
             } else {
 
-                String[] phonetagColNames = {"member_id","apply_no","order_no","mobile","index_name","direct","indirect","create_time","update_time"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
+                String[] phonetagColNames = {"member_id", "apply_no", "order_no", "mobile", "index_name", "direct", "indirect", "create_time", "update_time"};
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
 
-                String[] deviceColNames = {"member_id","apply_no","order_no","deviceId","index_name","direct","create_time","update_time","mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
+                String[] deviceColNames = {"member_id", "apply_no", "order_no", "deviceId", "index_name", "direct", "create_time", "update_time", "mobile"};
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
 
-                String[] ipColNames = {"member_id","apply_no","order_no","ip","index_name","direct","create_time","update_time","mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
+                String[] ipColNames = {"member_id", "apply_no", "order_no", "ip", "index_name", "direct", "create_time", "update_time", "mobile"};
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
 
-                String[] memberColNames = {"member_id","apply_no","order_no","index_name","direct","create_time","update_time","mobile"};
-                CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
+                String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile"};
+                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
 
                 String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null";
                 String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null";
@@ -2191,21 +2184,21 @@ public class SqlUtils {
         PreparedStatement pstmt = null;
         try {
             if (!isAllDataQueryFlag) {
-            /*    pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
                 pstmt.setString(1, date);
-                pstmt.executeUpdate();*/
+                pstmt.executeUpdate();
             } else {
                 pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index");
                 pstmt.executeUpdate();
