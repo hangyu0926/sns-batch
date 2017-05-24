@@ -31,7 +31,7 @@ public class ConstantHelper {
 
     public final static int MEMBER_RELATED_PHONENO_SIZE = 1000;
 
-    public final static String FILE_PATH = "E:/temp";
+    public final static String FILE_PATH = "/home/orientdb/migration_script/basicData/";
 
     public final static String PHONETAG_FILE_NAME = "phonetag.csv";
 

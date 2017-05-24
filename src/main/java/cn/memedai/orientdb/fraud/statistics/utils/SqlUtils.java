@@ -123,14 +123,14 @@ public class SqlUtils {
      * 查询具体业务指标
      *
      * @param memberRelatedPhoneNo
-     * @param tx
      * @param map
      * @param map2
      * @param memberDeviceAndApplyAndOrderBean
      * @return
      */
-    private static long queryDirectRelationDataByPhoneNo(String memberRelatedPhoneNo, ODatabaseDocumentTx tx, Map<String, Integer> map, Map<String, Integer> map2,
-                                                         MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean, ODocument phoneInfo) {
+    private static long queryDirectRelationDataByPhoneNo(String memberRelatedPhoneNo, Map<String, Integer> map, Map<String, Integer> map2,
+                                                         MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean, ODocument phoneInfo,
+                                                         List<SameDeviceBean> sameDeviceBeanList,List<SameIpBean> sameIpBeanList,Boolean isAllData) {
         //OResultSet phoneInfos = tx.command(new OCommandSQL("select @rid as phoneRid0, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone = ?")).execute(new Object[]{memberRelatedPhoneNo});
         //ODocument phoneInfo = ((ODocument) phoneInfos.get(0));
         ODocument phoneRecord0 = phoneInfo.field("phoneRid0");
@@ -147,29 +147,25 @@ public class SqlUtils {
             ORidBag in_HasDevice = member.field("out_MemberHasDevice");
             if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
                 diffDeviceCount = in_HasDevice.size();
-              /*  Iterator<OIdentifiable> it = in_HasDevice.iterator();
-                while (it.hasNext()) {
-                    diffDeviceCount++;
-                    SameDeviceBean sameDeviceBean = new SameDeviceBean();
-                    OIdentifiable t = it.next();
-                    ODocument inDevice = (ODocument) t;
-                    ODocument device = inDevice.field("in");
-                    ORidBag out_HasDevice = device.field("in_MemberHasDevice");
-                    String deviceId = device.field("deviceId");
-                    sameDeviceBean.setDeviceId(deviceId);
-                    //同设备客户个数
-                    int sameDeviceCount = 0;
-                    if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
-                        sameDeviceCount = out_HasDevice.size();
-                       *//* Iterator<OIdentifiable> it1 = out_HasDevice.iterator();
-                        while (it1.hasNext()) {
-                            it1.next();
-                            sameDeviceCount++;
-                        }*//*
+                if (!isAllData){
+                    Iterator<OIdentifiable> it = in_HasDevice.iterator();
+                    while (it.hasNext()) {
+                        SameDeviceBean sameDeviceBean = new SameDeviceBean();
+                        OIdentifiable t = it.next();
+                        ODocument inDevice = (ODocument) t;
+                        ODocument device = inDevice.field("in");
+                        ORidBag out_HasDevice = device.field("in_MemberHasDevice");
+                        String deviceId = device.field("deviceId");
+                        sameDeviceBean.setDeviceId(deviceId);
+                        //同设备客户个数
+                        int sameDeviceCount = 0;
+                        if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
+                            sameDeviceCount = out_HasDevice.size();
+                        }
+                        sameDeviceBean.setDirect(sameDeviceCount);
+                        sameDeviceBeanList.add(sameDeviceBean);
                     }
-                    sameDeviceBean.setDirect(sameDeviceCount);
-                    sameDeviceBeanList.add(sameDeviceBean);
-                }*/
+                }
             }
 
             //连接不同ip的个数
@@ -177,9 +173,9 @@ public class SqlUtils {
             ORidBag in_HasIp = member.field("out_MemberHasIp");
             if (null != in_HasIp && !in_HasIp.isEmpty()) {
                 diffIpCount = in_HasIp.size();
-                   /*Iterator<OIdentifiable> it = in_HasIp.iterator();
+                if (!isAllData) {
+                    Iterator<OIdentifiable> it = in_HasIp.iterator();
                     while (it.hasNext()) {
-                        diffIpCount++;
                         SameIpBean sameIpBean = new SameIpBean();
                         OIdentifiable t = it.next();
                         ODocument inIp = (ODocument) t;
@@ -191,16 +187,12 @@ public class SqlUtils {
                         int sameIpCount = 0;
                         if (null != out_HasIp && !out_HasIp.isEmpty()) {
                             sameIpCount = out_HasIp.size();
-                           *//* Iterator<OIdentifiable> it1 = out_HasIp.iterator();
-                            while (it1.hasNext()) {
-                                it1.next();
-                                sameIpCount++;
-                            }*//*
                         }
                         sameIpBean.setDirect(sameIpCount);
                         sameIpBeanList.add(sameIpBean);
 
-                    }*/
+                    }
+                }
             }
 
             //连接不同申请件数
@@ -492,30 +484,32 @@ public class SqlUtils {
         String phone = memberAndPhoneBean.getPhones();
         Long memberId = Long.valueOf(memberAndPhoneBean.getMemberId());
 
-        List<String> deviceIdList = memberHasDeviceMap.get(memberId);
-        if (deviceIdList != null && !deviceIdList.isEmpty()) {
-            int deviceIdListSize = deviceIdList.size();
-            for (int i = 0; i < deviceIdListSize; i++) {
-                SameDeviceBean sameDeviceBean = new SameDeviceBean();
-                sameDeviceBean.setDeviceId(deviceIdList.get(i));
-                sameDeviceBean.setDirect(deviceHasMemeberMap.get(deviceIdList.get(i)));
-                sameDeviceBeanList.add(sameDeviceBean);
+        if (isAllData){
+            List<String> deviceIdList = memberHasDeviceMap.get(memberId);
+            if (deviceIdList != null && !deviceIdList.isEmpty()) {
+                int deviceIdListSize = deviceIdList.size();
+                for (int i = 0; i < deviceIdListSize; i++) {
+                    SameDeviceBean sameDeviceBean = new SameDeviceBean();
+                    sameDeviceBean.setDeviceId(deviceIdList.get(i));
+                    sameDeviceBean.setDirect(deviceHasMemeberMap.get(deviceIdList.get(i)));
+                    sameDeviceBeanList.add(sameDeviceBean);
+                }
             }
-        }
 
-        List<String> ipList = memberHasIpMap.get(memberId);
-        if (ipList != null && !ipList.isEmpty()) {
-            int ipListSize = ipList.size();
-            for (int i = 0; i < ipListSize; i++) {
-                SameIpBean sameIpBean = new SameIpBean();
-                sameIpBean.setIp(ipList.get(i));
-                sameIpBean.setDirect(ipHasMemeberMap.get(ipList.get(i)));
-                sameIpBeanList.add(sameIpBean);
+            List<String> ipList = memberHasIpMap.get(memberId);
+            if (ipList != null && !ipList.isEmpty()) {
+                int ipListSize = ipList.size();
+                for (int i = 0; i < ipListSize; i++) {
+                    SameIpBean sameIpBean = new SameIpBean();
+                    sameIpBean.setIp(ipList.get(i));
+                    sameIpBean.setDirect(ipHasMemeberMap.get(ipList.get(i)));
+                    sameIpBeanList.add(sameIpBean);
+                }
             }
         }
 
         try {
-            queryDirectRelationDataByPhoneNo(phone, tx, map, map2, memberDeviceAndApplyAndOrderBean, phoneInfo);
+            queryDirectRelationDataByPhoneNo(phone, map, map2, memberDeviceAndApplyAndOrderBean, phoneInfo,sameDeviceBeanList,sameIpBeanList,isAllData);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -877,19 +871,138 @@ public class SqlUtils {
         return null;
     }
 
-    public static void getBasicData(List<MemberAndPhoneBean> MemberAndPhoneBeanList, boolean isAllData) {
+    public static void getBasicData(List<MemberAndPhoneBean> memberAndPhoneBeanList, boolean isAllData) {
         if (isAllData) {
-            if (null != MemberAndPhoneBeanList && MemberAndPhoneBeanList.size() > 0) {
+            if (null != memberAndPhoneBeanList && memberAndPhoneBeanList.size() > 0) {
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
-                dealAllBasicDataByApplyList(MemberAndPhoneBeanList, tx,isAllData);
+                dealAllBasicDataByApplyList(memberAndPhoneBeanList, tx, isAllData);
                 if (tx != null) {
                     OrientDbUtils.close(tx);
                 }
             }
-        } else {
+        }else{
+            //分出MemberAndPhoneBeanList哪些是新增 哪些是修改
+            List<MemberAndPhoneBean> addBeanList = new ArrayList<MemberAndPhoneBean>();
+            List<MemberAndPhoneBean> updateBeanList = new ArrayList<MemberAndPhoneBean>();
 
+            Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                    ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+
+            int memberAndPhoneBeanListSize = memberAndPhoneBeanList.size();
+            String phone = null;
+            String memberId = null;
+            List<ApplyRelateOrder> onlyAppNos = new ArrayList<ApplyRelateOrder>();
+            List<ApplyRelateOrder> onlyOrderNos = new ArrayList<ApplyRelateOrder>();
+            List<ApplyRelateOrder> applyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
+            for (int i = 0; i < memberAndPhoneBeanListSize; i++){
+                MemberAndPhoneBean addmemberAndPhoneBean = new MemberAndPhoneBean();
+                addmemberAndPhoneBean.setPhones(memberAndPhoneBeanList.get(i).getPhones());
+                addmemberAndPhoneBean.setMemberId(memberAndPhoneBeanList.get(i).getMemberId());
+
+                MemberAndPhoneBean updatememberAndPhoneBean = new MemberAndPhoneBean();
+                updatememberAndPhoneBean.setPhones(memberAndPhoneBeanList.get(i).getPhones());
+                updatememberAndPhoneBean.setMemberId(memberAndPhoneBeanList.get(i).getMemberId());
+
+                int num = 0;
+
+                onlyAppNos = memberAndPhoneBeanList.get(i).getOnlyAppNos();
+                int onlyAppNosSize = onlyAppNos.size();
+                List<ApplyRelateOrder> addonlyAppNos = new ArrayList<ApplyRelateOrder>();
+                List<ApplyRelateOrder> updateonlyAppNos = new ArrayList<ApplyRelateOrder>();
+                for (int j = 0; j < onlyAppNosSize; j++){
+                    try {
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where apply_no = ?");
+                        pstmt.setString(1,  onlyAppNos.get(j).getApply());
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            num = rs.getInt("num");
+                        }
+                        if (num > 0){
+                            updateonlyAppNos.add(onlyAppNos.get(j));
+                        }else{
+                            addonlyAppNos.add(onlyAppNos.get(j));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                onlyOrderNos = memberAndPhoneBeanList.get(i).getOnlyOrderNos();
+                int onlyOrderNosSize = onlyOrderNos.size();
+                List<ApplyRelateOrder> addonlyOrderNos = new ArrayList<ApplyRelateOrder>();
+                List<ApplyRelateOrder> updateonlyOrderNos = new ArrayList<ApplyRelateOrder>();
+                for (int j = 0; j < onlyOrderNosSize; j++){
+                    try {
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where order_no = ?");
+                        pstmt.setString(1,  onlyOrderNos.get(j).getOrder());
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            num = rs.getInt("num");
+                        }
+                        if (num > 0){
+                            updateonlyOrderNos.add(onlyOrderNos.get(j));
+                        }else{
+                            addonlyOrderNos.add(onlyOrderNos.get(j));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                applyRelateOrderNos = memberAndPhoneBeanList.get(i).getApplyRelateOrderNos();
+                int applyRelateOrderNosSize = applyRelateOrderNos.size();
+                List<ApplyRelateOrder> addapplyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
+                List<ApplyRelateOrder> updateapplyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
+                for (int j = 0; j < applyRelateOrderNosSize; j++){
+                    try {
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where apply_no = ?");
+                        pstmt.setString(1,  applyRelateOrderNos.get(j).getApply());
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            num = rs.getInt("num");
+                        }
+                        if (num > 0){
+                            updateapplyRelateOrderNos.add(applyRelateOrderNos.get(j));
+                        }else{
+                            addapplyRelateOrderNos.add(applyRelateOrderNos.get(j));
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                addmemberAndPhoneBean.setOnlyAppNos(addonlyAppNos);
+                addmemberAndPhoneBean.setOnlyOrderNos(addonlyOrderNos);
+                addmemberAndPhoneBean.setApplyRelateOrderNos(addapplyRelateOrderNos);
+                addBeanList.add(addmemberAndPhoneBean);
+
+                updatememberAndPhoneBean.setOnlyAppNos(updateonlyAppNos);
+                updatememberAndPhoneBean.setOnlyOrderNos(updateonlyOrderNos);
+                updatememberAndPhoneBean.setApplyRelateOrderNos(updateapplyRelateOrderNos);
+                updateBeanList.add(updatememberAndPhoneBean);
+            }
+
+
+            if (null != addBeanList && addBeanList.size() > 0) {
+              /*  ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+                dealAllBasicDataByApplyList(addBeanList, tx, isAllData);
+                if (tx != null) {
+                    OrientDbUtils.close(tx);
+                }*/
+            }
+
+
+            if (null != updateBeanList && updateBeanList.size() > 0) {
+                ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+                //TO_DO
+                dealUpdateBasicDataByApplyList(updateBeanList, tx);
+                if (tx != null) {
+                    OrientDbUtils.close(tx);
+                }
+            }
         }
-
     }
 
     public static void main(String[] args) {
@@ -899,6 +1012,252 @@ public class SqlUtils {
         ODatabaseDocumentTx tx = getODataBaseDocumentTx();
         String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
         OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});
+
+    }
+
+    /**
+     * 增量需要修改的申请或订单
+     * @param memberAndPhoneBeanList
+     * @param tx
+     */
+    private static void dealUpdateBasicDataByApplyList(List<MemberAndPhoneBean> memberAndPhoneBeanList, ODatabaseDocumentTx tx){
+
+        int memberAndPhoneBeanListSize = memberAndPhoneBeanList.size();
+
+        for (int k = 0; k < memberAndPhoneBeanListSize; k++){
+            MemberAndPhoneBean memberAndPhoneBean = memberAndPhoneBeanList.get(k);
+            List<ApplyRelateOrder> onlyAppNos = memberAndPhoneBean.getOnlyAppNos();
+            List<ApplyRelateOrder> onlyOrderNos = memberAndPhoneBean.getOnlyOrderNos();
+            List<ApplyRelateOrder> applyRelateOrderNos = memberAndPhoneBean.getApplyRelateOrderNos();
+
+            List<SameDeviceBean> sameDeviceBeanList = new ArrayList<SameDeviceBean>();
+            List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
+
+            MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
+            String sql = "select @rid as member from member where memberId = ?";
+            OResultSet members = tx.command(new OCommandSQL(sql)).execute(new Object[]{memberAndPhoneBean.getMemberId()});
+            ODocument members1 = ((ODocument) members.get(0));
+            ODocument member = members1.field("member");
+
+
+            //连接不同设备的个数
+            int diffDeviceCount = 0;
+            ORidBag in_HasDevice = member.field("out_MemberHasDevice");
+            if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
+                diffDeviceCount = in_HasDevice.size();
+            }
+
+            if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
+                Iterator<OIdentifiable> it = in_HasDevice.iterator();
+                while (it.hasNext()) {
+                    SameDeviceBean sameDeviceBean = new SameDeviceBean();
+                    OIdentifiable t = it.next();
+                    ODocument inDevice = (ODocument) t;
+                    ODocument device = inDevice.field("in");
+                    ORidBag out_HasDevice = device.field("in_MemberHasDevice");
+                    String deviceId = device.field("deviceId");
+                    sameDeviceBean.setDeviceId(deviceId);
+                    //同设备客户个数
+                    int sameDeviceCount = 0;
+                    if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
+                        sameDeviceCount = out_HasDevice.size();
+                    }
+                    sameDeviceBean.setDirect(sameDeviceCount);
+                    sameDeviceBeanList.add(sameDeviceBean);
+                }
+            }
+
+            //插入同设备客户个数指标开始
+            int sameDeviceListSize = sameDeviceBeanList.size();
+            List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
+            for (int j = 0; j < sameDeviceListSize; j++) {
+                String deviceId = sameDeviceBeanList.get(j).getDeviceId();
+                int direct = sameDeviceBeanList.get(j).getDirect();
+                if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
+                    int onlyAppNosSize = onlyAppNos.size();
+                    for (int i = 0; i < onlyAppNosSize; i++) {
+                        AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                                "equal_device_member_num", direct, 0, onlyAppNos.get(i).getCreateTime(), deviceId, null);
+                    }
+                }
+
+                if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
+                    int onlyOrderNosSize = onlyOrderNos.size();
+                    for (int i = 0; i < onlyOrderNosSize; i++) {
+                        AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                                "equal_device_member_num", direct, 0, onlyOrderNos.get(i).getCreateTime(), deviceId, null);
+                    }
+                }
+
+                if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
+                    int applyRelateOrderNosSize = applyRelateOrderNos.size();
+                    for (int i = 0; i < applyRelateOrderNosSize; i++) {
+                        AddIndexDatas(deviceIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                                applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                                "equal_device_member_num", direct, 0, applyRelateOrderNos.get(i).getCreateTime(), deviceId, null);
+                    }
+                }
+            }
+            //插入同设备客户个数指标结束
+
+            updateDeviceIndex(deviceIndexDataList);
+
+            //连接不同ip的个数
+            int diffIpCount = 0;
+            ORidBag in_HasIp = member.field("out_MemberHasIp");
+            if (null != in_HasIp && !in_HasIp.isEmpty()) {
+                diffIpCount = in_HasIp.size();
+            }
+            if (null != in_HasIp && !in_HasIp.isEmpty()) {
+                Iterator<OIdentifiable> it = in_HasIp.iterator();
+                while (it.hasNext()) {
+                    SameIpBean sameIpBean = new SameIpBean();
+                    OIdentifiable t = it.next();
+                    ODocument inIp = (ODocument) t;
+                    ODocument ip1 = inIp.field("in");
+                    ORidBag out_HasIp = ip1.field("in_MemberHasIp");
+                    String ip = ip1.field("ip");
+                    sameIpBean.setIp(ip);
+                    //同ip的客户个数
+                    int sameIpCount = 0;
+                    if (null != out_HasIp && !out_HasIp.isEmpty()) {
+                        sameIpCount = out_HasIp.size();
+                    }
+                    sameIpBean.setDirect(sameIpCount);
+                    sameIpBeanList.add(sameIpBean);
+
+                }
+            }
+
+            int sameIpListSize = sameIpBeanList.size();
+            List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
+            for (int j = 0; j < sameIpListSize; j++) {
+                String ip = sameIpBeanList.get(j).getIp();
+                int direct = sameIpBeanList.get(j).getDirect();
+                if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
+                    int onlyAppNosSize = onlyAppNos.size();
+                    for (int i = 0; i < onlyAppNosSize; i++) {
+                        AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                                "equal_ip_member_num", direct, 0, onlyAppNos.get(i).getCreateTime(), null, ip);
+                    }
+                }
+
+                if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
+                    int onlyOrderNosSize = onlyOrderNos.size();
+                    for (int i = 0; i < onlyOrderNosSize; i++) {
+                        AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                                "equal_ip_member_num", direct, 0, onlyOrderNos.get(i).getCreateTime(), null, ip);
+                    }
+                }
+
+                if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
+                    int applyRelateOrderNosSize = applyRelateOrderNos.size();
+                    for (int i = 0; i < applyRelateOrderNosSize; i++) {
+                        AddIndexDatas(ipIndexDataList, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                                applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                                "equal_ip_member_num", direct, 0, applyRelateOrderNos.get(i).getCreateTime(), null, ip);
+                    }
+                }
+            }
+
+            updateIpIndex(ipIndexDataList);
+
+
+
+            //连接不同申请件数
+            int diffApplyCount = 0;
+            ORidBag in_HasApply = member.field("out_MemberHasApply");
+            if (null != in_HasApply && !in_HasApply.isEmpty()) {
+                diffApplyCount = in_HasApply.size();
+            }
+            //连接不同订单数
+            int diffOrderCount = 0;
+            ORidBag in_HasOrder = member.field("out_MemberHasOrder");
+            if (null != in_HasOrder && !in_HasOrder.isEmpty()) {
+                diffOrderCount = in_HasOrder.size();
+            }
+            // 连接不同商户个数
+            int diffMerchantCount = 0;
+            long memberId = member.field("memberId");
+
+            Set<String> set = memberHasStoreMap.get(memberId);
+            if (null != set) {
+                diffMerchantCount = set.size();
+            }
+
+            memberDeviceAndApplyAndOrderBean.setHasDeviceNum(diffDeviceCount);
+            memberDeviceAndApplyAndOrderBean.setHasIpNum(diffIpCount);
+            memberDeviceAndApplyAndOrderBean.setHasApplNum(diffApplyCount);
+            memberDeviceAndApplyAndOrderBean.setHasMerchantNum(diffMerchantCount);
+            memberDeviceAndApplyAndOrderBean.setHasOrderNum(diffOrderCount);
+
+            List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
+            if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
+                int onlyAppNosSize = onlyAppNos.size();
+                for (int i = 0; i < onlyAppNosSize; i++) {
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                }
+            }
+
+            if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
+                int onlyOrderNosSize = onlyOrderNos.size();
+                for (int i = 0; i < onlyOrderNosSize; i++) {
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                }
+            }
+
+            if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
+                int applyRelateOrderNosSize = applyRelateOrderNos.size();
+                for (int i = 0; i < applyRelateOrderNosSize; i++) {
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                }
+            }
+
+            updateMemberIndex(memberIndexDatas);
+
+            if (null != sameDeviceBeanList){
+                sameDeviceBeanList.clear();
+                sameDeviceBeanList = null;
+            }
+
+            if (null != sameIpBeanList){
+                sameIpBeanList.clear();
+                sameIpBeanList = null;
+            }
+        }
+
 
     }
 
@@ -928,10 +1287,6 @@ public class SqlUtils {
                 return;
             }
             int phoneInfosSize = phoneInfos.size();
-            List<IndexData> indexDatas = new ArrayList<IndexData>();
-            List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
-            List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
-            List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
@@ -969,10 +1324,6 @@ public class SqlUtils {
                 return;
             }
             int phoneInfosSize = phoneInfos.size();
-            List<IndexData> indexDatas = new ArrayList<IndexData>();
-            List<IndexData> deviceIndexDataList = new ArrayList<IndexData>();
-            List<IndexData> ipIndexDataList = new ArrayList<IndexData>();
-            List<IndexData> memberIndexDatas = new ArrayList<IndexData>();
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
@@ -1048,7 +1399,7 @@ public class SqlUtils {
             }else{
                 list.add("");
             }
-            list.add(indexData.getDeviceId());
+            list.add(indexData.getDeviceId()+"\t");
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
             list.add(indexData.getCreateTime()+"\t");
@@ -1234,6 +1585,159 @@ public class SqlUtils {
 
     }
 
+    private static void updateDeviceIndex(List<IndexData> deviceIndexDatas){
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        if (null != deviceIndexDatas && deviceIndexDatas.size() > 0) {
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                int num = 0;
+                for (int i = 0; i < deviceIndexDatas.size(); i++) {
+                    if (null != deviceIndexDatas.get(i).getApplyNo()){
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `device_index` where apply_no = ? and deviceId = ?");
+                        pstmt.setString(1,  deviceIndexDatas.get(i).getApplyNo());
+                        pstmt.setString(2,  deviceIndexDatas.get(i).getDeviceId());
+                    }else{
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `device_index` where order_no = ? and deviceId = ?");
+                        pstmt.setString(1,  deviceIndexDatas.get(i).getOrderNo());
+                        pstmt.setString(2,  deviceIndexDatas.get(i).getDeviceId());
+                    }
+
+                    rs = pstmt.executeQuery();
+                    while (rs.next()){
+                        num = rs.getInt("num");
+                    }
+                    if (num > 0){
+                        if (null != deviceIndexDatas.get(i).getApplyNo()){
+                            pstmt = mysqlConn.prepareStatement("update device_index set  direct = ? ,update_time = now() where apply_no = ? and deviceId = ? ");
+                        }else{
+                            pstmt = mysqlConn.prepareStatement("update device_index set  direct = ? ,update_time = now() where order_no = ? and deviceId = ?");
+                        }
+
+                        pstmt.setLong(1, deviceIndexDatas.get(i).getDirect());
+                        if (null != deviceIndexDatas.get(i).getApplyNo()){
+                            pstmt.setString(2, deviceIndexDatas.get(i).getApplyNo());
+                        }else{
+                            pstmt.setString(2, deviceIndexDatas.get(i).getOrderNo());
+                        }
+                        pstmt.setString(3, deviceIndexDatas.get(i).getDeviceId());
+                        pstmt.executeUpdate();
+                    }else{
+                        pstmt = mysqlConn.prepareStatement("insert into device_index (member_id, apply_no, order_no,mobile,deviceId,index_name,direct,create_time) " +
+                                "values(?,?,?,?,?,?,?,?)");
+                        pstmt.setLong(1, deviceIndexDatas.get(i).getMemberId());
+                        pstmt.setString(2, deviceIndexDatas.get(i).getApplyNo());
+                        pstmt.setString(3, deviceIndexDatas.get(i).getOrderNo());
+                        pstmt.setString(4, deviceIndexDatas.get(i).getMobile());
+                        pstmt.setString(5, deviceIndexDatas.get(i).getDeviceId());
+                        pstmt.setString(6, deviceIndexDatas.get(i).getIndexName());
+                        pstmt.setLong(7, deviceIndexDatas.get(i).getDirect());
+                        pstmt.setString(8, deviceIndexDatas.get(i).getCreateTime());
+                        pstmt.addBatch();
+                    }
+                }
+                pstmt.executeBatch();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateDeviceIndex pstmt.close have e {}", e);
+                }
+                try {
+                    if (mysqlConn != null) {
+                        mysqlConn.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateDeviceIndex mysqlConn.close have e {}", e);
+                }
+            }
+        }
+    }
+
+
+    private static void updateIpIndex(List<IndexData> deviceIndexDatas){
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        if (null != deviceIndexDatas  && deviceIndexDatas.size() > 0) {
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                int num = 0;
+                for (int i = 0; i < deviceIndexDatas.size(); i++) {
+                    if (null != deviceIndexDatas.get(i).getApplyNo()){
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `ip_index` where apply_no = ? and ip = ?");
+                        pstmt.setString(1,  deviceIndexDatas.get(i).getApplyNo());
+                        pstmt.setString(2,  deviceIndexDatas.get(i).getIp());
+                    }else{
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `ip_index` where order_no = ? and ip = ?");
+                        pstmt.setString(1,  deviceIndexDatas.get(i).getOrderNo());
+                        pstmt.setString(2,  deviceIndexDatas.get(i).getIp());
+                    }
+
+                    rs = pstmt.executeQuery();
+                    while (rs.next()){
+                        num = rs.getInt("num");
+                    }
+                    if (num > 0){
+                        if (null != deviceIndexDatas.get(i).getApplyNo()){
+                            pstmt = mysqlConn.prepareStatement("update ip_index set  direct = ? ,update_time = now() where apply_no = ? and ip = ? ");
+                        }else{
+                            pstmt = mysqlConn.prepareStatement("update ip_index set  direct = ? ,update_time = now() where order_no = ? and ip = ?");
+                        }
+
+                        pstmt.setLong(1, deviceIndexDatas.get(i).getDirect());
+                        if (null != deviceIndexDatas.get(i).getApplyNo()){
+                            pstmt.setString(2, deviceIndexDatas.get(i).getApplyNo());
+                        }else{
+                            pstmt.setString(2, deviceIndexDatas.get(i).getOrderNo());
+                        }
+                        pstmt.setString(3, deviceIndexDatas.get(i).getIp());
+                        pstmt.executeUpdate();
+                    }else{
+                        pstmt = mysqlConn.prepareStatement("insert into ip_index (member_id, apply_no, order_no,mobile,ip,index_name,direct,create_time) " +
+                                "values(?,?,?,?,?,?,?,?)");
+                        pstmt.setLong(1, deviceIndexDatas.get(i).getMemberId());
+                        pstmt.setString(2, deviceIndexDatas.get(i).getApplyNo());
+                        pstmt.setString(3, deviceIndexDatas.get(i).getOrderNo());
+                        pstmt.setString(4, deviceIndexDatas.get(i).getMobile());
+                        pstmt.setString(5, deviceIndexDatas.get(i).getIp());
+                        pstmt.setString(6, deviceIndexDatas.get(i).getIndexName());
+                        pstmt.setLong(7, deviceIndexDatas.get(i).getDirect());
+                        pstmt.setString(8, deviceIndexDatas.get(i).getCreateTime());
+                        pstmt.addBatch();
+                    }
+                }
+                pstmt.executeBatch();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateIpIndex pstmt.close have e {}", e);
+                }
+                try {
+                    if (mysqlConn != null) {
+                        mysqlConn.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateIpIndex mysqlConn.close have e {}", e);
+                }
+            }
+        }
+    }
+
     private static void insertMemberIndex(List<IndexData> memberIndexDatas) {
         Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
@@ -1276,6 +1780,52 @@ public class SqlUtils {
         }
     }
 
+    private static void updateMemberIndex(List<IndexData> memberIndexDatas) {
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        if (null != memberIndexDatas && memberIndexDatas.size() > 0) {
+            PreparedStatement pstmt = null;
+            try {
+                for (int i = 0; i < memberIndexDatas.size(); i++) {
+                    if (null != memberIndexDatas.get(i).getApplyNo()){
+                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now() where apply_no = ? and index_name = ?");
+                    }else{
+                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now() where order_no = ? and index_name = ?");
+                    }
+
+                    pstmt.setLong(1, memberIndexDatas.get(i).getDirect());
+                    if (null != memberIndexDatas.get(i).getApplyNo()){
+                        pstmt.setString(2, memberIndexDatas.get(i).getApplyNo());
+                    }else{
+                        pstmt.setString(2, memberIndexDatas.get(i).getOrderNo());
+                    }
+                    pstmt.setString(3,memberIndexDatas.get(i).getIndexName());
+                    pstmt.executeUpdate();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (pstmt != null) {
+                        pstmt.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateMemberIndex pstmt.close have e {}", e);
+                }
+                try {
+                    if (mysqlConn != null) {
+                        mysqlConn.close();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("updateMemberIndex mysqlConn.close have e {}", e);
+                }
+            }
+        }
+    }
+
+
     public static void queryBasicData(String date) {
         boolean isAllDataQueryFlag = true;
         if (!StringUtils.isBlank(date)) {
@@ -1287,62 +1837,65 @@ public class SqlUtils {
             return;
         }
 
-        ODatabaseDocumentTx tx = getODataBaseDocumentTx();
-        OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0 limit 100")).execute(new Object[]{});
-        int memberHasDeviceSize = memberHasDevice.size();
-        for (int i = 0; i < memberHasDeviceSize; i++) {
-            ODocument inMemberHasDevice = ((ODocument) memberHasDevice.get(i));
-            String deviceId = inMemberHasDevice.field("deviceId");
-            ORidBag ocrs = inMemberHasDevice.field("memberHasDevice");
+        if (isAllDataQueryFlag) {
+            ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+            OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0")).execute(new Object[]{});
+            int memberHasDeviceSize = memberHasDevice.size();
+            for (int i = 0; i < memberHasDeviceSize; i++) {
+                ODocument inMemberHasDevice = ((ODocument) memberHasDevice.get(i));
+                String deviceId = inMemberHasDevice.field("deviceId");
+                ORidBag ocrs = inMemberHasDevice.field("memberHasDevice");
 
-            if (null != ocrs && !ocrs.isEmpty()) {
-                int ocrsSize = ocrs.size();
-                deviceHasMemeberMap.put(deviceId, ocrsSize);
-                Iterator<OIdentifiable> it = ocrs.iterator();
-                while (it.hasNext()) {
-                    ODocument ocr = (ODocument) it.next();
-                    ODocument member = ocr.field("out");
-                    long memberId = member.field("memberId");
-                    if (memberHasDeviceMap.containsKey(memberId)) {
-                        memberHasDeviceMap.get(memberId).add(deviceId);
-                    } else {
-                        List<String> list = new ArrayList<String>();
-                        list.add(deviceId);
-                        memberHasDeviceMap.put(memberId, list);
+                if (null != ocrs && !ocrs.isEmpty()) {
+                    int ocrsSize = ocrs.size();
+                    deviceHasMemeberMap.put(deviceId, ocrsSize);
+                    Iterator<OIdentifiable> it = ocrs.iterator();
+                    while (it.hasNext()) {
+                        ODocument ocr = (ODocument) it.next();
+                        ODocument member = ocr.field("out");
+                        long memberId = member.field("memberId");
+                        if (memberHasDeviceMap.containsKey(memberId)) {
+                            memberHasDeviceMap.get(memberId).add(deviceId);
+                        } else {
+                            List<String> list = new ArrayList<String>();
+                            list.add(deviceId);
+                            memberHasDeviceMap.put(memberId, list);
+                        }
                     }
                 }
             }
-        }
 
-        OResultSet memberHasIp = tx.command(new OCommandSQL("select ip as ip, in_MemberHasIp as memberHasIp from ip where in_MemberHasIp.size() > 0 limit 100")).execute(new Object[]{});
-        int memberHasIpSize = memberHasIp.size();
-        for (int i = 0; i < memberHasIpSize; i++) {
-            ODocument inMemberHasIp = ((ODocument) memberHasIp.get(i));
-            String ip = inMemberHasIp.field("ip");
-            ORidBag ocrs = inMemberHasIp.field("memberHasIp");
+            OResultSet memberHasIp = tx.command(new OCommandSQL("select ip as ip, in_MemberHasIp as memberHasIp from ip where in_MemberHasIp.size() > 0")).execute(new Object[]{});
+            int memberHasIpSize = memberHasIp.size();
+            for (int i = 0; i < memberHasIpSize; i++) {
+                ODocument inMemberHasIp = ((ODocument) memberHasIp.get(i));
+                String ip = inMemberHasIp.field("ip");
+                ORidBag ocrs = inMemberHasIp.field("memberHasIp");
 
-            if (null != ocrs && !ocrs.isEmpty()) {
-                int ocrsSize = ocrs.size();
-                ipHasMemeberMap.put(ip, ocrsSize);
+                if (null != ocrs && !ocrs.isEmpty()) {
+                    int ocrsSize = ocrs.size();
+                    ipHasMemeberMap.put(ip, ocrsSize);
 
-                Iterator<OIdentifiable> it = ocrs.iterator();
-                while (it.hasNext()) {
-                    ODocument ocr = (ODocument) it.next();
-                    ODocument member = ocr.field("out");
-                    long memberId = member.field("memberId");
-                    if (memberHasIpMap.containsKey(memberId)) {
-                        memberHasIpMap.get(memberId).add(ip);
-                    } else {
-                        List<String> list = new ArrayList<String>();
-                        list.add(ip);
-                        memberHasIpMap.put(memberId, list);
+                    Iterator<OIdentifiable> it = ocrs.iterator();
+                    while (it.hasNext()) {
+                        ODocument ocr = (ODocument) it.next();
+                        ODocument member = ocr.field("out");
+                        long memberId = member.field("memberId");
+                        if (memberHasIpMap.containsKey(memberId)) {
+                            memberHasIpMap.get(memberId).add(ip);
+                        } else {
+                            List<String> list = new ArrayList<String>();
+                            list.add(ip);
+                            memberHasIpMap.put(memberId, list);
+                        }
                     }
                 }
             }
+            if (tx != null) {
+                OrientDbUtils.close(tx);
+            }
         }
-        if (tx != null) {
-            OrientDbUtils.close(tx);
-        }
+
         Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
 
@@ -1362,8 +1915,11 @@ public class SqlUtils {
         try {
             //查询总数
             if (!isAllDataQueryFlag) {
-//                pstmt = mysqlBusinesConn.prepareStatement("SELECT count(1) as total FROM apply_info where DATE_FORMAT(created_datetime,'%Y-%m-%d') = ?");
-//                pstmt.setString(1, date);
+                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where (DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?) and order_no is null";
+                String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where (DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?) and order_no is not null";
+                String onlyOrderSql = "SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order where (DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)";
+                memberAndPhoneCount = getDataFromMysql(pstmt, rs, mysqlBusinesConn, memberInfoOnlyApplyMap, memberInfoApplyRelateOrderMap, memberInfoOnlyOrderMap,
+                        memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql,isAllDataQueryFlag,date);
             } else {
 
                 String[] phonetagColNames = {"member_id","apply_no","order_no","mobile","index_name","direct","indirect","create_time","update_time"};
@@ -1378,102 +1934,11 @@ public class SqlUtils {
                 String[] memberColNames = {"member_id","apply_no","order_no","index_name","direct","create_time","update_time","mobile"};
                 CSVTest.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
 
-
-                List<String> tempOrderList = new ArrayList<String>();
-                //这个sql查询的是只有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null limit 100");
-                rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    String applyNo = rs.getString("apply_no");
-                    Long memberId = rs.getLong("member_id");
-                    String phone = rs.getString("phone");
-                    String createdDatetime = rs.getString("created_datetime");
-                    String storeId = rs.getString("store_id");
-                    String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
-
-                    ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
-                    applyRelateOrder.setApply(applyNo);
-                    applyRelateOrder.setCreateTime(createdDatetime);
-                    if (memberInfoOnlyApplyMap.containsKey(memberInfoMapKey)) {
-                        memberInfoOnlyApplyMap.get(memberInfoMapKey).add(applyRelateOrder);
-                    } else {
-                        List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
-                        list.add(applyRelateOrder);
-                        memberInfoOnlyApplyMap.put(memberInfoMapKey, list);
-                    }
-
-                    addStoreIdToMap(storeId);
-                }
-
-                //这个sql查询的是有申请关联订单的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null limit 100");
-                rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    String applyNo = rs.getString("apply_no");
-                    String orderNo = rs.getString("order_no");
-                    String createdDatetime = rs.getString("created_datetime");
-                    tempOrderList.add(orderNo);
-
-                    ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
-                    applyRelateOrder.setApply(applyNo);
-                    applyRelateOrder.setOrder(orderNo);
-                    applyRelateOrder.setCreateTime(createdDatetime);
-                    Long memberId = rs.getLong("member_id");
-                    String phone = rs.getString("phone");
-                    String storeId = rs.getString("store_id");
-                    String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
-                    if (memberInfoApplyRelateOrderMap.containsKey(memberInfoMapKey)) {
-                        memberInfoApplyRelateOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
-                    } else {
-                        List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
-                        list.add(applyRelateOrder);
-                        memberInfoApplyRelateOrderMap.put(memberInfoMapKey, list);
-                    }
-
-                    addStoreIdToMap(storeId);
-                }
-                //这个sql查询的是有订单去除有申请的用户
-                pstmt = mysqlBusinesConn.prepareStatement("SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order limit 100");
-                rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    String orderNo = rs.getString("order_no");
-                    String createdDatetime = rs.getString("created_datetime");
-                    String storeId = rs.getString("store_id");
-
-                    if (!tempOrderList.contains(orderNo)) {
-                        Long memberId = rs.getLong("member_id");
-                        String phone = rs.getString("phone");
-                        String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
-
-                        ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
-                        applyRelateOrder.setOrder(orderNo);
-                        applyRelateOrder.setCreateTime(createdDatetime);
-                        if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
-                            memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
-                        } else {
-                            List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
-                            list.add(applyRelateOrder);
-                            memberInfoOnlyOrderMap.put(memberInfoMapKey, list);
-                        }
-                    }
-
-                    addStoreIdToMap(storeId);
-                }
-                if (tempOrderList != null) {
-                    tempOrderList.clear();
-                    tempOrderList = null;
-                }
-
-                Set<String> memberInfoOnlyApplyMapSet = memberInfoOnlyApplyMap.keySet();
-                Set<String> memberInfoApplyRelateOrderMapSet = memberInfoApplyRelateOrderMap.keySet();
-                Set<String> memberInfoOnlyOrderMapSet = memberInfoOnlyOrderMap.keySet();
-                memberInfoMapSet.addAll(memberInfoOnlyApplyMapSet);
-                memberInfoMapSet.addAll(memberInfoApplyRelateOrderMapSet);
-                memberInfoMapSet.addAll(memberInfoOnlyOrderMapSet);
-                memberAndPhoneCount = memberInfoMapSet.size();
+                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null";
+                String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null";
+                String onlyOrderSql = "SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order";
+                memberAndPhoneCount = getDataFromMysql(pstmt, rs, mysqlBusinesConn, memberInfoOnlyApplyMap, memberInfoApplyRelateOrderMap, memberInfoOnlyOrderMap,
+                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql,isAllDataQueryFlag,date);
             }
 
             int allNum = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"));
@@ -1555,6 +2020,140 @@ public class SqlUtils {
         }
     }
 
+
+    /**
+     *
+     * @param pstmt
+     * @param rs
+     * @param mysqlBusinesConn
+     * @param memberInfoOnlyApplyMap
+     * @param memberInfoApplyRelateOrderMap
+     * @param memberInfoOnlyOrderMap
+     * @param memberInfoMapSet
+     * @param memberAndPhoneCount
+     * @param onlyApplySql
+     * @param applyWithOrderSql
+     * @param onlyOrderSql
+     * @return
+     * @throws Exception
+     */
+    private static int getDataFromMysql(PreparedStatement pstmt, ResultSet rs,Connection mysqlBusinesConn,
+                                   Map<String, List<ApplyRelateOrder>> memberInfoOnlyApplyMap,Map<String, List<ApplyRelateOrder>> memberInfoApplyRelateOrderMap,
+                                   Map<String, List<ApplyRelateOrder>> memberInfoOnlyOrderMap,Set<String> memberInfoMapSet,int memberAndPhoneCount,
+                                        String onlyApplySql,String applyWithOrderSql,String onlyOrderSql,
+                                        Boolean isAllDataQueryFlag,String date) throws Exception{
+        List<String> tempOrderList = new ArrayList<String>();
+        //这个sql查询的是只有申请的用户
+        pstmt = mysqlBusinesConn.prepareStatement(onlyApplySql);
+        if (!isAllDataQueryFlag){
+            pstmt.setString(1, date);
+            pstmt.setString(2, date);
+        }
+        rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            String applyNo = rs.getString("apply_no");
+            Long memberId = rs.getLong("member_id");
+            String phone = rs.getString("phone");
+            String createdDatetime = rs.getString("created_datetime");
+            String storeId = rs.getString("store_id");
+            String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
+
+            ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+            applyRelateOrder.setApply(applyNo);
+            applyRelateOrder.setCreateTime(createdDatetime);
+            if (memberInfoOnlyApplyMap.containsKey(memberInfoMapKey)) {
+                memberInfoOnlyApplyMap.get(memberInfoMapKey).add(applyRelateOrder);
+            } else {
+                List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                list.add(applyRelateOrder);
+                memberInfoOnlyApplyMap.put(memberInfoMapKey, list);
+            }
+
+            addStoreIdToMap(storeId);
+        }
+
+        //这个sql查询的是有申请关联订单的用户
+        pstmt = mysqlBusinesConn.prepareStatement(applyWithOrderSql);
+        if (!isAllDataQueryFlag){
+            pstmt.setString(1, date);
+            pstmt.setString(2, date);
+        }
+        rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            String applyNo = rs.getString("apply_no");
+            String orderNo = rs.getString("order_no");
+            String createdDatetime = rs.getString("created_datetime");
+            tempOrderList.add(orderNo);
+
+            ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+            applyRelateOrder.setApply(applyNo);
+            applyRelateOrder.setOrder(orderNo);
+            applyRelateOrder.setCreateTime(createdDatetime);
+            Long memberId = rs.getLong("member_id");
+            String phone = rs.getString("phone");
+            String storeId = rs.getString("store_id");
+            String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
+            if (memberInfoApplyRelateOrderMap.containsKey(memberInfoMapKey)) {
+                memberInfoApplyRelateOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
+            } else {
+                List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                list.add(applyRelateOrder);
+                memberInfoApplyRelateOrderMap.put(memberInfoMapKey, list);
+            }
+
+            addStoreIdToMap(storeId);
+        }
+        //这个sql查询的是有订单去除有申请的用户
+        pstmt = mysqlBusinesConn.prepareStatement(onlyOrderSql);
+        if (!isAllDataQueryFlag){
+            pstmt.setString(1, date);
+            pstmt.setString(2, date);
+        }
+        rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            String orderNo = rs.getString("order_no");
+            String createdDatetime = rs.getString("created_datetime");
+            String storeId = rs.getString("store_id");
+
+            if (!tempOrderList.contains(orderNo)) {
+                Long memberId = rs.getLong("member_id");
+                String phone = rs.getString("phone");
+                String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
+
+                ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+                applyRelateOrder.setOrder(orderNo);
+                applyRelateOrder.setCreateTime(createdDatetime);
+                if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
+                    memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
+                } else {
+                    List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                    list.add(applyRelateOrder);
+                    memberInfoOnlyOrderMap.put(memberInfoMapKey, list);
+                }
+            }
+
+            addStoreIdToMap(storeId);
+        }
+        if (tempOrderList != null) {
+            tempOrderList.clear();
+            tempOrderList = null;
+        }
+
+        Set<String> memberInfoOnlyApplyMapSet = memberInfoOnlyApplyMap.keySet();
+        Set<String> memberInfoApplyRelateOrderMapSet = memberInfoApplyRelateOrderMap.keySet();
+        Set<String> memberInfoOnlyOrderMapSet = memberInfoOnlyOrderMap.keySet();
+        memberInfoMapSet.addAll(memberInfoOnlyApplyMapSet);
+        memberInfoMapSet.addAll(memberInfoApplyRelateOrderMapSet);
+        memberInfoMapSet.addAll(memberInfoOnlyOrderMapSet);
+        memberAndPhoneCount = memberInfoMapSet.size();
+
+        return memberAndPhoneCount;
+    }
+
+
     private static void addStoreIdToMap(String storeId) {
         if (null != storeId) {
             if (memberHasStoreMap.containsKey(memberId)) {
@@ -1592,21 +2191,21 @@ public class SqlUtils {
         PreparedStatement pstmt = null;
         try {
             if (!isAllDataQueryFlag) {
-                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+            /*    pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
-                pstmt.executeUpdate();
+                pstmt.executeUpdate();*/
             } else {
                 pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index");
                 pstmt.executeUpdate();
