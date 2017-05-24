@@ -26,6 +26,14 @@ public class MemberDeviceAndApplyAndOrderBean implements Serializable{
 
     private int contactBlackMemberNum;
 
+    private int contactAcceptMemberCallLenNum;
+
+    private int contactRefuseMemberCallLenNum;
+
+    private int contactOverdueMemberCallLenNum;
+
+    private int contactBlackMemberCallLenNum;
+
     public MemberDeviceAndApplyAndOrderBean() {
         super();
     }
@@ -106,6 +114,38 @@ public class MemberDeviceAndApplyAndOrderBean implements Serializable{
         this.contactBlackMemberNum = contactBlackMemberNum;
     }
 
+    public int getContactAcceptMemberCallLenNum() {
+        return contactAcceptMemberCallLenNum;
+    }
+
+    public void setContactAcceptMemberCallLenNum(int contactAcceptMemberCallLenNum) {
+        this.contactAcceptMemberCallLenNum = contactAcceptMemberCallLenNum;
+    }
+
+    public int getContactRefuseMemberCallLenNum() {
+        return contactRefuseMemberCallLenNum;
+    }
+
+    public void setContactRefuseMemberCallLenNum(int contactRefuseMemberCallLenNum) {
+        this.contactRefuseMemberCallLenNum = contactRefuseMemberCallLenNum;
+    }
+
+    public int getContactOverdueMemberCallLenNum() {
+        return contactOverdueMemberCallLenNum;
+    }
+
+    public void setContactOverdueMemberCallLenNum(int contactOverdueMemberCallLenNum) {
+        this.contactOverdueMemberCallLenNum = contactOverdueMemberCallLenNum;
+    }
+
+    public int getContactBlackMemberCallLenNum() {
+        return contactBlackMemberCallLenNum;
+    }
+
+    public void setContactBlackMemberCallLenNum(int contactBlackMemberCallLenNum) {
+        this.contactBlackMemberCallLenNum = contactBlackMemberCallLenNum;
+    }
+
     @Override
     public String toString() {
         return "MemberDeviceAndApplyAndOrderBean{" +
@@ -118,6 +158,10 @@ public class MemberDeviceAndApplyAndOrderBean implements Serializable{
                 ", contactRefuseMemberNum=" + contactRefuseMemberNum +
                 ", contactOverdueMemberNum=" + contactOverdueMemberNum +
                 ", contactBlackMemberNum=" + contactBlackMemberNum +
+                ", contactAcceptMemberCallLenNum=" + contactAcceptMemberCallLenNum +
+                ", contactRefuseMemberCallLenNum=" + contactRefuseMemberCallLenNum +
+                ", contactOverdueMemberCallLenNum=" + contactOverdueMemberCallLenNum +
+                ", contactBlackMemberCallLenNum=" + contactBlackMemberCallLenNum +
                 '}';
     }
 }

@@ -40,4 +40,8 @@ public class ConstantHelper {
     public final static String IP_FILE_NAME = "ip.csv";
 
     public final static String MEMBER_FILE_NAME = "member.csv";
+
+    public final static int CALL_LEN = 120;
+
+    public final static String MARK_CALL_LEN = "120";
 }
