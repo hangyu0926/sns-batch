@@ -21,6 +21,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -2184,19 +2185,19 @@ public class SqlUtils {
         PreparedStatement pstmt = null;
         try {
             if (!isAllDataQueryFlag) {
-                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM phonetag_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM ip_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM device_index where (DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
 
-                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null) or (DATE_FORMAT(update_time,'%Y-%m-%d') = ?)");
+                pstmt = mysqlConn.prepareStatement("delete FROM member_index where DATE_FORMAT(create_time,'%Y-%m-%d') = ? and update_time is null)");
                 pstmt.setString(1, date);
                 pstmt.executeUpdate();
             } else {
