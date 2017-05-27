@@ -48,7 +48,11 @@ public class SqlUtils {
     //会员最近一个订单的状态
     public static Map<Long, String> memberHasLastOrderStatus = new HashMap<Long, String>();
     //public static long memberId = 0;
-    public static Lock lock = new ReentrantLock();
+    public static Lock lock = new ReentrantLock(true);
+
+    public static Lock exportLock = new ReentrantLock(true);
+
+    public static Lock memberHasLastOrderStatusLock = new ReentrantLock(true);
 
     //一度联系人包含的而度联系人集合
     public static Map<String, Map<String, String>> phoneHasIndirectMap = new HashMap<String, Map<String, String>>();
@@ -282,23 +286,28 @@ public class SqlUtils {
                     lock.lock();
                     Map<String, String> hasIndirectMap = null;
                     Map<String, String> hasCallLenIndirectMap = null;
-                    boolean flag = phoneHasIndirectMap.containsKey(phone);
-                    if (flag) {
-                        hasIndirectMap = phoneHasIndirectMap.get(phone);
-                        if (null != hasIndirectMap && !hasIndirectMap.isEmpty()) {
-                            for (Map.Entry<String, String> en : hasIndirectMap.entrySet()) {
-                                tempMap.put(en.getKey(), en.getValue());
+                    boolean flag = false;
+                    try {
+                        flag = phoneHasIndirectMap.containsKey(phone);
+                        if (flag) {
+                            hasIndirectMap = phoneHasIndirectMap.get(phone);
+                            if (null != hasIndirectMap && !hasIndirectMap.isEmpty()) {
+                                for (Map.Entry<String, String> en : hasIndirectMap.entrySet()) {
+                                    tempMap.put(en.getKey(), en.getValue());
+                                }
+                            }
+                            hasCallLenIndirectMap = phoneHasCallLenIndirectMap.get(phone);
+                            if (null != hasCallLenIndirectMap && !hasCallLenIndirectMap.isEmpty()) {
+                                for (Map.Entry<String, String> en : hasCallLenIndirectMap.entrySet()) {
+                                    tempCallLenMap.put(en.getKey(), en.getValue());
+                                }
                             }
                         }
-                        hasCallLenIndirectMap = phoneHasCallLenIndirectMap.get(phone);
-                        if (null != hasCallLenIndirectMap && !hasCallLenIndirectMap.isEmpty()) {
-                            for (Map.Entry<String, String> en : hasCallLenIndirectMap.entrySet()) {
-                                tempCallLenMap.put(en.getKey(), en.getValue());
-                            }
-                        }
+                    } catch (Exception e) {
+                        LOGGER.error("queryDirectRelationDataByPhoneNo 查询二度开始 have e {}", e);
+                    } finally {
+                        lock.unlock();
                     }
-
-                    lock.unlock();
 
                     if (!flag) {
                         hasIndirectMap = new HashMap<String, String>();
@@ -389,9 +398,15 @@ public class SqlUtils {
                         }
 
                         lock.lock();
-                        phoneHasIndirectMap.put(phone, hasIndirectMap);
-                        phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap);
-                        lock.unlock();
+                        try {
+                            phoneHasIndirectMap.put(phone, hasIndirectMap);
+                            phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap);
+                        } catch (Exception e) {
+                            LOGGER.error("phoneHasIndirectMap.put(phone, hasIndirectMap) phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap) have e {}", e);
+                        } finally {
+                            lock.unlock();
+                        }
+
                     }
 
 
@@ -463,9 +478,14 @@ public class SqlUtils {
 
                         String originalStatus = null;
 
-                        lock.lock();
-                        originalStatus = memberHasLastOrderStatus.get(memberId);
-                        lock.unlock();
+                        memberHasLastOrderStatusLock.lock();
+                        try {
+                            originalStatus = memberHasLastOrderStatus.get(memberId);
+                        } catch (Exception e) {
+                            LOGGER.error("memberHasLastOrderStatus.get(memberId) have e {}", e);
+                        } finally {
+                            memberHasLastOrderStatusLock.unlock();
+                        }
 
                         if (null == originalStatus) {
                             ORidBag out_MemberHasOrder = member1.field("out_MemberHasOrder");
@@ -485,10 +505,14 @@ public class SqlUtils {
                                     }
                                 }
 
-                                lock.lock();
-                                memberHasLastOrderStatus.put(memberId, originalStatus);
-                                lock.unlock();
-
+                                memberHasLastOrderStatusLock.lock();
+                                try {
+                                    memberHasLastOrderStatus.put(memberId, originalStatus);
+                                } catch (Exception e) {
+                                    LOGGER.error(" memberHasLastOrderStatus.put(memberId, originalStatus) have e {}", e);
+                                } finally {
+                                    memberHasLastOrderStatusLock.unlock();
+                                }
                             }
                         }
                         if (ConstantHelper.REFUSE_APPLY_FLAG.equals(originalStatus)) {
@@ -510,8 +534,14 @@ public class SqlUtils {
             }
 
             lock.lock();
-            phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap);
-            lock.unlock();
+            try {
+                phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap);
+            } catch (Exception e) {
+                LOGGER.error(" phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap) have e {}", e);
+            } finally {
+                lock.unlock();
+            }
+
 
             if (null != tempMap) {
                 //过滤掉二度联系人中的一度联系人
@@ -914,9 +944,16 @@ public class SqlUtils {
         //插入会员指标结束
 
         if (isAllData) {
-            lock.lock();
-            exportToCsv(indexDatas, deviceIndexDataList, ipIndexDataList, memberIndexDatas);
-            lock.unlock();
+            exportLock.lock();
+            try {
+                exportToCsv(indexDatas, deviceIndexDataList, ipIndexDataList, memberIndexDatas);
+            } catch (Exception e) {
+                LOGGER.error("exportToCsv have e {}", e);
+            } finally {
+                exportLock.unlock();
+            }
+
+
         }
 
         if (onlyAppNos != null) {
@@ -1559,8 +1596,6 @@ public class SqlUtils {
         }
         CSVUtils.appendDate(csvFile, data);
 
-
-        //
         File deviceCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.DEIVE_FILE_NAME);
         List<List<String>> deviceData = new ArrayList<List<String>>();
 
@@ -1593,7 +1628,6 @@ public class SqlUtils {
         }
         CSVUtils.appendDate(deviceCsvFile, deviceData);
 
-        //
         File ipCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.IP_FILE_NAME);
         List<List<String>> ipData = new ArrayList<List<String>>();
 
@@ -1626,7 +1660,6 @@ public class SqlUtils {
         }
         CSVUtils.appendDate(ipCsvFile, ipData);
 
-        //
         File memberCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.MEMBER_FILE_NAME);
         List<List<String>> memberData = new ArrayList<List<String>>();
 
