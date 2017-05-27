@@ -1041,8 +1041,6 @@ public class SqlUtils {
             ResultSet rs = null;
 
             int memberAndPhoneBeanListSize = memberAndPhoneBeanList.size();
-            String phone = null;
-            String memberId = null;
             List<ApplyRelateOrder> onlyAppNos = new ArrayList<ApplyRelateOrder>();
             List<ApplyRelateOrder> onlyOrderNos = new ArrayList<ApplyRelateOrder>();
             List<ApplyRelateOrder> applyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
@@ -1074,8 +1072,8 @@ public class SqlUtils {
                         } else {
                             addonlyAppNos.add(onlyAppNos.get(j));
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        LOGGER.error("SELECT count(1) as num FROM `member_index` where apply_no = ? have e {}", e);
                     }
                 }
                 onlyOrderNos = memberAndPhoneBeanList.get(i).getOnlyOrderNos();
@@ -1095,8 +1093,8 @@ public class SqlUtils {
                         } else {
                             addonlyOrderNos.add(onlyOrderNos.get(j));
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        LOGGER.error("SELECT count(1) as num FROM `member_index` where order_no = ? have e {}", e);
                     }
                 }
 
@@ -1117,8 +1115,8 @@ public class SqlUtils {
                         } else {
                             addapplyRelateOrderNos.add(applyRelateOrderNos.get(j));
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        LOGGER.error("SELECT count(1) as num FROM `member_index` where apply_no = ? have e {}", e);
                     }
                 }
 
@@ -1149,6 +1147,30 @@ public class SqlUtils {
                 if (tx != null) {
                     OrientDbUtils.close(tx);
                 }
+            }
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("getBasicData add data rs.close have e {}", e);
+            }
+
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("getBasicData add data pstmt.close have e {}", e);
+            }
+
+            try {
+                if (mysqlConn != null) {
+                    mysqlConn.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("getBasicData add data mysqlConn.close have e {}", e);
             }
         }
     }
@@ -1437,7 +1459,7 @@ public class SqlUtils {
             }
 
             int phoneInfosSize = phoneInfos.size();
-            LOGGER.info("phoneInfosSize is {} i is {}", phoneInfosSize,i);
+            LOGGER.info("phoneInfosSize is {} i is {}", phoneInfosSize, i);
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
@@ -1799,7 +1821,7 @@ public class SqlUtils {
                 pstmt.executeBatch();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("updateDeviceIndex have e {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1876,7 +1898,7 @@ public class SqlUtils {
                 pstmt.executeBatch();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("updateIpIndex pstmt.close have e {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1963,7 +1985,7 @@ public class SqlUtils {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("updateMemberIndex have e {}", e);
             } finally {
                 try {
                     if (pstmt != null) {
@@ -1995,7 +2017,7 @@ public class SqlUtils {
             return;
         }
 
-        LOGGER.info("isAllDataQueryFlag is {}]",isAllDataQueryFlag);
+        LOGGER.info("isAllDataQueryFlag is {}]", isAllDataQueryFlag);
         if (isAllDataQueryFlag) {
             ODatabaseDocumentTx tx = getODataBaseDocumentTx();
             OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0")).execute(new Object[]{});
@@ -2055,7 +2077,7 @@ public class SqlUtils {
             }
         }
 
-        LOGGER.info("OrientDb query device and ip is end {}",isAllDataQueryFlag);
+        LOGGER.info("OrientDb query device and ip is end {}", isAllDataQueryFlag);
 
         Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
@@ -2095,7 +2117,7 @@ public class SqlUtils {
                 String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile"};
                 CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.MEMBER_FILE_NAME, memberColNames);
 
-                LOGGER.info("mysqlBusinesConn is {}",mysqlBusinesConn.toString());
+                LOGGER.info("mysqlBusinesConn is {}", mysqlBusinesConn.toString());
 
                 String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null";
                 String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null";
@@ -2104,7 +2126,7 @@ public class SqlUtils {
                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql, isAllDataQueryFlag, date);
             }
 
-            LOGGER.info("memberAndPhoneCount is {},memberInfoMapSet size is {}",memberAndPhoneCount,memberInfoMapSet.size());
+            LOGGER.info("memberAndPhoneCount is {},memberInfoMapSet size is {}", memberAndPhoneCount, memberInfoMapSet.size());
 
             int allNum = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"));
             int applimitNum = (memberAndPhoneCount % allNum == 0) ? memberAndPhoneCount / allNum : (memberAndPhoneCount / allNum + 1);
@@ -2112,7 +2134,7 @@ public class SqlUtils {
             Iterator<String> it = memberInfoMapSet.iterator();
             ArrayList<MemberAndPhoneBean> memberAndPhoneBeanArrayList = new ArrayList<MemberAndPhoneBean>();
 
-            LOGGER.info("allNum is {},memberAndPhoneCount is {},applimitNum is {}",allNum,memberAndPhoneCount,applimitNum);
+            LOGGER.info("allNum is {},memberAndPhoneCount is {},applimitNum is {}", allNum, memberAndPhoneCount, applimitNum);
             while (it.hasNext()) {
                 count++;
                 MemberAndPhoneBean memberAndPhoneBean = new MemberAndPhoneBean();
@@ -2146,7 +2168,7 @@ public class SqlUtils {
                 memberAndPhoneBeanArrayList.clear();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("queryBasicData have e is {}", e);
         } finally {
             if (memberInfoOnlyApplyMap != null) {
                 memberInfoOnlyApplyMap.clear();
@@ -2166,7 +2188,7 @@ public class SqlUtils {
                     rs.close();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("queryBasicData rs.close() have e is {}", e);
             }
 
             try {
@@ -2174,7 +2196,7 @@ public class SqlUtils {
                     pstmt.close();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("queryBasicData pstmt.close() have e is {}", e);
             }
 
             try {
@@ -2182,7 +2204,7 @@ public class SqlUtils {
                     mysqlBusinesConn.close();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("queryBasicData mysqlBusinesConn.close() have e is {}", e);
             }
         }
     }
@@ -2217,7 +2239,7 @@ public class SqlUtils {
         }
         rs = pstmt.executeQuery();
 
-        LOGGER.info("onlyApplySql is {}",onlyApplySql);
+        LOGGER.info("onlyApplySql is {}", onlyApplySql);
 
         while (rs.next()) {
             String applyNo = rs.getString("apply_no");
@@ -2238,7 +2260,7 @@ public class SqlUtils {
                 memberInfoOnlyApplyMap.put(memberInfoMapKey, list);
             }
 
-            addStoreIdToMap(storeId,memberId);
+            addStoreIdToMap(storeId, memberId);
         }
 
         //这个sql查询的是有申请关联订单的用户
@@ -2249,7 +2271,7 @@ public class SqlUtils {
         }
         rs = pstmt.executeQuery();
 
-        LOGGER.info("applyWithOrderSql is {}",applyWithOrderSql);
+        LOGGER.info("applyWithOrderSql is {}", applyWithOrderSql);
 
         while (rs.next()) {
             String applyNo = rs.getString("apply_no");
@@ -2273,7 +2295,7 @@ public class SqlUtils {
                 memberInfoApplyRelateOrderMap.put(memberInfoMapKey, list);
             }
 
-            addStoreIdToMap(storeId,memberId);
+            addStoreIdToMap(storeId, memberId);
         }
         //这个sql查询的是有订单去除有申请的用户
         pstmt = mysqlBusinesConn.prepareStatement(onlyOrderSql);
@@ -2283,7 +2305,7 @@ public class SqlUtils {
         }
         rs = pstmt.executeQuery();
 
-        LOGGER.info("onlyOrderSql is {}",onlyOrderSql);
+        LOGGER.info("onlyOrderSql is {}", onlyOrderSql);
 
         while (rs.next()) {
             try {
@@ -2310,14 +2332,14 @@ public class SqlUtils {
                     }
                 }
 
-                addStoreIdToMap(storeId,memberId);
+                addStoreIdToMap(storeId, memberId);
 
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                LOGGER.error("getDataFromMysql rs.getString(\"order_no\") have e is {}", e);
             }
         }
 
-        LOGGER.info("tempOrderList size {}",tempOrderList.size());
+        LOGGER.info("tempOrderList size {}", tempOrderList.size());
 
         if (tempOrderList != null) {
             tempOrderList.clear();
@@ -2334,13 +2356,13 @@ public class SqlUtils {
         memberInfoMapSet.addAll(memberInfoOnlyOrderMapSet);
         memberAndPhoneCount = memberInfoMapSet.size();
 
-        LOGGER.info("memberAndPhoneCount is {}",memberAndPhoneCount);
+        LOGGER.info("memberAndPhoneCount is {}", memberAndPhoneCount);
 
         return memberAndPhoneCount;
     }
 
 
-    private static void addStoreIdToMap(String storeId,long memberId) {
+    private static void addStoreIdToMap(String storeId, long memberId) {
         if (null != storeId) {
             if (memberHasStoreMap.containsKey(memberId)) {
                 memberHasStoreMap.get(memberId).add(storeId);
