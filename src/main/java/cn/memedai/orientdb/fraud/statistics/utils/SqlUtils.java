@@ -47,7 +47,7 @@ public class SqlUtils {
 
     //会员最近一个订单的状态
     public static Map<Long, String> memberHasLastOrderStatus = new HashMap<Long, String>();
-    public static long memberId = 0;
+    //public static long memberId = 0;
     public static Lock lock = new ReentrantLock();
 
     //一度联系人包含的而度联系人集合
@@ -459,7 +459,7 @@ public class SqlUtils {
                             }
                         }
 
-                        memberId = member1.field("memberId");
+                        long memberId = member1.field("memberId");
 
                         String originalStatus = null;
 
@@ -1105,9 +1105,6 @@ public class SqlUtils {
                 List<ApplyRelateOrder> addapplyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
                 List<ApplyRelateOrder> updateapplyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
                 for (int j = 0; j < applyRelateOrderNosSize; j++) {
-                    if (applyRelateOrderNos.get(j).getOrder() == null) {
-                        LOGGER.info(" applyRelateOrderNos i is {}, j is {}", i, j);
-                    }
                     try {
                         pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where apply_no = ?");
                         pstmt.setString(1, applyRelateOrderNos.get(j).getApply());
@@ -1433,11 +1430,14 @@ public class SqlUtils {
 
             String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
             OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});
+
             if (phoneInfos == null || phoneInfos.size() <= 0) {
                 LOGGER.error("dealAllBasicDataByApplyList phone {} is empty", s.toString());
                 return;
             }
+
             int phoneInfosSize = phoneInfos.size();
+            LOGGER.info("phoneInfosSize is {} i is {}", phoneInfosSize,i);
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
@@ -1447,6 +1447,8 @@ public class SqlUtils {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
                 }
             }
+
+            //LOGGER.info("dealBasicDataByPhone is end i is {}",i);
 
             if (map != null) {
                 map.clear();
@@ -1460,6 +1462,7 @@ public class SqlUtils {
         }
 
         if (memberRelatedPhoneNoRemainder > 0) {
+            LOGGER.info("dealAllBasicDataByApplyList memberRelatedPhoneNoRemainder is {}", memberRelatedPhoneNoRemainder);
             List<String> s = new ArrayList<String>();
             Map<String, Integer> map = new HashMap<String, Integer>();
             for (int m = memberRelatedPhoneNoSize * ConstantHelper.MEMBER_RELATED_PHONENO_SIZE; m < size; m++) {
@@ -1469,11 +1472,15 @@ public class SqlUtils {
             }
             String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
             OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});
+
+
             if (phoneInfos == null || phoneInfos.size() <= 0) {
                 LOGGER.error("dealAllBasicDataByApplyList phone {} is empty", s.toString());
                 return;
             }
             int phoneInfosSize = phoneInfos.size();
+            LOGGER.info("phoneInfosSize is {}", phoneInfosSize);
+
             for (int k = 0; k < phoneInfosSize; k++) {
                 String phone = ((ODocument) phoneInfos.get(k)).field("phone");
                 int index = map.get(phone);
@@ -1483,6 +1490,8 @@ public class SqlUtils {
                     LOGGER.error("dealAllBasicDataByApplyList is error {}", e);
                 }
             }
+
+            //LOGGER.info("dealBasicDataByPhone is end memberRelatedPhoneNoRemainder is {}",memberRelatedPhoneNoRemainder);
 
             if (map != null) {
                 map.clear();
@@ -1496,7 +1505,7 @@ public class SqlUtils {
     }
 
     private static void exportToCsv(List<IndexData> indexDatas, List<IndexData> deviceIndexDataList, List<IndexData> ipIndexDataList, List<IndexData> memberIndexDatas) {
-        File csvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME);
+        File csvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.PHONETAG_FILE_NAME);
         List<List<String>> data = new ArrayList<List<String>>();
 
         int indexDatasSize = indexDatas.size();
@@ -1530,7 +1539,7 @@ public class SqlUtils {
 
 
         //
-        File deviceCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME);
+        File deviceCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.DEIVE_FILE_NAME);
         List<List<String>> deviceData = new ArrayList<List<String>>();
 
         int deviceIndexDataListSize = deviceIndexDataList.size();
@@ -1563,7 +1572,7 @@ public class SqlUtils {
         CSVUtils.appendDate(deviceCsvFile, deviceData);
 
         //
-        File ipCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME);
+        File ipCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.IP_FILE_NAME);
         List<List<String>> ipData = new ArrayList<List<String>>();
 
         int ipIndexDataListSize = ipIndexDataList.size();
@@ -1596,7 +1605,7 @@ public class SqlUtils {
         CSVUtils.appendDate(ipCsvFile, ipData);
 
         //
-        File memberCsvFile = new File(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME);
+        File memberCsvFile = new File(ConfigUtils.getProperty("filePath"), ConstantHelper.MEMBER_FILE_NAME);
         List<List<String>> memberData = new ArrayList<List<String>>();
 
         int memberIndexDatasSize = memberIndexDatas.size();
@@ -1986,6 +1995,7 @@ public class SqlUtils {
             return;
         }
 
+        LOGGER.info("isAllDataQueryFlag is {}]",isAllDataQueryFlag);
         if (isAllDataQueryFlag) {
             ODatabaseDocumentTx tx = getODataBaseDocumentTx();
             OResultSet memberHasDevice = tx.command(new OCommandSQL("select deviceId as deviceId, in_MemberHasDevice as memberHasDevice from device where in_MemberHasDevice.size() > 0")).execute(new Object[]{});
@@ -2045,13 +2055,15 @@ public class SqlUtils {
             }
         }
 
+        LOGGER.info("OrientDb query device and ip is end {}",isAllDataQueryFlag);
+
         Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
 
         ExecutorService es = new ThreadPoolExecutor(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"))
                 , Integer.parseInt(ConfigUtils.getProperty("allDataImportMainMaximumPoolSize")),
                 Long.parseLong(ConfigUtils.getProperty("allDataImportMainKeepAliveTime")), TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainQueueLength"))), new HanlderThreadFactory());
+                new LinkedBlockingQueue<Runnable>(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainQueueLength"))));
 
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -2072,16 +2084,18 @@ public class SqlUtils {
             } else {
 
                 String[] phonetagColNames = {"member_id", "apply_no", "order_no", "mobile", "index_name", "direct", "indirect", "create_time", "update_time"};
-                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
+                CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.PHONETAG_FILE_NAME, phonetagColNames);
 
                 String[] deviceColNames = {"member_id", "apply_no", "order_no", "deviceId", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
+                CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.DEIVE_FILE_NAME, deviceColNames);
 
                 String[] ipColNames = {"member_id", "apply_no", "order_no", "ip", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.IP_FILE_NAME, ipColNames);
+                CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.IP_FILE_NAME, ipColNames);
 
                 String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile"};
-                CSVUtils.createFileAndColName(ConstantHelper.FILE_PATH, ConstantHelper.MEMBER_FILE_NAME, memberColNames);
+                CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.MEMBER_FILE_NAME, memberColNames);
+
+                LOGGER.info("mysqlBusinesConn is {}",mysqlBusinesConn.toString());
 
                 String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null";
                 String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null";
@@ -2090,11 +2104,15 @@ public class SqlUtils {
                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql, isAllDataQueryFlag, date);
             }
 
+            LOGGER.info("memberAndPhoneCount is {},memberInfoMapSet size is {}",memberAndPhoneCount,memberInfoMapSet.size());
+
             int allNum = Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"));
             int applimitNum = (memberAndPhoneCount % allNum == 0) ? memberAndPhoneCount / allNum : (memberAndPhoneCount / allNum + 1);
             int count = 0;
             Iterator<String> it = memberInfoMapSet.iterator();
             ArrayList<MemberAndPhoneBean> memberAndPhoneBeanArrayList = new ArrayList<MemberAndPhoneBean>();
+
+            LOGGER.info("allNum is {},memberAndPhoneCount is {},applimitNum is {}",allNum,memberAndPhoneCount,applimitNum);
             while (it.hasNext()) {
                 count++;
                 MemberAndPhoneBean memberAndPhoneBean = new MemberAndPhoneBean();
@@ -2199,6 +2217,8 @@ public class SqlUtils {
         }
         rs = pstmt.executeQuery();
 
+        LOGGER.info("onlyApplySql is {}",onlyApplySql);
+
         while (rs.next()) {
             String applyNo = rs.getString("apply_no");
             Long memberId = rs.getLong("member_id");
@@ -2218,7 +2238,7 @@ public class SqlUtils {
                 memberInfoOnlyApplyMap.put(memberInfoMapKey, list);
             }
 
-            addStoreIdToMap(storeId);
+            addStoreIdToMap(storeId,memberId);
         }
 
         //这个sql查询的是有申请关联订单的用户
@@ -2228,6 +2248,8 @@ public class SqlUtils {
             pstmt.setString(2, date);
         }
         rs = pstmt.executeQuery();
+
+        LOGGER.info("applyWithOrderSql is {}",applyWithOrderSql);
 
         while (rs.next()) {
             String applyNo = rs.getString("apply_no");
@@ -2251,7 +2273,7 @@ public class SqlUtils {
                 memberInfoApplyRelateOrderMap.put(memberInfoMapKey, list);
             }
 
-            addStoreIdToMap(storeId);
+            addStoreIdToMap(storeId,memberId);
         }
         //这个sql查询的是有订单去除有申请的用户
         pstmt = mysqlBusinesConn.prepareStatement(onlyOrderSql);
@@ -2261,34 +2283,48 @@ public class SqlUtils {
         }
         rs = pstmt.executeQuery();
 
+        LOGGER.info("onlyOrderSql is {}",onlyOrderSql);
+
         while (rs.next()) {
-            String orderNo = rs.getString("order_no");
-            String createdDatetime = rs.getString("created_datetime");
-            String storeId = rs.getString("store_id");
+            try {
+                String orderNo = rs.getString("order_no");
+                //LOGGER.info("order_no is {}", orderNo);
 
-            if (!tempOrderList.contains(orderNo)) {
+                String createdDatetime = rs.getString("created_datetime");
+                String storeId = rs.getString("store_id");
                 Long memberId = rs.getLong("member_id");
-                String phone = rs.getString("phone");
-                String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
 
-                ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
-                applyRelateOrder.setOrder(orderNo);
-                applyRelateOrder.setCreateTime(createdDatetime);
-                if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
-                    memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
-                } else {
-                    List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
-                    list.add(applyRelateOrder);
-                    memberInfoOnlyOrderMap.put(memberInfoMapKey, list);
+                if (!tempOrderList.contains(orderNo)) {
+                    String phone = rs.getString("phone");
+                    String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
+
+                    ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
+                    applyRelateOrder.setOrder(orderNo);
+                    applyRelateOrder.setCreateTime(createdDatetime);
+                    if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
+                        memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
+                    } else {
+                        List<ApplyRelateOrder> list = new ArrayList<ApplyRelateOrder>();
+                        list.add(applyRelateOrder);
+                        memberInfoOnlyOrderMap.put(memberInfoMapKey, list);
+                    }
                 }
-            }
 
-            addStoreIdToMap(storeId);
+                addStoreIdToMap(storeId,memberId);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
+        LOGGER.info("tempOrderList size {}",tempOrderList.size());
+
         if (tempOrderList != null) {
             tempOrderList.clear();
             tempOrderList = null;
         }
+
+        LOGGER.info("getDataFromMysql is end");
 
         Set<String> memberInfoOnlyApplyMapSet = memberInfoOnlyApplyMap.keySet();
         Set<String> memberInfoApplyRelateOrderMapSet = memberInfoApplyRelateOrderMap.keySet();
@@ -2298,11 +2334,13 @@ public class SqlUtils {
         memberInfoMapSet.addAll(memberInfoOnlyOrderMapSet);
         memberAndPhoneCount = memberInfoMapSet.size();
 
+        LOGGER.info("memberAndPhoneCount is {}",memberAndPhoneCount);
+
         return memberAndPhoneCount;
     }
 
 
-    private static void addStoreIdToMap(String storeId) {
+    private static void addStoreIdToMap(String storeId,long memberId) {
         if (null != storeId) {
             if (memberHasStoreMap.containsKey(memberId)) {
                 memberHasStoreMap.get(memberId).add(storeId);

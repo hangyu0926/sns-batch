@@ -156,6 +156,7 @@
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
                 <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
+                <filePath>/home/orientdb/migration_script/basicData/</filePath>
             </properties>
         </profile>
 
@@ -180,6 +181,7 @@
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
                 <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
+                <filePath>/home/orientdb/migration_script/basicData/</filePath>
             </properties>
         </profile>
 
@@ -204,30 +206,14 @@
                 <allDataImportMainQueueLength>20</allDataImportMainQueueLength>
                 <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
                 <orientDbUrl>remote:99.48.88.105/sns</orientDbUrl>
+                <filePath>/home/orientdb/migration_script/basicData/</filePath>
             </properties>
         </profile>
 
         <profile>
             <id>pro</id>
             <properties>
-                <orientDbSourceUrl></orientDbSourceUrl>
-                <orientDbUserName></orientDbUserName>
-                <orientDbUserPassword></orientDbUserPassword>
-                <orientDb.usePool.isUserFlag>true</orientDb.usePool.isUserFlag>
-                <orientDb.pool.min>10</orientDb.pool.min>
-                <orientDb.pool.max>30</orientDb.pool.max>
-                <mysqlDbBusinessSourceUrl></mysqlDbBusinessSourceUrl>
-                <mysqlDbBusinessUserName></mysqlDbBusinessUserName>
-                <mysqlDbBusinessUserPassword></mysqlDbBusinessUserPassword>
-                <mysqlDbSourceUrl></mysqlDbSourceUrl>
-                <mysqlDbUserName></mysqlDbUserName>
-                <mysqlDbUserPassword></mysqlDbUserPassword>
-                <allDataImportMainCorePoolSize>16</allDataImportMainCorePoolSize>
-                <allDataImportMainMaximumPoolSize>40</allDataImportMainMaximumPoolSize>
-                <allDataImportMainKeepAliveTime>0</allDataImportMainKeepAliveTime>
-                <allDataImportMainQueueLength>40</allDataImportMainQueueLength>
-                <allDataImportMainStartIndex>0</allDataImportMainStartIndex>
-                <orientDbUrl>remote:10.252.221.8/sns</orientDbUrl>
+
             </properties>
         </profile>
     </profiles>
