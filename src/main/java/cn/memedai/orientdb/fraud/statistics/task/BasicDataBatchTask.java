@@ -25,6 +25,7 @@ public class BasicDataBatchTask implements Runnable {
             memberAndPhoneBeanList.clear();
             memberAndPhoneBeanList = null;
         }
+        LOGGER.info("BasicDataBatchTask run is over()");
     }
 
     public BasicDataBatchTask() {

@@ -46,7 +46,7 @@ public class SqlUtils {
     public static Map<Long, Set<String>> memberHasStoreMap = new HashMap<Long, Set<String>>();
 
     //会员最近一个订单的状态
-    public static Map<Long, String> memberHasLastOrderStatus = new HashMap<Long, String>();
+    public static ConcurrentMap<Long, String> memberHasLastOrderStatus = new ConcurrentHashMap<Long, String>();
     //public static long memberId = 0;
     public static Lock lock = new ReentrantLock(true);
 
@@ -55,10 +55,10 @@ public class SqlUtils {
     public static Lock memberHasLastOrderStatusLock = new ReentrantLock(true);
 
     //一度联系人包含的而度联系人集合
-    public static Map<String, Map<String, String>> phoneHasIndirectMap = new HashMap<String, Map<String, String>>();
+    public static ConcurrentMap<String, Map<String, String>> phoneHasIndirectMap = new ConcurrentHashMap<String, Map<String, String>>();
 
     //一度联系人包含的通话时长120s的二度联系人集合
-    public static Map<String, Map<String, String>> phoneHasCallLenIndirectMap = new HashMap<String, Map<String, String>>();
+    public static ConcurrentMap<String, Map<String, String>> phoneHasCallLenIndirectMap = new ConcurrentHashMap<String, Map<String, String>>();
 
     private static ODatabaseDocumentTx getODataBaseDocumentTx() {
         ODatabaseDocumentTx tx = null;
@@ -137,483 +137,490 @@ public class SqlUtils {
                                                          List<SameDeviceBean> sameDeviceBeanList, List<SameIpBean> sameIpBeanList, Boolean isAllData) {
         //OResultSet phoneInfos = tx.command(new OCommandSQL("select @rid as phoneRid0, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone = ?")).execute(new Object[]{memberRelatedPhoneNo});
         //ODocument phoneInfo = ((ODocument) phoneInfos.get(0));
-        ODocument phoneRecord0 = phoneInfo.field("phoneRid0");
-        ORecordLazyList members0 = phoneInfo.field("members0");
-        ORecordLazyList ocrs = phoneInfo.field("callTos");
-        Map<String, String> tempMap = new HashMap<String, String>();
-        Map<String, String> tempCallLenMap = new HashMap<String, String>();
-        List<String> directPhones = new ArrayList<String>();
-        //LOGGER.info("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
-        //连接不同设备的个数
+        try {
+            ODocument phoneRecord0 = phoneInfo.field("phoneRid0");
+            ORecordLazyList members0 = phoneInfo.field("members0");
+            ORecordLazyList ocrs = phoneInfo.field("callTos");
+            Map<String, String> tempMap = new HashMap<String, String>();
+            Map<String, String> tempCallLenMap = new HashMap<String, String>();
+            List<String> directPhones = new ArrayList<String>();
+            //LOGGER.info("queryDirectRelationDataByPhoneNo memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
+            //连接不同设备的个数
 
-        if (members0 != null && !members0.isEmpty()) {
-            int diffDeviceCount = 0;
-            ODocument member = (ODocument) members0.get(0);
-            ORidBag in_HasDevice = member.field("out_MemberHasDevice");
-            if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
-                diffDeviceCount = in_HasDevice.size();
-                if (!isAllData) {
-                    Iterator<OIdentifiable> it = in_HasDevice.iterator();
-                    while (it.hasNext()) {
-                        SameDeviceBean sameDeviceBean = new SameDeviceBean();
-                        OIdentifiable t = it.next();
-                        ODocument inDevice = (ODocument) t;
-                        ODocument device = inDevice.field("in");
-                        ORidBag out_HasDevice = device.field("in_MemberHasDevice");
-                        String deviceId = device.field("deviceId");
-                        sameDeviceBean.setDeviceId(deviceId);
-                        //同设备客户个数
-                        int sameDeviceCount = 0;
-                        if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
-                            sameDeviceCount = out_HasDevice.size();
+            if (members0 != null && !members0.isEmpty()) {
+                int diffDeviceCount = 0;
+                ODocument member = (ODocument) members0.get(0);
+                ORidBag in_HasDevice = member.field("out_MemberHasDevice");
+                if (null != in_HasDevice && !in_HasDevice.isEmpty()) {
+                    diffDeviceCount = in_HasDevice.size();
+                    if (!isAllData) {
+                        Iterator<OIdentifiable> it = in_HasDevice.iterator();
+                        while (it.hasNext()) {
+                            SameDeviceBean sameDeviceBean = new SameDeviceBean();
+                            OIdentifiable t = it.next();
+                            ODocument inDevice = (ODocument) t;
+                            ODocument device = inDevice.field("in");
+                            ORidBag out_HasDevice = device.field("in_MemberHasDevice");
+                            String deviceId = device.field("deviceId");
+                            sameDeviceBean.setDeviceId(deviceId);
+                            //同设备客户个数
+                            int sameDeviceCount = 0;
+                            if (null != out_HasDevice && !out_HasDevice.isEmpty()) {
+                                sameDeviceCount = out_HasDevice.size();
+                            }
+                            sameDeviceBean.setDirect(sameDeviceCount);
+                            sameDeviceBeanList.add(sameDeviceBean);
                         }
-                        sameDeviceBean.setDirect(sameDeviceCount);
-                        sameDeviceBeanList.add(sameDeviceBean);
                     }
                 }
-            }
 
-            //连接不同ip的个数
-            int diffIpCount = 0;
-            ORidBag in_HasIp = member.field("out_MemberHasIp");
-            if (null != in_HasIp && !in_HasIp.isEmpty()) {
-                diffIpCount = in_HasIp.size();
-                if (!isAllData) {
-                    Iterator<OIdentifiable> it = in_HasIp.iterator();
-                    while (it.hasNext()) {
-                        SameIpBean sameIpBean = new SameIpBean();
-                        OIdentifiable t = it.next();
-                        ODocument inIp = (ODocument) t;
-                        ODocument ip1 = inIp.field("in");
-                        ORidBag out_HasIp = ip1.field("in_MemberHasIp");
-                        String ip = ip1.field("ip");
-                        sameIpBean.setIp(ip);
-                        //同ip的客户个数
-                        int sameIpCount = 0;
-                        if (null != out_HasIp && !out_HasIp.isEmpty()) {
-                            sameIpCount = out_HasIp.size();
+                //连接不同ip的个数
+                int diffIpCount = 0;
+                ORidBag in_HasIp = member.field("out_MemberHasIp");
+                if (null != in_HasIp && !in_HasIp.isEmpty()) {
+                    diffIpCount = in_HasIp.size();
+                    if (!isAllData) {
+                        Iterator<OIdentifiable> it = in_HasIp.iterator();
+                        while (it.hasNext()) {
+                            SameIpBean sameIpBean = new SameIpBean();
+                            OIdentifiable t = it.next();
+                            ODocument inIp = (ODocument) t;
+                            ODocument ip1 = inIp.field("in");
+                            ORidBag out_HasIp = ip1.field("in_MemberHasIp");
+                            String ip = ip1.field("ip");
+                            sameIpBean.setIp(ip);
+                            //同ip的客户个数
+                            int sameIpCount = 0;
+                            if (null != out_HasIp && !out_HasIp.isEmpty()) {
+                                sameIpCount = out_HasIp.size();
+                            }
+                            sameIpBean.setDirect(sameIpCount);
+                            sameIpBeanList.add(sameIpBean);
+
                         }
-                        sameIpBean.setDirect(sameIpCount);
-                        sameIpBeanList.add(sameIpBean);
-
                     }
                 }
-            }
 
-            //连接不同申请件数
-            int diffApplyCount = 0;
-            ORidBag in_HasApply = member.field("out_MemberHasApply");
-            if (null != in_HasApply && !in_HasApply.isEmpty()) {
-                diffApplyCount = in_HasApply.size();
-            }
-
-            //连接不同订单数
-            int diffOrderCount = 0;
-            ORidBag in_HasOrder = member.field("out_MemberHasOrder");
-
-            if (null != in_HasOrder && !in_HasOrder.isEmpty()) {
-                diffOrderCount = in_HasOrder.size();
-            }
-
-
-            // 连接不同商户个数
-            int diffMerchantCount = 0;
-            long memberId = member.field("memberId");
-
-            Set<String> set = memberHasStoreMap.get(memberId);
-            if (null != set) {
-                diffMerchantCount = set.size();
-            }
-
-            memberDeviceAndApplyAndOrderBean.setHasDeviceNum(diffDeviceCount);
-            memberDeviceAndApplyAndOrderBean.setHasIpNum(diffIpCount);
-            memberDeviceAndApplyAndOrderBean.setHasApplNum(diffApplyCount);
-            memberDeviceAndApplyAndOrderBean.setHasMerchantNum(diffMerchantCount);
-            memberDeviceAndApplyAndOrderBean.setHasOrderNum(diffOrderCount);
-        }
-
-
-        //一度联系人过件个数
-        int contactAccept = 0;
-        //一度联系人拒件个数
-        int contactRefuse = 0;
-        //一度联系人逾期个数
-        int contactOverdue = 0;
-        //一度联系人黑名单个数
-        int contactBlack = 0;
-
-        //一度联系人过件个数
-        int contactAcceptCallLen = 0;
-        //一度联系人拒件个数
-        int contactRefuseCallLen = 0;
-        //一度联系人逾期个数
-        int contactOverdueCallLen = 0;
-        //一度联系人黑名单个数
-        int contactBlackCallLen = 0;
-
-        Map<String, String> hasdirectMap = new HashMap<String, String>();
-        Map<String, String> hasCallLendirectMap = new HashMap<String, String>();
-        if (ocrs != null && !ocrs.isEmpty()) {
-            int ocrSize = ocrs.size();
-            for (int j = 0; j < ocrSize; j++) {
-                ODocument ocr = (ODocument) ocrs.get(j);
-                //一度联系人的通话时长
-                //通话时长
-                Object directCallLen = ocr.field("callLen");
-                int directCallLength = 0;
-                if (directCallLen instanceof String) {
-                    directCallLength = Integer.valueOf((String) directCallLen);
-                } else {
-                    directCallLength = (Integer) directCallLen;
+                //连接不同申请件数
+                int diffApplyCount = 0;
+                ORidBag in_HasApply = member.field("out_MemberHasApply");
+                if (null != in_HasApply && !in_HasApply.isEmpty()) {
+                    diffApplyCount = in_HasApply.size();
                 }
 
-                ODocument tempPhoneRecordIn1 = ocr.field("in");//callTo边
-                ODocument tempPhoneRecordOut1 = ocr.field("out");
-                //设置一级联系人的record
-                ODocument phoneRecord1 = getRid(tempPhoneRecordIn1).equals(getRid(phoneRecord0)) ? tempPhoneRecordOut1 : tempPhoneRecordIn1;//phone点
+                //连接不同订单数
+                int diffOrderCount = 0;
+                ORidBag in_HasOrder = member.field("out_MemberHasOrder");
 
-                String phone = phoneRecord1.field("phone").toString();
-
-                //对一度联系人phone做下校验
-                if (directPhones.contains(phone) || memberRelatedPhoneNo.equals(phone)) {
-                    continue;
+                if (null != in_HasOrder && !in_HasOrder.isEmpty()) {
+                    diffOrderCount = in_HasOrder.size();
                 }
-                directPhones.add(phone);
 
 
-                //查询二度开始
-                if (checkPhone(phone)) {
-                    lock.lock();
-                    Map<String, String> hasIndirectMap = null;
-                    Map<String, String> hasCallLenIndirectMap = null;
-                    boolean flag = false;
-                    try {
-                        flag = phoneHasIndirectMap.containsKey(phone);
-                        if (flag) {
-                            hasIndirectMap = phoneHasIndirectMap.get(phone);
-                            if (null != hasIndirectMap && !hasIndirectMap.isEmpty()) {
-                                for (Map.Entry<String, String> en : hasIndirectMap.entrySet()) {
-                                    tempMap.put(en.getKey(), en.getValue());
-                                }
-                            }
-                            hasCallLenIndirectMap = phoneHasCallLenIndirectMap.get(phone);
-                            if (null != hasCallLenIndirectMap && !hasCallLenIndirectMap.isEmpty()) {
-                                for (Map.Entry<String, String> en : hasCallLenIndirectMap.entrySet()) {
-                                    tempCallLenMap.put(en.getKey(), en.getValue());
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("queryDirectRelationDataByPhoneNo 查询二度开始 have e {}", e);
-                    } finally {
-                        lock.unlock();
+                // 连接不同商户个数
+                int diffMerchantCount = 0;
+                long memberId = member.field("memberId");
+
+                Set<String> set = memberHasStoreMap.get(memberId);
+                if (null != set) {
+                    diffMerchantCount = set.size();
+                }
+
+                memberDeviceAndApplyAndOrderBean.setHasDeviceNum(diffDeviceCount);
+                memberDeviceAndApplyAndOrderBean.setHasIpNum(diffIpCount);
+                memberDeviceAndApplyAndOrderBean.setHasApplNum(diffApplyCount);
+                memberDeviceAndApplyAndOrderBean.setHasMerchantNum(diffMerchantCount);
+                memberDeviceAndApplyAndOrderBean.setHasOrderNum(diffOrderCount);
+            }
+
+
+            //一度联系人过件个数
+            int contactAccept = 0;
+            //一度联系人拒件个数
+            int contactRefuse = 0;
+            //一度联系人逾期个数
+            int contactOverdue = 0;
+            //一度联系人黑名单个数
+            int contactBlack = 0;
+
+            //一度联系人过件个数
+            int contactAcceptCallLen = 0;
+            //一度联系人拒件个数
+            int contactRefuseCallLen = 0;
+            //一度联系人逾期个数
+            int contactOverdueCallLen = 0;
+            //一度联系人黑名单个数
+            int contactBlackCallLen = 0;
+
+            Map<String, String> hasdirectMap = new HashMap<String, String>();
+            Map<String, String> hasCallLendirectMap = new HashMap<String, String>();
+            if (ocrs != null && !ocrs.isEmpty()) {
+                int ocrSize = ocrs.size();
+                for (int j = 0; j < ocrSize; j++) {
+                    ODocument ocr = (ODocument) ocrs.get(j);
+                    //一度联系人的通话时长
+                    //通话时长
+                    Object directCallLen = ocr.field("callLen");
+                    int directCallLength = 0;
+                    if (directCallLen instanceof String) {
+                        directCallLength = Integer.valueOf((String) directCallLen);
+                    } else {
+                        directCallLength = (Integer) directCallLen;
                     }
 
-                    if (!flag) {
-                        hasIndirectMap = new HashMap<String, String>();
-                        hasCallLenIndirectMap = new HashMap<String, String>();
+                    ODocument tempPhoneRecordIn1 = ocr.field("in");//callTo边
+                    ODocument tempPhoneRecordOut1 = ocr.field("out");
+                    //设置一级联系人的record
+                    ODocument phoneRecord1 = getRid(tempPhoneRecordIn1).equals(getRid(phoneRecord0)) ? tempPhoneRecordOut1 : tempPhoneRecordIn1;//phone点
 
-                        ORidBag inCallTo = phoneRecord1.field("in_CallTo");
-                        if (null != inCallTo && !inCallTo.isEmpty()) {
-                            Iterator<OIdentifiable> it = inCallTo.iterator();
-                            while (it.hasNext()) {
-                                OIdentifiable t = it.next();
-                                ODocument inphone = (ODocument) t;
-                                if (null == inphone) {
-                                    LOGGER.error("in_CallTo is null ,this phone is {}", phone);
-                                    continue;
-                                }
-                                ODocument phone1 = inphone.field("out");
-                                //通话时长
-                                Object callLen = inphone.field("callLen");
-                                int callLength = 0;
-                                if (callLen instanceof String) {
-                                    callLength = Integer.valueOf((String) callLen);
-                                } else {
-                                    callLength = (Integer) callLen;
-                                }
-                                String indirectphone = phone1.field("phone");
-                                if (!memberRelatedPhoneNo.equals(indirectphone)) {
-                                    ORidBag outHasPhoneMark = phone1.field("out_HasPhoneMark");
-                                    if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
-                                        Iterator<OIdentifiable> it1 = outHasPhoneMark.iterator();
-                                        while (it1.hasNext()) {
-                                            OIdentifiable t1 = it1.next();
-                                            ODocument phoneMark = (ODocument) t1;
-                                            ODocument phoneMark1 = phoneMark.field("in");
-                                            String mark = phoneMark1.field("mark");
-                                            tempMap.put(indirectphone, mark);
-                                            hasIndirectMap.put(indirectphone, mark);
+                    String phone = phoneRecord1.field("phone").toString();
 
-                                            if (callLength >= ConstantHelper.CALL_LEN) {
-                                                tempCallLenMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
-                                                hasCallLenIndirectMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    //对一度联系人phone做下校验
+                    if (directPhones.contains(phone) || memberRelatedPhoneNo.equals(phone)) {
+                        continue;
+                    }
+                    directPhones.add(phone);
 
-                        ORidBag outCallTo = phoneRecord1.field("out_CallTo");
-                        if (null != outCallTo && !outCallTo.isEmpty()) {
-                            Iterator<OIdentifiable> it = outCallTo.iterator();
-                            while (it.hasNext()) {
-                                OIdentifiable t = it.next();
-                                ODocument outphone = (ODocument) t;
-                                if (null == outphone) {
-                                    LOGGER.error("outphone is null {}", outCallTo.toString());
-                                    continue;
-                                }
-                                ODocument phone1 = outphone.field("in");
-                                //通话时长
-                                Object callLen = outphone.field("callLen");
-                                int callLength = 0;
-                                if (callLen instanceof String) {
-                                    callLength = Integer.valueOf((String) callLen);
-                                } else {
-                                    callLength = (Integer) callLen;
-                                }
-                                String indirectphone = phone1.field("phone");
-                                if (!memberRelatedPhoneNo.equals(indirectphone)) {
-                                    ORidBag outHasPhoneMark = phone1.field("out_HasPhoneMark");
-                                    if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
-                                        Iterator<OIdentifiable> it1 = outHasPhoneMark.iterator();
-                                        while (it1.hasNext()) {
-                                            OIdentifiable t1 = it1.next();
-                                            ODocument phoneMark = (ODocument) t1;
-                                            ODocument phoneMark1 = phoneMark.field("in");
-                                            String mark = phoneMark1.field("mark");
-                                            tempMap.put(indirectphone, mark);
-                                            hasIndirectMap.put(indirectphone, mark);
 
-                                            if (callLength >= ConstantHelper.CALL_LEN) {
-                                                tempCallLenMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
-                                                hasCallLenIndirectMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
+                    //查询二度开始
+                    if (checkPhone(phone)) {
                         lock.lock();
+                        Map<String, String> hasIndirectMap = null;
+                        Map<String, String> hasCallLenIndirectMap = null;
+                        boolean flag = false;
                         try {
-                            phoneHasIndirectMap.put(phone, hasIndirectMap);
-                            phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap);
+                            flag = phoneHasIndirectMap.containsKey(phone);
+                            if (flag) {
+                                hasIndirectMap = phoneHasIndirectMap.get(phone);
+                                if (null != hasIndirectMap && !hasIndirectMap.isEmpty()) {
+                                    for (Map.Entry<String, String> en : hasIndirectMap.entrySet()) {
+                                        tempMap.put(en.getKey(), en.getValue());
+                                    }
+                                }
+                                hasCallLenIndirectMap = phoneHasCallLenIndirectMap.get(phone);
+                                if (null != hasCallLenIndirectMap && !hasCallLenIndirectMap.isEmpty()) {
+                                    for (Map.Entry<String, String> en : hasCallLenIndirectMap.entrySet()) {
+                                        tempCallLenMap.put(en.getKey(), en.getValue());
+                                    }
+                                }
+                            }
                         } catch (Exception e) {
-                            LOGGER.error("phoneHasIndirectMap.put(phone, hasIndirectMap) phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap) have e {}", e);
+                            LOGGER.error("queryDirectRelationDataByPhoneNo 查询二度开始 have e {}", e);
                         } finally {
                             lock.unlock();
                         }
 
-                    }
+                        if (!flag) {
+                            hasIndirectMap = new HashMap<String, String>();
+                            hasCallLenIndirectMap = new HashMap<String, String>();
 
+                            ORidBag inCallTo = phoneRecord1.field("in_CallTo");
+                            if (null != inCallTo && !inCallTo.isEmpty()) {
+                                Iterator<OIdentifiable> it = inCallTo.iterator();
+                                while (it.hasNext()) {
+                                    OIdentifiable t = it.next();
+                                    ODocument inphone = (ODocument) t;
+                                    if (null == inphone) {
+                                        LOGGER.error("in_CallTo is null ,this phone is {}", phone);
+                                        continue;
+                                    }
+                                    ODocument phone1 = inphone.field("out");
+                                    //通话时长
+                                    Object callLen = inphone.field("callLen");
+                                    int callLength = 0;
+                                    if (callLen instanceof String) {
+                                        callLength = Integer.valueOf((String) callLen);
+                                    } else {
+                                        callLength = (Integer) callLen;
+                                    }
+                                    String indirectphone = phone1.field("phone");
+                                    if (!memberRelatedPhoneNo.equals(indirectphone)) {
+                                        ORidBag outHasPhoneMark = phone1.field("out_HasPhoneMark");
+                                        if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
+                                            Iterator<OIdentifiable> it1 = outHasPhoneMark.iterator();
+                                            while (it1.hasNext()) {
+                                                OIdentifiable t1 = it1.next();
+                                                ODocument phoneMark = (ODocument) t1;
+                                                ODocument phoneMark1 = phoneMark.field("in");
+                                                String mark = phoneMark1.field("mark");
+                                                tempMap.put(indirectphone, mark);
+                                                hasIndirectMap.put(indirectphone, mark);
 
-                }
-                //查询二度结束
-
-                ORidBag outHasPhoneMark = phoneRecord1.field("out_HasPhoneMark");//HasPhoneMark边
-
-                if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
-                    Iterator<OIdentifiable> it = outHasPhoneMark.iterator();
-                    while (it.hasNext()) {
-                        OIdentifiable t = it.next();
-                        ODocument phoneMark = (ODocument) t;
-                        ODocument phoneMark1 = phoneMark.field("in");
-                        String mark = phoneMark1.field("mark");
-
-                        hasdirectMap.put(phone, mark);
-
-                        if (map.containsKey(mark)) {
-                            Integer count = map.get(mark) + 1;
-                            map.put(mark, count);
-                        } else {
-                            map.put(mark, 1);
-                        }
-
-                        //判断通话时长超过120S
-                        if (directCallLength >= ConstantHelper.CALL_LEN) {
-                            String callMark = mark + ConstantHelper.MARK_CALL_LEN;
-                            hasCallLendirectMap.put(phone, callMark);
-                            if (map.containsKey(callMark)) {
-                                Integer count = map.get(callMark) + 1;
-                                map.put(callMark, count);
-                            } else {
-                                map.put(callMark, 1);
-                            }
-                        }
-
-                    }
-                }
-
-                //查询过件、拒件、逾期、黑名单
-                ORidBag in_HasPhone = phoneRecord1.field("in_HasPhone");
-                if (null != in_HasPhone && !in_HasPhone.isEmpty()) {
-                    Iterator<OIdentifiable> it = in_HasPhone.iterator();
-                    while (it.hasNext()) {
-                        OIdentifiable t = it.next();
-                        ODocument member = (ODocument) t;
-                        ODocument member1 = member.field("out");
-                        Boolean isBlack = member1.field("isBlack");
-                        Boolean isOverdue = member1.field("isOverdue");
-                        if (isBlack) {
-                            contactBlack++;
-                        }
-                        if (isOverdue) {
-                            contactOverdue++;
-                        }
-
-                        //判断通话时长超过120S
-                        if (directCallLength >= ConstantHelper.CALL_LEN) {
-                            if (isBlack) {
-                                contactBlackCallLen++;
-                            }
-                            if (isOverdue) {
-                                contactOverdueCallLen++;
-                            }
-                        }
-
-                        long memberId = member1.field("memberId");
-
-                        String originalStatus = null;
-
-                        memberHasLastOrderStatusLock.lock();
-                        try {
-                            originalStatus = memberHasLastOrderStatus.get(memberId);
-                        } catch (Exception e) {
-                            LOGGER.error("memberHasLastOrderStatus.get(memberId) have e {}", e);
-                        } finally {
-                            memberHasLastOrderStatusLock.unlock();
-                        }
-
-                        if (null == originalStatus) {
-                            ORidBag out_MemberHasOrder = member1.field("out_MemberHasOrder");
-                            if (null != out_MemberHasOrder && !out_MemberHasOrder.isEmpty()) {
-                                long lastTime = 0;
-                                Iterator<OIdentifiable> it1 = out_MemberHasOrder.iterator();
-                                while (it1.hasNext()) {
-                                    OIdentifiable t1 = it1.next();
-                                    ODocument order = (ODocument) t1;
-                                    ODocument order1 = order.field("in");
-                                    Date createdDatetime = order1.field("createdDatetime");
-                                    long stringToLong = 0;
-                                    stringToLong = DateUtils.dateToLong(createdDatetime);
-                                    if (stringToLong > lastTime) {
-                                        lastTime = stringToLong;
-                                        originalStatus = order1.field("originalStatus");
+                                                if (callLength >= ConstantHelper.CALL_LEN) {
+                                                    tempCallLenMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
+                                                    hasCallLenIndirectMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
+                            }
 
-                                memberHasLastOrderStatusLock.lock();
-                                try {
-                                    memberHasLastOrderStatus.put(memberId, originalStatus);
-                                } catch (Exception e) {
-                                    LOGGER.error(" memberHasLastOrderStatus.put(memberId, originalStatus) have e {}", e);
-                                } finally {
-                                    memberHasLastOrderStatusLock.unlock();
+                            ORidBag outCallTo = phoneRecord1.field("out_CallTo");
+                            if (null != outCallTo && !outCallTo.isEmpty()) {
+                                Iterator<OIdentifiable> it = outCallTo.iterator();
+                                while (it.hasNext()) {
+                                    OIdentifiable t = it.next();
+                                    ODocument outphone = (ODocument) t;
+                                    if (null == outphone) {
+                                        LOGGER.error("outphone is null {}", outCallTo.toString());
+                                        continue;
+                                    }
+                                    ODocument phone1 = outphone.field("in");
+                                    //通话时长
+                                    Object callLen = outphone.field("callLen");
+                                    int callLength = 0;
+                                    if (callLen instanceof String) {
+                                        callLength = Integer.valueOf((String) callLen);
+                                    } else {
+                                        callLength = (Integer) callLen;
+                                    }
+                                    String indirectphone = phone1.field("phone");
+                                    if (!memberRelatedPhoneNo.equals(indirectphone)) {
+                                        ORidBag outHasPhoneMark = phone1.field("out_HasPhoneMark");
+                                        if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
+                                            Iterator<OIdentifiable> it1 = outHasPhoneMark.iterator();
+                                            while (it1.hasNext()) {
+                                                OIdentifiable t1 = it1.next();
+                                                ODocument phoneMark = (ODocument) t1;
+                                                ODocument phoneMark1 = phoneMark.field("in");
+                                                String mark = phoneMark1.field("mark");
+                                                tempMap.put(indirectphone, mark);
+                                                hasIndirectMap.put(indirectphone, mark);
+
+                                                if (callLength >= ConstantHelper.CALL_LEN) {
+                                                    tempCallLenMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
+                                                    hasCallLenIndirectMap.put(indirectphone, mark + ConstantHelper.MARK_CALL_LEN);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            lock.lock();
+                            try {
+                                phoneHasIndirectMap.put(phone, hasIndirectMap);
+                                phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap);
+                            } catch (Exception e) {
+                                LOGGER.error("phoneHasIndirectMap.put(phone, hasIndirectMap) phoneHasCallLenIndirectMap.put(phone, hasCallLenIndirectMap) have e {}", e);
+                            } finally {
+                                lock.unlock();
+                            }
+
+                        }
+
+
+                    }
+                    //查询二度结束
+
+                    ORidBag outHasPhoneMark = phoneRecord1.field("out_HasPhoneMark");//HasPhoneMark边
+
+                    if (null != outHasPhoneMark && !outHasPhoneMark.isEmpty()) {
+                        Iterator<OIdentifiable> it = outHasPhoneMark.iterator();
+                        while (it.hasNext()) {
+                            OIdentifiable t = it.next();
+                            ODocument phoneMark = (ODocument) t;
+                            ODocument phoneMark1 = phoneMark.field("in");
+                            String mark = phoneMark1.field("mark");
+
+                            hasdirectMap.put(phone, mark);
+
+                            if (map.containsKey(mark)) {
+                                Integer count = map.get(mark) + 1;
+                                map.put(mark, count);
+                            } else {
+                                map.put(mark, 1);
+                            }
+
+                            //判断通话时长超过120S
+                            if (directCallLength >= ConstantHelper.CALL_LEN) {
+                                String callMark = mark + ConstantHelper.MARK_CALL_LEN;
+                                hasCallLendirectMap.put(phone, callMark);
+                                if (map.containsKey(callMark)) {
+                                    Integer count = map.get(callMark) + 1;
+                                    map.put(callMark, count);
+                                } else {
+                                    map.put(callMark, 1);
+                                }
+                            }
+
+                        }
+                    }
+
+                    //查询过件、拒件、逾期、黑名单
+                    ORidBag in_HasPhone = phoneRecord1.field("in_HasPhone");
+                    if (null != in_HasPhone && !in_HasPhone.isEmpty()) {
+                        Iterator<OIdentifiable> it = in_HasPhone.iterator();
+                        while (it.hasNext()) {
+                            OIdentifiable t = it.next();
+                            ODocument member = (ODocument) t;
+                            ODocument member1 = member.field("out");
+                            Boolean isBlack = member1.field("isBlack") == null ? false : (Boolean) member1.field("isBlack");
+                            Boolean isOverdue = member1.field("isOverdue") == null ? false : (Boolean) member1.field("isOverdue");;
+
+                            if (isBlack) {
+                                contactBlack++;
+                            }
+                            if (isOverdue) {
+                                contactOverdue++;
+                            }
+
+                            //判断通话时长超过120S
+                            if (directCallLength >= ConstantHelper.CALL_LEN) {
+                                if (isBlack) {
+                                    contactBlackCallLen++;
+                                }
+                                if (isOverdue) {
+                                    contactOverdueCallLen++;
+                                }
+                            }
+
+                            long memberId = member1.field("memberId");
+
+                            String originalStatus = null;
+
+                            memberHasLastOrderStatusLock.lock();
+                            try {
+                                originalStatus = memberHasLastOrderStatus.get(memberId);
+                            } catch (Exception e) {
+                                LOGGER.error("memberHasLastOrderStatus.get(memberId) have e {}", e);
+                            } finally {
+                                memberHasLastOrderStatusLock.unlock();
+                            }
+
+                            if (null == originalStatus) {
+                                ORidBag out_MemberHasOrder = member1.field("out_MemberHasOrder");
+                                if (null != out_MemberHasOrder && !out_MemberHasOrder.isEmpty()) {
+                                    long lastTime = 0;
+                                    Iterator<OIdentifiable> it1 = out_MemberHasOrder.iterator();
+                                    while (it1.hasNext()) {
+                                        OIdentifiable t1 = it1.next();
+                                        ODocument order = (ODocument) t1;
+                                        ODocument order1 = order.field("in");
+                                        Date createdDatetime = order1.field("createdDatetime");
+                                        long stringToLong = 0;
+                                        stringToLong = DateUtils.dateToLong(createdDatetime);
+                                        if (stringToLong > lastTime) {
+                                            lastTime = stringToLong;
+                                            originalStatus = order1.field("originalStatus");
+                                        }
+                                    }
+
+                                    memberHasLastOrderStatusLock.lock();
+                                    try {
+                                        memberHasLastOrderStatus.put(memberId, originalStatus);
+                                    } catch (Exception e) {
+                                        LOGGER.error(" memberHasLastOrderStatus.put(memberId, originalStatus) have e {}", e);
+                                    } finally {
+                                        memberHasLastOrderStatusLock.unlock();
+                                    }
+                                }
+                            }
+                            if (ConstantHelper.REFUSE_APPLY_FLAG.equals(originalStatus)) {
+                                contactRefuse++;
+                            } else if (ConstantHelper.PASS_APPLY_FLAG.equals(originalStatus)) {
+                                contactAccept++;
+                            }
+
+                            //判断通话时长超过120S
+                            if (directCallLength >= ConstantHelper.CALL_LEN) {
+                                if (ConstantHelper.REFUSE_APPLY_FLAG.equals(originalStatus)) {
+                                    contactRefuseCallLen++;
+                                } else if (ConstantHelper.PASS_APPLY_FLAG.equals(originalStatus)) {
+                                    contactAcceptCallLen++;
                                 }
                             }
                         }
-                        if (ConstantHelper.REFUSE_APPLY_FLAG.equals(originalStatus)) {
-                            contactRefuse++;
-                        } else if (ConstantHelper.PASS_APPLY_FLAG.equals(originalStatus)) {
-                            contactAccept++;
+                    }
+                }
+
+                lock.lock();
+                try {
+                    phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap);
+                } catch (Exception e) {
+                    LOGGER.error(" phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap) have e {}", e);
+                } finally {
+                    lock.unlock();
+                }
+
+
+                if (null != tempMap) {
+                    //过滤掉二度联系人中的一度联系人
+                    for (String str : directPhones) {
+                        if (tempMap.containsKey(str)) {
+                            tempMap.remove(str);
                         }
+                    }
 
-                        //判断通话时长超过120S
-                        if (directCallLength >= ConstantHelper.CALL_LEN) {
-                            if (ConstantHelper.REFUSE_APPLY_FLAG.equals(originalStatus)) {
-                                contactRefuseCallLen++;
-                            } else if (ConstantHelper.PASS_APPLY_FLAG.equals(originalStatus)) {
-                                contactAcceptCallLen++;
-                            }
+                    //将tempMap改造成map2
+                    //判断该标签是否包含一度数据
+                    Set<Map.Entry<String, String>> tempSet = tempMap.entrySet();
+                    for (Map.Entry<String, String> en : tempSet) {
+                        String mark = en.getValue();
+                        if (map2.containsKey(mark)) {
+                            Integer count = map2.get(mark) + 1;
+                            map2.put(mark, count);
+                        } else {
+                            map2.put(mark, 1);
                         }
                     }
+
+                    //过滤掉二度联系人中的一度联系人
+                    for (String str : directPhones) {
+                        if (tempCallLenMap.containsKey(str)) {
+                            tempCallLenMap.remove(str);
+                        }
+                    }
+
+                    //将tempMap改造成map2
+                    //判断该标签是否包含一度数据
+                    Set<Map.Entry<String, String>> tempCallSet = tempCallLenMap.entrySet();
+                    for (Map.Entry<String, String> en : tempCallSet) {
+                        String mark = en.getValue();
+                        if (map2.containsKey(mark)) {
+                            Integer count = map2.get(mark) + 1;
+                            map2.put(mark, count);
+                        } else {
+                            map2.put(mark, 1);
+                        }
+                    }
+
+                    if (tempSet != null) {
+                        tempSet.clear();
+                        tempSet = null;
+                    }
                 }
             }
 
-            lock.lock();
-            try {
-                phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap);
-            } catch (Exception e) {
-                LOGGER.error(" phoneHasIndirectMap.put(memberRelatedPhoneNo, hasdirectMap) have e {}", e);
-            } finally {
-                lock.unlock();
+            memberDeviceAndApplyAndOrderBean.setContactBlackMemberNum(contactBlack);
+            memberDeviceAndApplyAndOrderBean.setContactOverdueMemberNum(contactOverdue);
+            memberDeviceAndApplyAndOrderBean.setContactAcceptMemberNum(contactAccept);
+            memberDeviceAndApplyAndOrderBean.setContactRefuseMemberNum(contactRefuse);
+
+            memberDeviceAndApplyAndOrderBean.setContactBlackMemberCallLenNum(contactBlackCallLen);
+            memberDeviceAndApplyAndOrderBean.setContactOverdueMemberCallLenNum(contactOverdueCallLen);
+            memberDeviceAndApplyAndOrderBean.setContactAcceptMemberCallLenNum(contactAcceptCallLen);
+            memberDeviceAndApplyAndOrderBean.setContactRefuseMemberCallLenNum(contactRefuseCallLen);
+
+            if (tempMap != null) {
+                tempMap.clear();
+                tempMap = null;
             }
-
-
-            if (null != tempMap) {
-                //过滤掉二度联系人中的一度联系人
-                for (String str : directPhones) {
-                    if (tempMap.containsKey(str)) {
-                        tempMap.remove(str);
-                    }
-                }
-
-                //将tempMap改造成map2
-                //判断该标签是否包含一度数据
-                Set<Map.Entry<String, String>> tempSet = tempMap.entrySet();
-                for (Map.Entry<String, String> en : tempSet) {
-                    String mark = en.getValue();
-                    if (map2.containsKey(mark)) {
-                        Integer count = map2.get(mark) + 1;
-                        map2.put(mark, count);
-                    } else {
-                        map2.put(mark, 1);
-                    }
-                }
-
-                //过滤掉二度联系人中的一度联系人
-                for (String str : directPhones) {
-                    if (tempCallLenMap.containsKey(str)) {
-                        tempCallLenMap.remove(str);
-                    }
-                }
-
-                //将tempMap改造成map2
-                //判断该标签是否包含一度数据
-                Set<Map.Entry<String, String>> tempCallSet = tempCallLenMap.entrySet();
-                for (Map.Entry<String, String> en : tempCallSet) {
-                    String mark = en.getValue();
-                    if (map2.containsKey(mark)) {
-                        Integer count = map2.get(mark) + 1;
-                        map2.put(mark, count);
-                    } else {
-                        map2.put(mark, 1);
-                    }
-                }
-
-                if (tempSet != null) {
-                    tempSet.clear();
-                    tempSet = null;
-                }
+            if (directPhones != null) {
+                directPhones.clear();
+                directPhones = null;
             }
-        }
+            if (ocrs != null) {
+                ocrs.clear();
+                ocrs = null;
+            }
+            //LOGGER.info("queryDirectRelationDataByPhoneNo end memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
 
-        memberDeviceAndApplyAndOrderBean.setContactBlackMemberNum(contactBlack);
-        memberDeviceAndApplyAndOrderBean.setContactOverdueMemberNum(contactOverdue);
-        memberDeviceAndApplyAndOrderBean.setContactAcceptMemberNum(contactAccept);
-        memberDeviceAndApplyAndOrderBean.setContactRefuseMemberNum(contactRefuse);
-
-        memberDeviceAndApplyAndOrderBean.setContactBlackMemberCallLenNum(contactBlackCallLen);
-        memberDeviceAndApplyAndOrderBean.setContactOverdueMemberCallLenNum(contactOverdueCallLen);
-        memberDeviceAndApplyAndOrderBean.setContactAcceptMemberCallLenNum(contactAcceptCallLen);
-        memberDeviceAndApplyAndOrderBean.setContactRefuseMemberCallLenNum(contactRefuseCallLen);
-
-        if (tempMap != null) {
-            tempMap.clear();
-            tempMap = null;
+        } catch (Exception e) {
+           LOGGER.error("queryDirectRelationDataByPhoneNo has error {}",e);
+            e.printStackTrace();
         }
-        if (directPhones != null) {
-            directPhones.clear();
-            directPhones = null;
-        }
-        if (ocrs != null) {
-            ocrs.clear();
-            ocrs = null;
-        }
-        //LOGGER.info("queryDirectRelationDataByPhoneNo end memberRelatedPhoneNo is {}", memberRelatedPhoneNo);
         return 0;
     }
 
@@ -1476,6 +1483,9 @@ public class SqlUtils {
         int memberRelatedPhoneNoSize = size / ConstantHelper.MEMBER_RELATED_PHONENO_SIZE;
         int memberRelatedPhoneNoRemainder = size % ConstantHelper.MEMBER_RELATED_PHONENO_SIZE;
 
+        LOGGER.info("dealAllBasicDataByApplyList memberRelatedPhoneNoSize is {}", memberRelatedPhoneNoSize);
+        LOGGER.info("dealAllBasicDataByApplyList memberRelatedPhoneNoRemainder is {}", memberRelatedPhoneNoRemainder);
+
         for (int i = 0; i < memberRelatedPhoneNoSize; i++) {
             LOGGER.info("dealAllBasicDataByApplyList i is {}", i);
 
@@ -1492,7 +1502,7 @@ public class SqlUtils {
 
             if (phoneInfos == null || phoneInfos.size() <= 0) {
                 LOGGER.error("dealAllBasicDataByApplyList phone {} is empty", s.toString());
-                return;
+                continue;
             }
 
             int phoneInfosSize = phoneInfos.size();
@@ -2115,10 +2125,12 @@ public class SqlUtils {
         Connection mysqlBusinesConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbBusinessSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbBusinessUserName"), ConfigUtils.getProperty("mysqlDbBusinessUserPassword"));
 
-        ExecutorService es = new ThreadPoolExecutor(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"))
+      /*  ExecutorService es = new ThreadPoolExecutor(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize"))
                 , Integer.parseInt(ConfigUtils.getProperty("allDataImportMainMaximumPoolSize")),
                 Long.parseLong(ConfigUtils.getProperty("allDataImportMainKeepAliveTime")), TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainQueueLength"))));
+                new LinkedBlockingQueue<Runnable>(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainQueueLength"))));*/
+
+        ExecutorService es = Executors.newFixedThreadPool(Integer.parseInt(ConfigUtils.getProperty("allDataImportMainCorePoolSize")));
 
         PreparedStatement pstmt = null;
         ResultSet rs = null;
