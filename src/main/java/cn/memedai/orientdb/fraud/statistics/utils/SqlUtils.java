@@ -751,7 +751,7 @@ public class SqlUtils {
         }
 
         if (!isAllData) {
-            LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
+            //LOGGER.info("dealBasicDataByPhone insertPhonetagIndex");
             insertPhonetagIndex(indexDatas,mysqlConn);
             //插入一度和二度联系人指标结束
         }
@@ -823,7 +823,7 @@ public class SqlUtils {
         }
 
         if (!isAllData) {
-            LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
+            //LOGGER.info("dealBasicDataByPhone insertDeviceAndIpIndex");
             insertDeviceAndIpIndex(deviceIndexDataList, ipIndexDataList,mysqlConn);
             //插入同ip的客户个数指标结束
         }
@@ -945,7 +945,7 @@ public class SqlUtils {
 
 
         if (!isAllData) {
-            LOGGER.info("dealBasicDataByPhone insertMemberIndex");
+            //LOGGER.info("dealBasicDataByPhone insertMemberIndex");
             insertMemberIndex(memberIndexDatas,mysqlConn);
         }
         //插入会员指标结束
@@ -1177,7 +1177,9 @@ public class SqlUtils {
             }
 
 
+
             if (null != addBeanList && addBeanList.size() > 0) {
+                LOGGER.info("addBeanList size is {}",addBeanList);
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
                 dealAllBasicDataByApplyList(addBeanList, tx, isAllData,mysqlConn);
                 if (tx != null) {
@@ -1187,6 +1189,7 @@ public class SqlUtils {
 
 
             if (null != updateBeanList && updateBeanList.size() > 0) {
+                LOGGER.info("updateBeanList size is {}",updateBeanList);
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
                 dealUpdateBasicDataByApplyList(updateBeanList, tx,mysqlConn);
                 if (tx != null) {
@@ -1248,6 +1251,8 @@ public class SqlUtils {
 
             List<SameDeviceBean> sameDeviceBeanList = new ArrayList<SameDeviceBean>();
             List<SameIpBean> sameIpBeanList = new ArrayList<SameIpBean>();
+
+            LOGGER.info("dealUpdateBasicDataByApplyList phone is {}, memberId is {},k is {}",memberAndPhoneBean.getPhones(),memberAndPhoneBean.getMemberId(),k);
 
             MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
             String sql = "select @rid as member from member where memberId = ?";
@@ -1997,10 +2002,10 @@ public class SqlUtils {
             isAllDataQueryFlag = false;
         }
 
-        if (!delBasicData(date)) {
+        /*if (!delBasicData(date)) {
             LOGGER.error("delBasicData is fail");
             return;
-        }
+        }*/
 
         LOGGER.info("isAllDataQueryFlag is {}]", isAllDataQueryFlag);
         if (isAllDataQueryFlag) {
