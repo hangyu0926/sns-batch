@@ -29,11 +29,11 @@ public class ConstantHelper {
 
     public final static String PASS_APPLY_FLAG = "1051";
 
-    public final static int MEMBER_RELATED_PHONENO_SIZE = 1000;
+    public final static int MEMBER_RELATED_PHONENO_SIZE = 10;
 
     //public final static String FILE_PATH = "/home/orientdb/migration_script/basicData/";
 
-    // public final static String FILE_PATH = "/home/kisho.dai/scripts/sns/batch/";
+    //public final static String FILE_PATH = "/home/kisho.dai/scripts/sns/batch/";
 
 
     public final static String PHONETAG_FILE_NAME = "phonetag.csv";

@@ -20,10 +20,14 @@ public class BasicDataBatchTask implements Runnable {
 
     public void run() {
         LOGGER.info("BasicDataBatchTask memberAndPhoneBeanList is {}", memberAndPhoneBeanList.size());
-        SqlUtils.getBasicData(memberAndPhoneBeanList, isAllData);
-        if (memberAndPhoneBeanList != null) {
-            memberAndPhoneBeanList.clear();
-            memberAndPhoneBeanList = null;
+        try {
+            SqlUtils.getBasicData(memberAndPhoneBeanList, isAllData);
+            if (memberAndPhoneBeanList != null) {
+                memberAndPhoneBeanList.clear();
+                memberAndPhoneBeanList = null;
+            }
+        } catch (Throwable throwable) {
+            LOGGER.info("BasicDataBatchTask run is error {}", throwable.fillInStackTrace());
         }
         LOGGER.info("BasicDataBatchTask run is over()");
     }
