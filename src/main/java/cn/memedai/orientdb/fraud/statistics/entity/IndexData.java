@@ -33,6 +33,10 @@ public class IndexData implements Serializable{
     //ip
     private String ip;
 
+    private int applyStatus;
+
+    private int orderStatus;
+
     public long getMemberId() {
         return memberId;
     }
@@ -127,5 +131,21 @@ public class IndexData implements Serializable{
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public int getApplyStatus() {
+        return applyStatus;
+    }
+
+    public void setApplyStatus(int applyStatus) {
+        this.applyStatus = applyStatus;
+    }
+
+    public int getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(int orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

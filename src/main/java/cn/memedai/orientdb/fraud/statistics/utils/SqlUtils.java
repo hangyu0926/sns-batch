@@ -834,112 +834,112 @@ public class SqlUtils {
         if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
             int onlyAppNosSize = onlyAppNos.size();
             for (int i = 0; i < onlyAppNosSize; i++) {
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
 
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
             }
         }
 
         if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
             int onlyOrderNosSize = onlyOrderNos.size();
             for (int i = 0; i < onlyOrderNosSize; i++) {
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
 
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
             }
         }
 
         if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
             int applyRelateOrderNosSize = applyRelateOrderNos.size();
             for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_accept_member_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_refuse_member_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_overdue_member_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                        "contact_black_member_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
 
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_accept_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactAcceptMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_refuse_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactRefuseMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                        "contact_overdue_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactOverdueMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                         applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                        "contact_black_member_120s_num", memberDeviceAndApplyAndOrderBean.getContactBlackMemberCallLenNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
             }
         }
 
@@ -1048,6 +1048,27 @@ public class SqlUtils {
         indexDatas.add(indexData);
     }
 
+    private static void AddIndexMemberDatas(List<IndexData> indexDatas, long memberId, String mobile, String applyNo, String orderNo, String indexName,
+                                      long direct, long indirect, String createTime, String deviceId, String ip,Integer applyStatus,Integer orderStatus) {
+        IndexData indexData = new IndexData();
+        indexData.setMemberId(memberId);
+        indexData.setMobile(mobile);
+        indexData.setDeviceId(deviceId);
+        indexData.setIp(ip);
+        indexData.setDirect(direct);
+        indexData.setIndirect(indirect);
+        indexData.setApplyNo(applyNo);
+        indexData.setOrderNo(orderNo);
+        indexData.setIndexName(indexName);
+        indexData.setCreateTime(createTime);
+        if (null != applyStatus){
+            indexData.setApplyStatus(applyStatus);
+        }
+        if (null != orderStatus){
+            indexData.setOrderStatus(orderStatus);
+        }
+        indexDatas.add(indexData);
+    }
 
     protected static String getRid(Object obj) {
         if (obj == null) {
@@ -1099,6 +1120,8 @@ public class SqlUtils {
                 updatememberAndPhoneBean.setMemberId(memberAndPhoneBeanList.get(i).getMemberId());
 
                 int num = 0;
+                int applyStatus = 0;
+                int orderStatus = 0;
 
                 onlyAppNos = memberAndPhoneBeanList.get(i).getOnlyAppNos();
                 int onlyAppNosSize = onlyAppNos.size();
@@ -1106,15 +1129,18 @@ public class SqlUtils {
                 List<ApplyRelateOrder> updateonlyAppNos = new ArrayList<ApplyRelateOrder>();
                 for (int j = 0; j < onlyAppNosSize; j++) {
                     try {
-                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where apply_no = ?");
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num,apply_status as apply_status  FROM `member_index` where apply_no = ?");
                         pstmt.setString(1, onlyAppNos.get(j).getApply());
                         rs = pstmt.executeQuery();
                         while (rs.next()) {
                             num = rs.getInt("num");
+                            applyStatus = rs.getInt("apply_status");
                         }
-                        if (num > 0) {
+                        if (num > 0 && onlyAppNos.get(j).getApplyStatus() != applyStatus) {
                             updateonlyAppNos.add(onlyAppNos.get(j));
-                        } else {
+                        }
+
+                        if (num == 0){
                             addonlyAppNos.add(onlyAppNos.get(j));
                         }
                     } catch (Exception e) {
@@ -1127,15 +1153,19 @@ public class SqlUtils {
                 List<ApplyRelateOrder> updateonlyOrderNos = new ArrayList<ApplyRelateOrder>();
                 for (int j = 0; j < onlyOrderNosSize; j++) {
                     try {
-                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where order_no = ?");
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num,order_status as order_status FROM `member_index` where order_no = ?");
                         pstmt.setString(1, onlyOrderNos.get(j).getOrder());
                         rs = pstmt.executeQuery();
                         while (rs.next()) {
                             num = rs.getInt("num");
+                            orderStatus = rs.getInt("order_status");
                         }
-                        if (num > 0) {
+
+                        if (num > 0 && onlyOrderNos.get(j).getOrderStatus() != orderStatus) {
                             updateonlyOrderNos.add(onlyOrderNos.get(j));
-                        } else {
+                        }
+
+                        if (num == 0){
                             addonlyOrderNos.add(onlyOrderNos.get(j));
                         }
                     } catch (Exception e) {
@@ -1149,15 +1179,19 @@ public class SqlUtils {
                 List<ApplyRelateOrder> updateapplyRelateOrderNos = new ArrayList<ApplyRelateOrder>();
                 for (int j = 0; j < applyRelateOrderNosSize; j++) {
                     try {
-                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num FROM `member_index` where apply_no = ?");
+                        pstmt = mysqlConn.prepareStatement("SELECT count(1) as num,apply_status as apply_status,order_status as order_status FROM `member_index` where apply_no = ?");
                         pstmt.setString(1, applyRelateOrderNos.get(j).getApply());
                         rs = pstmt.executeQuery();
                         while (rs.next()) {
                             num = rs.getInt("num");
+                            applyStatus = rs.getInt("apply_status");
+                            orderStatus = rs.getInt("order_status");
                         }
-                        if (num > 0) {
+                        if (num > 0 && (applyRelateOrderNos.get(j).getApplyStatus() != applyStatus || applyRelateOrderNos.get(j).getOrderStatus() != orderStatus)) {
                             updateapplyRelateOrderNos.add(applyRelateOrderNos.get(j));
-                        } else {
+                        }
+
+                        if (num == 0){
                             addapplyRelateOrderNos.add(applyRelateOrderNos.get(j));
                         }
                     } catch (Exception e) {
@@ -1165,21 +1199,25 @@ public class SqlUtils {
                     }
                 }
 
-                addmemberAndPhoneBean.setOnlyAppNos(addonlyAppNos);
-                addmemberAndPhoneBean.setOnlyOrderNos(addonlyOrderNos);
-                addmemberAndPhoneBean.setApplyRelateOrderNos(addapplyRelateOrderNos);
-                addBeanList.add(addmemberAndPhoneBean);
+                if (addonlyAppNos.size() > 0 || addonlyOrderNos.size() > 0 || addapplyRelateOrderNos.size() > 0){
+                    addmemberAndPhoneBean.setOnlyAppNos(addonlyAppNos);
+                    addmemberAndPhoneBean.setOnlyOrderNos(addonlyOrderNos);
+                    addmemberAndPhoneBean.setApplyRelateOrderNos(addapplyRelateOrderNos);
+                    addBeanList.add(addmemberAndPhoneBean);
+                }
 
-                updatememberAndPhoneBean.setOnlyAppNos(updateonlyAppNos);
-                updatememberAndPhoneBean.setOnlyOrderNos(updateonlyOrderNos);
-                updatememberAndPhoneBean.setApplyRelateOrderNos(updateapplyRelateOrderNos);
-                updateBeanList.add(updatememberAndPhoneBean);
+                if (updateonlyAppNos.size() > 0 || updateonlyOrderNos.size() > 0 || updateapplyRelateOrderNos.size() > 0){
+                    updatememberAndPhoneBean.setOnlyAppNos(updateonlyAppNos);
+                    updatememberAndPhoneBean.setOnlyOrderNos(updateonlyOrderNos);
+                    updatememberAndPhoneBean.setApplyRelateOrderNos(updateapplyRelateOrderNos);
+                    updateBeanList.add(updatememberAndPhoneBean);
+                }
             }
 
 
 
             if (null != addBeanList && addBeanList.size() > 0) {
-                LOGGER.info("addBeanList size is {}",addBeanList);
+                LOGGER.info("addBeanList size is {}",addBeanList.size());
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
                 dealAllBasicDataByApplyList(addBeanList, tx, isAllData,mysqlConn);
                 if (tx != null) {
@@ -1189,7 +1227,7 @@ public class SqlUtils {
 
 
             if (null != updateBeanList && updateBeanList.size() > 0) {
-                LOGGER.info("updateBeanList size is {}",updateBeanList);
+                LOGGER.info("updateBeanList size is {}",updateBeanList.size());
                 ODatabaseDocumentTx tx = getODataBaseDocumentTx();
                 dealUpdateBasicDataByApplyList(updateBeanList, tx,mysqlConn);
                 if (tx != null) {
@@ -1221,16 +1259,6 @@ public class SqlUtils {
                 LOGGER.error("getBasicData add data mysqlConn.close have e {}", e);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        List<String> s = new ArrayList<String>();
-        s.add("15918193532");
-        s.add("18739919550");
-        ODatabaseDocumentTx tx = getODataBaseDocumentTx();
-        String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
-        OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});
-
     }
 
     /**
@@ -1415,53 +1443,53 @@ public class SqlUtils {
             if (null != onlyAppNos && !onlyAppNos.isEmpty()) {
                 int onlyAppNosSize = onlyAppNos.size();
                 for (int i = 0; i < onlyAppNosSize; i++) {
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
-                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), onlyAppNos.get(i).getApply(), null,
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyAppNos.get(i).getCreateTime(), null, null,onlyAppNos.get(i).getApplyStatus(),null);
                 }
             }
 
             if (null != onlyOrderNos && !onlyOrderNos.isEmpty()) {
                 int onlyOrderNosSize = onlyOrderNos.size();
                 for (int i = 0; i < onlyOrderNosSize; i++) {
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
-                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null);
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(), null, onlyOrderNos.get(i).getOrder(),
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, onlyOrderNos.get(i).getCreateTime(), null, null,null,onlyOrderNos.get(i).getOrderStatus());
                 }
             }
 
             if (null != applyRelateOrderNos && !applyRelateOrderNos.isEmpty()) {
                 int applyRelateOrderNosSize = applyRelateOrderNos.size();
                 for (int i = 0; i < applyRelateOrderNosSize; i++) {
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                             applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            "has_device_num", memberDeviceAndApplyAndOrderBean.getHasDeviceNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                             applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            "has_ip_num", memberDeviceAndApplyAndOrderBean.getHasIpNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                             applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            "has_merchant_num", memberDeviceAndApplyAndOrderBean.getHasMerchantNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                             applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
-                    AddIndexDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
+                            "has_appl_num", memberDeviceAndApplyAndOrderBean.getHasApplNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
+                    AddIndexMemberDatas(memberIndexDatas, Long.valueOf(memberAndPhoneBean.getMemberId()), memberAndPhoneBean.getPhones(),
                             applyRelateOrderNos.get(i).getApply(), applyRelateOrderNos.get(i).getOrder(),
-                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null);
+                            "has_order_num", memberDeviceAndApplyAndOrderBean.getHasOrderNum(), 0, applyRelateOrderNos.get(i).getCreateTime(), null, null,applyRelateOrderNos.get(i).getApplyStatus(),applyRelateOrderNos.get(i).getOrderStatus());
                 }
             }
 
@@ -1589,12 +1617,12 @@ public class SqlUtils {
             IndexData indexData = indexDatas.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
             if (null != indexData.getApplyNo()) {
-                list.add(indexData.getApplyNo() + "\t");
+                list.add(indexData.getApplyNo());
             } else {
                 list.add("");
             }
             if (null != indexData.getOrderNo()) {
-                list.add(indexData.getOrderNo() + "\t");
+                list.add(indexData.getOrderNo());
             } else {
                 list.add("");
             }
@@ -1602,9 +1630,9 @@ public class SqlUtils {
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
             list.add(String.valueOf(indexData.getIndirect()));
-            list.add(indexData.getCreateTime() + "\t");
+            list.add(indexData.getCreateTime());
             if (null != indexData.getUpdateTime()) {
-                list.add(indexData.getUpdateTime() + "\t");
+                list.add(indexData.getUpdateTime());
             } else {
                 list.add("");
             }
@@ -1621,21 +1649,21 @@ public class SqlUtils {
             IndexData indexData = deviceIndexDataList.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
             if (null != indexData.getApplyNo()) {
-                list.add(indexData.getApplyNo() + "\t");
+                list.add(indexData.getApplyNo());
             } else {
                 list.add("");
             }
             if (null != indexData.getOrderNo()) {
-                list.add(indexData.getOrderNo() + "\t");
+                list.add(indexData.getOrderNo());
             } else {
                 list.add("");
             }
             list.add(indexData.getDeviceId());
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime() + "\t");
+            list.add(indexData.getCreateTime());
             if (null != indexData.getUpdateTime()) {
-                list.add(indexData.getUpdateTime() + "\t");
+                list.add(indexData.getUpdateTime());
             } else {
                 list.add("");
             }
@@ -1653,21 +1681,21 @@ public class SqlUtils {
             IndexData indexData = ipIndexDataList.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
             if (null != indexData.getApplyNo()) {
-                list.add(indexData.getApplyNo() + "\t");
+                list.add(indexData.getApplyNo());
             } else {
                 list.add("");
             }
             if (null != indexData.getOrderNo()) {
-                list.add(indexData.getOrderNo() + "\t");
+                list.add(indexData.getOrderNo());
             } else {
                 list.add("");
             }
             list.add(indexData.getIp());
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime() + "\t");
+            list.add(indexData.getCreateTime());
             if (null != indexData.getUpdateTime()) {
-                list.add(indexData.getUpdateTime() + "\t");
+                list.add(indexData.getUpdateTime());
             } else {
                 list.add("");
             }
@@ -1685,20 +1713,20 @@ public class SqlUtils {
             IndexData indexData = memberIndexDatas.get(p);
             list.add(String.valueOf(indexData.getMemberId()));
             if (null != indexData.getApplyNo()) {
-                list.add(indexData.getApplyNo() + "\t");
+                list.add(indexData.getApplyNo());
             } else {
                 list.add("");
             }
             if (null != indexData.getOrderNo()) {
-                list.add(indexData.getOrderNo() + "\t");
+                list.add(indexData.getOrderNo());
             } else {
                 list.add("");
             }
             list.add(indexData.getIndexName());
             list.add(String.valueOf(indexData.getDirect()));
-            list.add(indexData.getCreateTime() + "\t");
+            list.add(indexData.getCreateTime());
             if (null != indexData.getUpdateTime()) {
-                list.add(indexData.getUpdateTime() + "\t");
+                list.add(indexData.getUpdateTime());
             } else {
                 list.add("");
             }
@@ -1932,8 +1960,8 @@ public class SqlUtils {
         if (null != memberIndexDatas) {
             PreparedStatement pstmt = null;
             try {
-                pstmt = mysqlConn.prepareStatement("insert into member_index (member_id, apply_no, order_no,mobile,index_name,direct,create_time) " +
-                        "values(?,?,?,?,?,?,?)");
+                pstmt = mysqlConn.prepareStatement("insert into member_index (member_id, apply_no, order_no,mobile,index_name,direct,create_time,apply_status,order_status) " +
+                        "values(?,?,?,?,?,?,?,?,?)");
 
                 for (int i = 0; i < memberIndexDatas.size(); i++) {
                     pstmt.setLong(1, memberIndexDatas.get(i).getMemberId());
@@ -1943,6 +1971,8 @@ public class SqlUtils {
                     pstmt.setString(5, memberIndexDatas.get(i).getIndexName());
                     pstmt.setLong(6, memberIndexDatas.get(i).getDirect());
                     pstmt.setString(7, memberIndexDatas.get(i).getCreateTime());
+                    pstmt.setLong(8, memberIndexDatas.get(i).getApplyStatus());
+                    pstmt.setLong(9, memberIndexDatas.get(i).getOrderStatus());
                     pstmt.addBatch();
                 }
                 pstmt.executeBatch();
@@ -1966,18 +1996,20 @@ public class SqlUtils {
             try {
                 for (int i = 0; i < memberIndexDatas.size(); i++) {
                     if (null != memberIndexDatas.get(i).getApplyNo()) {
-                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now() where apply_no = ? and index_name = ?");
+                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now(),apply_status = ?,order_status = ? where apply_no = ? and index_name = ?");
                     } else {
-                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now() where order_no = ? and index_name = ?");
+                        pstmt = mysqlConn.prepareStatement("update member_index set  direct = ? ,update_time = now(),apply_status = ?,order_status = ? where order_no = ? and index_name = ?");
                     }
 
                     pstmt.setLong(1, memberIndexDatas.get(i).getDirect());
+                    pstmt.setInt(2, memberIndexDatas.get(i).getApplyStatus());
+                    pstmt.setInt(3, memberIndexDatas.get(i).getOrderStatus());
                     if (null != memberIndexDatas.get(i).getApplyNo()) {
-                        pstmt.setString(2, memberIndexDatas.get(i).getApplyNo());
+                        pstmt.setString(4, memberIndexDatas.get(i).getApplyNo());
                     } else {
-                        pstmt.setString(2, memberIndexDatas.get(i).getOrderNo());
+                        pstmt.setString(4, memberIndexDatas.get(i).getOrderNo());
                     }
-                    pstmt.setString(3, memberIndexDatas.get(i).getIndexName());
+                    pstmt.setString(5, memberIndexDatas.get(i).getIndexName());
                     pstmt.executeUpdate();
                 }
 
@@ -2090,9 +2122,9 @@ public class SqlUtils {
         try {
             //查询总数
             if (!isAllDataQueryFlag) {
-                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where ((DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)) and order_no is null";
-                String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where ((DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)) and order_no is not null";
-                String onlyOrderSql = "SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order where (DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)";
+                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id,apply_status as apply_status FROM apply_info where ((DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)) and order_no is null";
+                String applyWithOrderSql = "SELECT a.apply_no as apply_no,a.member_id as member_id,a.cellphone as phone, b.order_no as order_no,a.created_datetime as created_datetime,a.store_id as store_id,a.apply_status as apply_status,b.status as order_status  FROM apply_info a LEFT JOIN money_box_order b on a.order_no = b.order_no where ((DATE_FORMAT(a.created_datetime,'%Y-%m-%d') = ? and a.modified_datetime is null) or (DATE_FORMAT(a.modified_datetime,'%Y-%m-%d') = ?)) and a.order_no is not null";
+                String onlyOrderSql = "SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id,status as order_status FROM money_box_order where (DATE_FORMAT(created_datetime,'%Y-%m-%d') = ? and modified_datetime is null) or (DATE_FORMAT(modified_datetime,'%Y-%m-%d') = ?)";
                 memberAndPhoneCount = getDataFromMysql(pstmt, rs, mysqlBusinesConn, memberInfoOnlyApplyMap, memberInfoApplyRelateOrderMap, memberInfoOnlyOrderMap,
                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql, isAllDataQueryFlag, date);
             } else {
@@ -2111,10 +2143,10 @@ public class SqlUtils {
 
                 LOGGER.info("mysqlBusinesConn is {}", mysqlBusinesConn.toString());
 
-                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is null";
-                String applyWithOrderSql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone, order_no as order_no,created_datetime as created_datetime,store_id as store_id FROM apply_info where order_no is not null";
+                String onlyApplySql = "SELECT apply_no as apply_no,member_id as member_id,cellphone as phone,created_datetime as created_datetime,store_id as store_id,apply_status as apply_status FROM apply_info where order_no is null";
+                String applyWithOrderSql = "SELECT a.apply_no as apply_no,a.member_id as member_id,a.cellphone as phone, b.order_no as order_no,a.created_datetime as created_datetime,a.store_id as store_id,a.apply_status as apply_status,b.status as order_status  FROM apply_info a LEFT JOIN money_box_order b on a.order_no = b.order_no where a.order_no is not null";
                 //String onlyOrderSql = "SELECT order_no as order_no, member_id as member_id, mobile as phone,created_datetime as created_datetime,store_id as store_id FROM money_box_order";
-                String onlyOrderSql = "select a.order_no as order_no, a.member_id as member_id, a.mobile as phone,a.created_datetime as created_datetime,a.store_id as store_id from money_box_order a left join apply_info b on a.order_no=b.order_no where b.order_no is null";
+                String onlyOrderSql = "select a.order_no as order_no, a.member_id as member_id, a.mobile as phone,a.created_datetime as created_datetime,a.store_id as store_id,a.status as order_status from money_box_order a left join apply_info b on a.order_no=b.order_no where b.order_no is null";
                 memberAndPhoneCount = getDataFromMysql(pstmt, rs, mysqlBusinesConn, memberInfoOnlyApplyMap, memberInfoApplyRelateOrderMap, memberInfoOnlyOrderMap,
                         memberInfoMapSet, memberAndPhoneCount, onlyApplySql, applyWithOrderSql, onlyOrderSql, isAllDataQueryFlag, date);
             }
@@ -2209,6 +2241,49 @@ public class SqlUtils {
         }
     }
 
+    public static void main(String[] args) {
+     /*   List<String> s = new ArrayList<String>();
+        s.add("15918193532");
+        s.add("18739919550");
+        ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+        String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
+        OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});*/
+
+        /*Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+         LOGGER.info("ConfigUtils.getProperty(\"mysqlDbSourceUrl\") is {}",ConfigUtils.getProperty("mysqlDbSourceUrl"));
+        try {
+            int num = 0;
+            int orderStatus = 0;
+            PreparedStatement pstmt = mysqlConn.prepareStatement("SELECT count(1) as num,order_status as order_status FROM `member_index` where order_no = ?");
+            pstmt.setString(1, "1495762194704000");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                    num = rs.getInt("num");
+                    orderStatus = rs.getInt("order_status");
+            }
+
+            LOGGER.info("num is {},orderStatus is {}",num,orderStatus);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }*/
+
+        List<IndexData> indexDatas = new ArrayList<IndexData>();
+//        IndexData IndexData = new IndexData();
+//        IndexData.setApplyNo("1493802642781003" + "\t");
+//        IndexData.setOrderNo("2016122810213410" + "\t");
+//        IndexData.setDeviceId("eawea");
+//        indexDatas.add(IndexData);
+
+        IndexData IndexData1 = new IndexData();
+        IndexData1.setApplyNo("1493802642781003");
+        IndexData1.setOrderNo("2016122810213410");
+        IndexData1.setDeviceId("eawea");
+        indexDatas.add(IndexData1);
+
+        exportToCsv(indexDatas, new ArrayList<IndexData>(),new ArrayList<IndexData>(),new ArrayList<IndexData>());
+    }
 
     /**
      * @param pstmt
@@ -2247,11 +2322,14 @@ public class SqlUtils {
             String phone = rs.getString("phone");
             String createdDatetime = rs.getString("created_datetime");
             String storeId = rs.getString("store_id");
+            int applyStatus = rs.getInt("apply_status");
+
             String memberInfoMapKey = (new StringBuilder(String.valueOf(memberId)).append(",").append(phone)).toString();
 
             ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
             applyRelateOrder.setApply(applyNo);
             applyRelateOrder.setCreateTime(createdDatetime);
+            applyRelateOrder.setApplyStatus(applyStatus);
             if (memberInfoOnlyApplyMap.containsKey(memberInfoMapKey)) {
                 memberInfoOnlyApplyMap.get(memberInfoMapKey).add(applyRelateOrder);
             } else {
@@ -2281,10 +2359,15 @@ public class SqlUtils {
                 tempOrderList.add(orderNo);
             }
 
+            int applyStatus = rs.getInt("apply_status");
+            int orderStatus = rs.getInt("order_status");
             ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
             applyRelateOrder.setApply(applyNo);
             applyRelateOrder.setOrder(orderNo);
             applyRelateOrder.setCreateTime(createdDatetime);
+            applyRelateOrder.setApplyStatus(applyStatus);
+            applyRelateOrder.setOrderStatus(orderStatus);
+
             Long memberId = rs.getLong("member_id");
             String phone = rs.getString("phone");
             String storeId = rs.getString("store_id");
@@ -2317,6 +2400,8 @@ public class SqlUtils {
                 String storeId = rs.getString("store_id");
                 Long memberId = rs.getLong("member_id");
 
+                int orderStatus = rs.getInt("order_status");
+
                 if (!isAllDataQueryFlag) {
                     if (!tempOrderList.contains(orderNo)) {
                         String phone = rs.getString("phone");
@@ -2325,6 +2410,7 @@ public class SqlUtils {
                         ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
                         applyRelateOrder.setOrder(orderNo);
                         applyRelateOrder.setCreateTime(createdDatetime);
+                        applyRelateOrder.setOrderStatus(orderStatus);
                         if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
                             memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
                         } else {
@@ -2340,6 +2426,7 @@ public class SqlUtils {
                     ApplyRelateOrder applyRelateOrder = new ApplyRelateOrder();
                     applyRelateOrder.setOrder(orderNo);
                     applyRelateOrder.setCreateTime(createdDatetime);
+                    applyRelateOrder.setOrderStatus(orderStatus);
                     if (memberInfoOnlyOrderMap.containsKey(memberInfoMapKey)) {
                         memberInfoOnlyOrderMap.get(memberInfoMapKey).add(applyRelateOrder);
                     } else {
@@ -2369,6 +2456,11 @@ public class SqlUtils {
         Set<String> memberInfoOnlyApplyMapSet = memberInfoOnlyApplyMap.keySet();
         Set<String> memberInfoApplyRelateOrderMapSet = memberInfoApplyRelateOrderMap.keySet();
         Set<String> memberInfoOnlyOrderMapSet = memberInfoOnlyOrderMap.keySet();
+
+        LOGGER.info("memberInfoOnlyApplyMap size is {}",memberInfoOnlyApplyMap.size());
+        LOGGER.info("memberInfoApplyRelateOrderMap size is {}",memberInfoApplyRelateOrderMap.size());
+        LOGGER.info("memberInfoOnlyOrderMap size is {}",memberInfoOnlyOrderMap.size());
+
         memberInfoMapSet.addAll(memberInfoOnlyApplyMapSet);
         memberInfoMapSet.addAll(memberInfoApplyRelateOrderMapSet);
         memberInfoMapSet.addAll(memberInfoOnlyOrderMapSet);
