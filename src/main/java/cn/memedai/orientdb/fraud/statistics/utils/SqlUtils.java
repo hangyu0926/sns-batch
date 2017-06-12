@@ -1285,6 +1285,11 @@ public class SqlUtils {
             MemberDeviceAndApplyAndOrderBean memberDeviceAndApplyAndOrderBean = new MemberDeviceAndApplyAndOrderBean();
             String sql = "select @rid as member from member where memberId = ?";
             OResultSet members = tx.command(new OCommandSQL(sql)).execute(new Object[]{memberAndPhoneBean.getMemberId()});
+            if (members.size() <= 0){
+                LOGGER.info("this is dirty data, phone is {}, memberId is {},k is {}",memberAndPhoneBean.getPhones(),memberAndPhoneBean.getMemberId(),k);
+                continue;
+            }
+
             ODocument members1 = ((ODocument) members.get(0));
             ODocument member = members1.field("member");
 
@@ -1731,6 +1736,8 @@ public class SqlUtils {
                 list.add("");
             }
             list.add(indexData.getMobile());
+            list.add(String.valueOf(indexData.getApplyStatus()));
+            list.add(String.valueOf(indexData.getOrderStatus()));
             memberData.add(list);
         }
         CSVUtils.appendDate(memberCsvFile, memberData);
@@ -2138,7 +2145,7 @@ public class SqlUtils {
                 String[] ipColNames = {"member_id", "apply_no", "order_no", "ip", "index_name", "direct", "create_time", "update_time", "mobile"};
                 CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.IP_FILE_NAME, ipColNames);
 
-                String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile"};
+                String[] memberColNames = {"member_id", "apply_no", "order_no", "index_name", "direct", "create_time", "update_time", "mobile","apply_status","order_status"};
                 CSVUtils.createFileAndColName(ConfigUtils.getProperty("filePath"), ConstantHelper.MEMBER_FILE_NAME, memberColNames);
 
                 LOGGER.info("mysqlBusinesConn is {}", mysqlBusinesConn.toString());
@@ -2269,7 +2276,7 @@ public class SqlUtils {
             e.printStackTrace();
         }*/
 
-        List<IndexData> indexDatas = new ArrayList<IndexData>();
+/*        List<IndexData> indexDatas = new ArrayList<IndexData>();
 //        IndexData IndexData = new IndexData();
 //        IndexData.setApplyNo("1493802642781003" + "\t");
 //        IndexData.setOrderNo("2016122810213410" + "\t");
@@ -2282,7 +2289,20 @@ public class SqlUtils {
         IndexData1.setDeviceId("eawea");
         indexDatas.add(IndexData1);
 
-        exportToCsv(indexDatas, new ArrayList<IndexData>(),new ArrayList<IndexData>(),new ArrayList<IndexData>());
+        exportToCsv(indexDatas, new ArrayList<IndexData>(),new ArrayList<IndexData>(),new ArrayList<IndexData>());*/
+
+        List<MemberAndPhoneBean> memberAndPhoneBeanList = new ArrayList<MemberAndPhoneBean>();
+        MemberAndPhoneBean memberAndPhoneBean = new MemberAndPhoneBean();
+        memberAndPhoneBean.setMemberId("1745162");
+        memberAndPhoneBean.setPhones("18844188871");
+
+        memberAndPhoneBeanList.add(memberAndPhoneBean);
+        Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+                ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
+
+        ODatabaseDocumentTx tx = getODataBaseDocumentTx();
+
+        dealUpdateBasicDataByApplyList(memberAndPhoneBeanList, tx, mysqlConn);
     }
 
     /**
