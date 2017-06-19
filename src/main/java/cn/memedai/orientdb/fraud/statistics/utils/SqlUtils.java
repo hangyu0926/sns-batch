@@ -1034,18 +1034,20 @@ public class SqlUtils {
 
     private static void AddIndexDatas(List<IndexData> indexDatas, long memberId, String mobile, String applyNo, String orderNo, String indexName,
                                       long direct, long indirect, String createTime, String deviceId, String ip) {
-        IndexData indexData = new IndexData();
-        indexData.setMemberId(memberId);
-        indexData.setMobile(mobile);
-        indexData.setDeviceId(deviceId);
-        indexData.setIp(ip);
-        indexData.setDirect(direct);
-        indexData.setIndirect(indirect);
-        indexData.setApplyNo(applyNo);
-        indexData.setOrderNo(orderNo);
-        indexData.setIndexName(indexName);
-        indexData.setCreateTime(createTime);
-        indexDatas.add(indexData);
+        if (null != indexName){
+            IndexData indexData = new IndexData();
+            indexData.setMemberId(memberId);
+            indexData.setMobile(mobile);
+            indexData.setDeviceId(deviceId);
+            indexData.setIp(ip);
+            indexData.setDirect(direct);
+            indexData.setIndirect(indirect);
+            indexData.setApplyNo(applyNo);
+            indexData.setOrderNo(orderNo);
+            indexData.setIndexName(indexName);
+            indexData.setCreateTime(createTime);
+            indexDatas.add(indexData);
+        }
     }
 
     private static void AddIndexMemberDatas(List<IndexData> indexDatas, long memberId, String mobile, String applyNo, String orderNo, String indexName,
