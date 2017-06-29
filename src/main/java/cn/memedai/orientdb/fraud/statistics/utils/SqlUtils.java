@@ -86,31 +86,31 @@ public class SqlUtils {
         }
 
         if (phone.length() >= 2) {
-            if (ConstantHelper.BUSINESS_PHONE_1.equals(phone.substring(0, 1))) {
+            if (ConstantHelper.BUSINESS_PHONE_1.equals(phone.substring(0, 2))) {
                 return false;
             }
-            if (ConstantHelper.BUSINESS_PHONE_2.equals(phone.substring(0, 1))) {
+            if (ConstantHelper.BUSINESS_PHONE_2.equals(phone.substring(0, 2))) {
                 return false;
             }
         }
 
         if (phone.length() >= 3) {
-            if (ConstantHelper.BUSINESS_PHONE_3.equals(phone.substring(0, 2))) {
+            if (ConstantHelper.BUSINESS_PHONE_3.equals(phone.substring(0, 3))) {
                 return false;
             }
-            if (ConstantHelper.BUSINESS_PHONE_4.equals(phone.substring(0, 2))) {
+            if (ConstantHelper.BUSINESS_PHONE_4.equals(phone.substring(0, 3))) {
                 return false;
             }
         }
 
         if (phone.length() >= 5) {
-            if (ConstantHelper.BUSINESS_PHONE_5.equals(phone.substring(0, 4))) {
+            if (ConstantHelper.BUSINESS_PHONE_5.equals(phone.substring(0, 5))) {
                 return false;
             }
-            if (ConstantHelper.BUSINESS_PHONE_6.equals(phone.substring(0, 4))) {
+            if (ConstantHelper.BUSINESS_PHONE_6.equals(phone.substring(0, 5))) {
                 return false;
             }
-            if (ConstantHelper.BUSINESS_PHONE_7.equals(phone.substring(0, 4))) {
+            if (ConstantHelper.BUSINESS_PHONE_7.equals(phone.substring(0, 5))) {
                 return false;
             }
         }
@@ -2250,15 +2250,15 @@ public class SqlUtils {
         }
     }
 
-    public static void main(String[] args) {
-     /*   List<String> s = new ArrayList<String>();
+   /* public static void main(String[] args) {
+     *//*   List<String> s = new ArrayList<String>();
         s.add("15918193532");
         s.add("18739919550");
         ODatabaseDocumentTx tx = getODataBaseDocumentTx();
         String sql = "select @rid as phoneRid0,phone as phone, unionall(in_CallTo,out_CallTo) as callTos,in('HasPhone') as members0 from Phone where phone in " + s.toString();
-        OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});*/
+        OResultSet phoneInfos = tx.command(new OCommandSQL(sql)).execute(new Object[]{});*//*
 
-        /*Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
+        *//*Connection mysqlConn = DbUtils.getConnection(ConfigUtils.getProperty("mysqlDbSourceUrl"),
                 ConfigUtils.getProperty("mysqlDbUserName"), ConfigUtils.getProperty("mysqlDbUserPassword"));
 
          LOGGER.info("ConfigUtils.getProperty(\"mysqlDbSourceUrl\") is {}",ConfigUtils.getProperty("mysqlDbSourceUrl"));
@@ -2276,9 +2276,9 @@ public class SqlUtils {
             LOGGER.info("num is {},orderStatus is {}",num,orderStatus);
         } catch (SQLException e) {
             e.printStackTrace();
-        }*/
+        }*//*
 
-/*        List<IndexData> indexDatas = new ArrayList<IndexData>();
+*//*        List<IndexData> indexDatas = new ArrayList<IndexData>();
 //        IndexData IndexData = new IndexData();
 //        IndexData.setApplyNo("1493802642781003" + "\t");
 //        IndexData.setOrderNo("2016122810213410" + "\t");
@@ -2291,7 +2291,7 @@ public class SqlUtils {
         IndexData1.setDeviceId("eawea");
         indexDatas.add(IndexData1);
 
-        exportToCsv(indexDatas, new ArrayList<IndexData>(),new ArrayList<IndexData>(),new ArrayList<IndexData>());*/
+        exportToCsv(indexDatas, new ArrayList<IndexData>(),new ArrayList<IndexData>(),new ArrayList<IndexData>());*//*
 
         List<MemberAndPhoneBean> memberAndPhoneBeanList = new ArrayList<MemberAndPhoneBean>();
         MemberAndPhoneBean memberAndPhoneBean = new MemberAndPhoneBean();
@@ -2305,7 +2305,7 @@ public class SqlUtils {
         ODatabaseDocumentTx tx = getODataBaseDocumentTx();
 
         dealUpdateBasicDataByApplyList(memberAndPhoneBeanList, tx, mysqlConn);
-    }
+    }*/
 
     /**
      * @param pstmt
